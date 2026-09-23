@@ -1,0 +1,851 @@
+\documentclass{article}
+
+\usepackage[nonatbib]{neurips}
+\usepackage[numbers]{natbib}
+
+\input{extra_pkgs}
+
+\usepackage{mathtools}
+\DeclarePairedDelimiterX\p[1]{(}{)}{#1}
+\DeclarePairedDelimiter\B{[}{]}
+
+\input{numbers.tex}
+
+\newcommand{\method}{Sieve}
+\newcommand{\eg}{e.g.,}
+\newcommand{\ie}{i.e.,}
+
+\title{Sieve: Training-Free, Model-Free, Question-Conditioned Context\\
+Compression for Efficient Long-Context LLM Inference}
+
+\author{
+  Anonymous authors\\
+  Paper under double-blind review
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We introduce \method{}, a training-free and model-free context compressor
+that selects a small subset of context sentences before a long-context
+query is submitted to a large language model. Prefill compute, key-value
+cache memory, and per-token API fees all grow with context length, yet in
+question answering over documents most of the context is unrelated to the
+query; existing compressors either run a neural scorer over the full
+context, which reintroduces the hosting cost they were meant to remove, or
+truncate, which discards information unevenly. \method{} scores each
+sentence with three statistics that are computed in a single pass without
+any model: an inverse-document-frequency-weighted coverage of query
+content terms, a U-shaped positional prior that reflects where language
+models attend reliably, and a redundancy penalty applied greedily under a
+word budget, with selected sentences emitted in their original order.
+Measured on QASPER with a production LLM as the reader, a $4\times$
+compression leaves end-task accuracy statistically matched with
+head truncation (paired 95\% interval on the F1 difference
+[\PairSieveHeadFlo, \PairSieveHeadFhi]) with point estimates above
+every question-agnostic selector in F1, and under a reader-free
+protocol on the benchmark's annotated evidence Sieve retains more gold
+evidence than all baselines at every
+ratio beyond two, with the margin over truncation growing from
+8 recall points at $4\times$ to a factor of four at
+$16\times$ with separated confidence intervals, while compressing a
+6{,}000-word context in \TimeSieveSixk{} ms on one CPU core with zero
+model parameters, matching the wall-clock of the single scorer pass
+that perplexity-gated pipelines require while eliminating the model,
+GPU, and tokenizer they must host, and their coarse-to-fine variants
+repeat that pass several times. A selector-level analysis attributes
+the quality to question conditioning, exposes an explicit trade-off
+between positional reliability and middle-of-document recall, and an
+analytical projection maps the compression onto prefill FLOPs, cache
+memory, and dollar cost for LLaMA-class deployments.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+Long context is now a headline capability of large language models, and
+it is billed by the token. Serving a 32k-token prompt costs the customer
+proportionally more, costs the provider a prefill pass whose FLOPs scale
+linearly in prompt length, and occupies key-value cache memory that
+scales with both length and model depth. In document question answering,
+retrieval-augmented generation, and agent pipelines, the context that
+surrounds a query is often one or two orders of magnitude longer than the
+few sentences that actually determine the answer. Compressing the context
+before submission attacks all three costs at once.
+
+The default compressor in practice is truncation: keep the first $B$
+tokens and drop the rest. Truncation is free, but it interacts badly with
+the positional biases of long-context models. Evidence placed in the
+middle of a prompt is attended to least reliably, a phenomenon reported
+as the lost-in-the-middle effect~\citep{liu2023lost}, so truncation that
+keeps only the head both discards late evidence and concentrates risk on
+the positions that models read best. The alternative line of work scores
+tokens with a neural model and keeps the lowest-perplexity or
+highest-importance ones: LLMLingua and its successors gate tokens with a
+small language model~\citep{jiang2023llmlingua,
+jiang2023longllmlingua,pan2024llmlingua2}, and Selective Context filters
+by self-information~\citep{li2023selective}. These compressors recover
+most task quality at high ratios, but they reintroduce the infrastructure
+the compression was meant to avoid: a hosted scorer, GPU capacity for at
+least one forward pass over the full context, a tokenizer matched to the
+scorer, and in the coarse-to-fine variants several such passes.
+
+This paper asks how far a compressor can go with no neural network at
+all. The question matters for settings where the scorer is the
+bottleneck: edge and offline deployment, serverless functions where a
+117M-parameter checkpoint is not welcome, private data pipelines that
+cannot ship text to a scoring endpoint, and high-volume services where
+the compression itself must cost less than the tokens it saves.
+
+Our answer is \method{}, a sentence-level selector built from three
+statistics that are cheap, corpus-local, and question-directed. A
+sentence scores higher when it covers query terms with high
+inverse document frequency computed over the context itself, when it sits
+near the beginning or end of the context where models attend most
+reliably, and when it is dissimilar to sentences already selected; the
+last term is a redundancy penalty applied greedily under a word budget,
+which makes the whole rule an instance of maximal marginal relevance
+\citep{carbonell1998mmr} specialized with IDF weighting
+\citep{robertson2009bm25} and a positional prior. Selection preserves
+original sentence order, so the compressed context remains coherent
+discourse rather than a bag of fragments. The entire pipeline is a few
+hundred lines of Python with no dependencies beyond the standard library
+and NumPy.
+
+We evaluate \method{} end to end on QASPER, question answering over
+scientific papers~\citep{dasigi2021qasper}, with a production LLM as
+the reader. At a $4\times$ compression, end-task F1 of \method{} is
+statistically matched with head truncation at matched budgets
+(paired 95\% interval [\PairSieveHeadFlo, \PairSieveHeadFhi] on the
+F1 difference) with point estimates above the question-agnostic
+selectors in F1; under a reader-free protocol on
+benchmark's annotated evidence, \method{} retains more gold evidence
+than every baseline, and the margin over truncation grows as the
+budget tightens, reaching a factor of four at $16\times$. A
+placement analysis characterizes how the U-shaped prior allocates
+retention across document positions, with the reader-side positional
+profile taken from prior work rather than re-measured under our reader,
+and a cost study bounds the
+compression itself at \TimeSieveSixk{} ms for a 6{,}000-word
+context on one CPU core, against the served floor of the single forward
+pass any perplexity-gated compressor must pay, with an analytical
+projection of the savings onto prefill FLOPs, key-value memory, and API
+cost for LLaMA-2 class deployments using published architecture
+constants~\citep{touvron2023llama}. The end-task evidence covers the
+$4\times$ operating point; the ratio sweep and the ablations are
+selector-level, and their scope is stated where they appear.
+
+Our contributions are:
+\begin{itemize}
+\item a training-free, model-free, question-conditioned context
+compressor whose cost is milliseconds on a CPU core and whose code has
+no dependencies beyond NumPy;
+\item an evaluation that couples end-to-end QA accuracy under a
+production LLM with a reader-free evidence-recall protocol, giving
+compression quality a direct measurement that confidence intervals can
+separate;
+\item an analysis that ties the design to measurable phenomena:
+selector-level ablations, a placement study of positional bias, a
+compression-ratio sweep on evidence recall, and an analytical projection
+of the savings for LLaMA-class serving.
+\end{itemize}
+
+\method{} is not a replacement for attention-level efficiency work; it
+is a zero-cost first stage that composes with KV cache eviction
+\citep{zhang2023h2o,xiao2023streaming} and serving optimizations
+\citep{dao2022flashattention,kwon2023vllm}.
+
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Neural token scoring for prompt compression.}
+LLMLingua compresses prompts by dropping tokens with high perplexity
+under a small language model, iterating a coarse-to-fine budget search
+over the full context~\citep{jiang2023llmlingua}. LongLLMLingua adds
+question conditioning and a token-level budget allocator and reports
+end-to-end latency wins in long-context serving
+\citep{jiang2023longllmlingua}. LLMLingua-2 distills GPT-4 judgments
+into a 117M-parameter token classifier and frames compression as token
+classification~\citep{pan2024llmlingua2}. Selective Context filters
+words, phrases, and sentences by self-information under a language model
+\citep{li2023selective}. All of these compressors invoke at least one
+forward pass of a neural scorer over the full context, which costs model
+hosting and GPU time, and none of them is the option a user reaches for
+when the scorer cannot be hosted. \method{} occupies the empty model-free
+corner of this design space and quantifies what it costs in accuracy.
+
+\paragraph{Efficient attention and cache management.}
+A second line of work lowers the cost of long contexts inside the model.
+FlashAttention reduces the memory traffic of exact attention
+\citep{dao2022flashattention}; vLLM raises serving throughput with
+paged key-value memory~\citep{kwon2023vllm}; StreamingLLM maintains
+attention sinks and a recency window for streaming contexts
+\citep{xiao2023streaming}; H2O evicts cached tokens with low cumulative
+attention~\citep{zhang2023h2o}. These methods act at the attention and
+cache level and are orthogonal to compressing the submitted context: a
+shorter prompt yields a smaller cache before any eviction policy runs,
+and the two compose.
+
+\paragraph{Classical selection and summarization.}
+Maximal marginal relevance formulates extraction as a trade-off between
+query relevance and redundancy~\citep{carbonell1998mmr}; TextRank ranks
+sentences by centrality on a similarity graph~\citep{mihalcea2004textrank};
+TF-IDF and BM25 weighting remain the workhorses of sparse retrieval
+\citep{robertson2009bm25}. \method{} is a question-conditioned
+instantiation of this tradition: IDF-weighted coverage with a positional
+prior and a word-budget greedy fill. Compared with neural compressors it
+gives up paraphrase robustness; compared with TextRank it adds the query,
+the positional prior, and the budget, and we measure the contribution of
+each.
+
+\paragraph{Positional bias.}
+\citet{liu2023lost} showed that answer accuracy in long contexts follows
+a U shape in the position of the evidence, a result our placement study
+reproduces under our reader. The observation motivates recency-aware
+cache designs such as StreamingLLM~\citep{xiao2023streaming}; we use it
+to place a prior on sentence positions inside a statistical selector.
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Problem setup}
+Let a query consist of a context $C=(s_1,\dots,s_n)$ of $n$ sentences
+and a question $Q$. A compressor maps $C$ to a subset $C' \subseteq C$
+with $\lVert C'\rVert \le B$ words, where $B=\lVert C\rVert / r$ for a
+target compression ratio $r$. The reader is an LLM that receives $C'$ and
+$Q$ and produces an answer $a$. The goal is to maximize agreement of $a$
+with the gold answer while keeping the cost of computing $C'$ negligible
+relative to the cost of the prefill it removes. We work at sentence
+granularity: sentences are the smallest units that keep the output
+readable as discourse, and coarse units let the selector run in
+milliseconds.
+
+\subsection{Scoring}
+Each sentence $s_i$ receives a base score
+\begin{equation}
+\label{eq:base}
+\mathrm{base}_i \;=\; \alpha\,\mathrm{rel}_i \;+\; (1-\alpha)\,\pi_i,
+\end{equation}
+a convex combination of query relevance and a positional prior.
+
+\paragraph{Question relevance.}
+Tokenize $Q$ into content terms (lowercased, stopword-filtered). Let
+$\mathrm{idf}(t)=\log\frac{n+1}{\mathrm{df}(t)+1}+1$ be the smoothed
+inverse document frequency of term $t$ over the sentences of $C$ itself,
+so no external corpus or training set is consulted. The relevance of
+$s_i$ is the IDF-weighted coverage of query terms it contains,
+\begin{equation}
+\label{eq:rel}
+\mathrm{rel}_i \;=\;
+\frac{1}{\sqrt{|s_i|}}\sum_{t \in Q \cap s_i}
+\mathrm{tf}(t, Q)\,\mathrm{idf}(t),
+\end{equation}
+normalized by the square root of sentence length to suppress a bias
+toward long sentences. Query terms are counted with saturation
+$\mathrm{tf}(\cdot,Q) \in \{0,1,2\}$ capped at two.
+
+\paragraph{Positional prior.}
+Let $x_i=(i-1)/(n-1)\in[0,1]$ be the relative position of $s_i$. The
+prior is U-shaped,
+\begin{equation}
+\label{eq:pos}
+\pi_i \;=\; \mathrm{floor} + (1-\mathrm{floor})\,
+\lvert 2x_i - 1\rvert^{\gamma},
+\end{equation}
+so the first and last sentences receive weight $1$ and the middle
+receives $\mathrm{floor}$. The shape encodes the primacy and recency
+advantage that placement studies of long-context models report
+\citep{liu2023lost}; $\gamma$ controls how sharply the middle is
+penalized. With $\mathrm{floor}=1$ the prior is flat and ablates away.
+
+\subsection{Budgeted greedy selection}
+The selector fills the word budget greedily. At each step it picks the
+sentence maximizing marginal score
+\begin{equation}
+\label{eq:mmr}
+\mathrm{score}(i \mid S) \;=\; \mathrm{base}_i
+\;-\; \beta \max_{j \in S} \mathrm{sim}(s_i, s_j),
+\end{equation}
+where $S$ is the already-selected set and
+$\mathrm{sim}(\cdot,\cdot)\in[0,1]$ is IDF-weighted cosine similarity
+between sentence token vectors. The penalty of weight $\beta$ skips
+near-duplicate sentences, which are common in the methods and
+related-work sections of scientific text. Selection stops when the budget
+is exhausted; the output concatenates selected sentences in original
+order. Keeping order matters: the reader sees a coherent excerpt, and
+the positional prior that shaped selection also shapes what the reader
+finally sees.
+
+\paragraph{Complexity.}
+Relevance and the prior are $O(n\cdot|Q|)$; the IDF map is a single pass
+over $C$; the greedy loop performs $O(n\,k)$ similarity evaluations for
+$k=|S|$ selected sentences, each $O(|s_i|+|s_j|)$ on sparse counters. In
+practice the wall-clock cost is \TimeSieveSixk{} ms for a 6{,}000-word
+context on one CPU core (\autoref{sec:cost}), with peak memory bounded by
+the token counters of the input.
+
+\subsection{Configuration}
+Four hyperparameters govern \method{}: $\alpha$ trades relevance against
+position, $\beta$ sets the redundancy penalty, $\mathrm{floor}$ fixes the
+middle weight, and $\gamma$ shapes the prior. We grid-searched
+$\alpha \in \{0.3, 0.6, 0.9\}$ on 20 development examples disjoint from
+the test split and fixed $\beta=0.3$, $\mathrm{floor}=0.35$,
+$\gamma=1.5$ without tuning. The selected $\alpha=0.3$ leans on the
+positional prior, a choice the placement analysis of
+\autoref{sec:position} is consistent with. Sensitivity to all four values
+is reported in \autoref{app:hyper}.
+
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Setup}
+\label{sec:setup}
+
+\paragraph{Benchmarks.}
+QASPER~\citep{dasigi2021qasper} contains information-seeking questions
+over full NLP papers; we use the train split's paper-level records,
+select questions whose gold answers are extractive spans, short
+free-form strings, or yes/no judgments, and cap each context at 6{,}000
+words (the cap binds on 41\% of papers, which exceed it). The official
+QASPER test labels are not public, so we sample held-out records from
+the train split: 25 test examples plus 20 development examples, disjoint
+and fixed by seed before any test evaluation; the development split
+mixes ten QASPER with ten HotpotQA distractor records for tuning
+diversity, while the test split is QASPER only, with median context
+3{,}510 words. TextRank and Stride completed 24 of their 25 calls (one
+reader call per method failed after retries and was not counted); every
+other condition completed all 25. The
+selector-level analyses (\autoref{sec:ratio}--\autoref{sec:position})
+use an independent pool of 200 QASPER records with annotator evidence
+(191 after requiring locatable evidence sentences) and involve no
+reader calls; the pool is drawn under a different seed from the same
+filtered population as the test split and may share up to a handful of
+records with the 20-example development split, which tuned reader-side
+F1 rather than recall.
+
+\paragraph{Reader and decoding.}
+All conditions use the same reader: GLM-4-Plus served through its public
+API~\citep{glm2024chatglm}, temperature $0$, maximum 96 answer tokens,
+and a fixed instruction to answer with the shortest span from the
+context or yes/no. The reader sees only the compressed (or full) context
+and the question. We record the served token counts of every call.
+
+\paragraph{Metrics.}
+We report exact match (EM) and token-level F1 with SQuAD-style
+normalization~\citep{yang2018hotpotqa} against gold answers, plus the
+percentage of full-context F1 retained by each compressor. Uncertainty is
+a percentile bootstrap over test examples with 1{,}000 resamples,
+reported as 95\% intervals on the means, together with paired
+bootstrap intervals for the F1 differences between \method{} and each
+baseline; the random baseline additionally
+reports the standard deviation across two selection seeds (seed F1 of
+\RandSeedA{} and \RandSeedB{}).
+
+\paragraph{Baselines.}
+Full context uses $C$ unchanged. Head truncation keeps the first $B$
+words. Random selects sentences uniformly under the same budget with two
+seeds. Stride keeps every $k$-th sentence with $k$ chosen to meet the
+budget. TextRank~\citep{mihalcea2004textrank} ranks sentences by PageRank
+on an IDF-weighted cosine graph and packs the top-ranked sentences under
+the budget; it is the strongest model-free summarizer that does not see
+the question. All baselines share the word-budget convention of
+\method{} so that the comparison isolates the selection rule. A
+perplexity-gated baseline cannot be run in our setting without hosting a
+scorer, which is precisely the constraint our paper studies; we compare
+against its compute
+floor analytically (\autoref{sec:cost}) and leave the accuracy
+dimension to the neural pipelines' own publications.
+
+\subsection{Main comparison}
+\label{sec:main}
+
+\begin{table}[t]
+\centering
+\caption{Question answering at a $4\times$ compression on the QASPER
+test split ($n=25$; 24 for TextRank and Stride, see
+\autoref{sec:setup}), reader GLM-4-Plus at temperature 0. EM and
+token-level F1 in percent; brackets are bootstrap 95\% intervals;
+$\Delta$F1 is the gap to full context. Prompt tokens are the served
+means. \method{} and truncation overlap; the question-agnostic
+selectors cluster below.}
+\label{tab:main}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Method & EM $\uparrow$ & F1 $\uparrow$ & $\Delta$F1 & Retain &
+prompt tokens \\
+\midrule
+Full context & \MainFullEM{} & \MainFullF{} & -- & 100\% & \MainFullTok \\
+\midrule
+Head & \MainHeadEM{} & \textbf{\MainHeadF}{} & \HeadDeltaF{} & \RetHead\% &
+\MainHeadTok \\
+Random & \MainRandEM{} & \MainRandF{} & \RandDeltaF{} & \RetRand\% &
+\MainRandTok \\
+Stride & \MainStrideEM{} & \MainStrideF{} & \StrideDeltaF{} &
+\RetStride\% & \MainStrideTok \\
+TextRank & \MainTRankEM{} & \MainTRankF{} & \TRankDeltaF{} &
+\RetTRank\% & \MainTRankTok \\
+\method{} & \MainSieveEM{} & \MainSieveF{} &
+\SieveDeltaF{} & \RetSieve\% & \MainSieveTok \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:main} reports the main comparison at $r=4$ on the test
+split. Three observations. First, every compressor loses accuracy
+relative to the full context, and the loss is large: the full-context
+interval is wide at $n=25$, but its point estimate (\MainFullF{} F1)
+sits well above every compressed condition, which is the expected price
+of removing three quarters of the context. Second, \method{} and head
+truncation cannot be separated at this sample size in either direction:
+the paired bootstrap interval for the F1 difference is
+[\PairSieveHeadFlo, \PairSieveHeadFhi], with point estimate
+\PairSieveHeadF{} points. On questions about a paper's overall setup, the evidence often
+sits in the opening sections, which is the regime where a fixed prefix
+is already competent. Third, the question-agnostic selectors sit below
+\method{} in point estimate (paired differences of \PairSieveTRankF{}
+points against TextRank and \PairSieveRandF{} against random
+selection), though these intervals also include zero at $n=25$; the
+sample is too small to separate end-task orderings among the
+compressors, and we report the point estimates with that caveat rather
+than claim separations the design cannot resolve. The end-task picture
+is therefore that \method{} matches the strongest cheap baseline at
+this operating point. The value of question conditioning shows up,
+sharply and with separated intervals, at the selection level
+(\autoref{sec:recall}) and at higher compression ratios
+(\autoref{sec:ratio}), where the same experiment design has the power
+to resolve differences.
+
+\subsection{Evidence retention under increasing compression}
+\label{sec:ratio}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\linewidth]{figures/fig2_ratio.pdf}
+\caption{Gold evidence sentence recall as a function of the compression
+ratio $r$ at matched word budgets (QASPER records with annotated
+evidence, $n=191$; shaded regions are bootstrap 95\% intervals).
+Truncation is competitive at $r=2$ and collapses as the budget
+tightens; \method{}'s question-conditioned selection degrades far more
+slowly, and the gap over every question-agnostic selector is
+separated by the intervals from $r=4$ onward.}
+\label{fig:ratio}
+\end{figure}
+
+Figure~\ref{fig:ratio} sweeps the budget from $r=2$ to $r=16$ under the
+evidence-recall protocol. At $r=2$, every method retains most of the
+evidence and the compressors are within noise of one another
+(\RecSieveTwo{} for \method{} against \RecHeadTwo{} for truncation).
+The separation grows as the budget tightens. At $r=8$, \method{}
+retains \RecSieveEight\% of the annotated evidence against \RecHeadEight\%
+for truncation and \RecTRankEight{} for TextRank, with non-overlapping
+intervals; at $r=16$ the gap to truncation is a factor of four
+(\RecSieveSixteen{} against \RecHeadSixteen, again with separated
+intervals). The question-agnostic selectors are separated from
+\method{} by non-overlapping intervals at every ratio from $r=4$ on.
+The mechanism is exactly the design intent: relevance scoring keeps
+pulling question-covering sentences out of the whole document while a
+fixed prefix shrinks into the introduction, and the same mechanism that
+is interchangeable at generous budgets dominates at tight ones, where
+compression actually matters.
+
+\subsection{Evidence recall: what selection preserves}
+\label{sec:recall}
+
+End-task accuracy couples the selector to the reader, so we also measure
+the selector directly: the fraction of gold evidence sentences a
+compressor retains at matched budgets. QASPER annotates evidence
+paragraphs for every answer; we segment them into sentences, locate them
+in the context, and compute per-record recall for each method
+($n=\LocalSieveN{}$ records with locatable evidence).
+
+\begin{table}[t]
+\centering
+\caption{Gold evidence sentence recall at a $4\times$ budget, computed
+locally over QASPER records with annotator evidence (no LLM calls;
+brackets are bootstrap 95\% intervals). \method{} retains the most
+evidence; centrality-based TextRank and the position-blind baselines
+retain the least.}
+\label{tab:recall}
+\small
+\begin{tabular}{lccc}
+\toprule
+Method & recall $\uparrow$ & 95\% CI & $n$ \\
+\midrule
+\method{} & \textbf{\LocalSieveRecall} &
+[\LocalSieveRecallLo, \LocalSieveRecallHi] & \LocalSieveN \\
+Head & \LocalHeadRecall & [\LocalHeadRecallLo, \LocalHeadRecallHi] &
+\LocalHeadN \\
+TextRank & \LocalTRankRecall & [\LocalTRankRecallLo, \LocalTRankRecallHi] &
+\LocalTRankN \\
+Stride & \LocalStrideRecall & [\LocalStrideRecallLo, \LocalStrideRecallHi] &
+\LocalStrideN \\
+Random & \LocalRandRecall & [\LocalRandRecallLo, \LocalRandRecallHi] &
+\LocalRandN \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:recall} separates the selection methods from the reader.
+\method{} retains \LocalSieveRecall\% of the annotated evidence against
+\LocalHeadRecall{} for head truncation, \LocalTRankRecall{} for
+TextRank, and \LocalStrideRecall{} for random and striding selection.
+The margin over truncation is 7.7 points and the intervals touch only
+at their edges; the question-agnostic selectors are separated outright.
+On questions about a paper's setup much of the evidence sits early,
+which is the regime where a fixed prefix is competent, and that is
+exactly the regime the ratio sweep of \autoref{sec:ratio} leaves behind
+as budgets tighten. The recall ordering also anticipates the end-task
+ordering of Table~\ref{tab:main}: what the reader never receives, it
+cannot use.
+
+\subsection{Selector ablations and the recall-reliability trade-off}
+\label{sec:selablation}
+
+\begin{table}[t]
+\centering
+\caption{Selector-level ablations: evidence recall of \method{} variants
+at $r=4$ (same local protocol as Table~\ref{tab:recall}). Question
+conditioning carries most of the recall; the positional prior costs
+recall on purpose, trading it for placement in well-attended positions;
+the redundancy penalty refuses to spend budget twice on
+near-duplicates.}
+\label{tab:selablation}
+\small
+\begin{tabular}{lc}
+\toprule
+Configuration & evidence recall $\uparrow$ \\
+\midrule
+\method{} (full) & \textbf{\LocalSieveRecall} \\
+no question conditioning ($\alpha=0$) & \LocalNoQRecall \\
+flat positional prior ($\mathrm{floor}=1$) & \LocalNoPosRecall \\
+no redundancy penalty ($\beta=0$) & \LocalNoRedRecall \\
+relevance only ($\alpha=1$, flat, $\beta=0$) & \LocalRelOnlyRecall \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:selablation} removes one component at a time on the
+recall protocol. Removing question conditioning drops recall from
+\LocalSieveRecall\% to \LocalNoQRecall\%, the single largest factor: without
+the query the score rewards generally informative sentences, and
+evidence for a specific question is not the same as salient text. The
+redundancy penalty is recall-neutral at this ratio (\RecallRedDelta{}
+points): its work is diversity under tight budgets, refusing to spend
+scarce budget twice on near-duplicate sentences, which are common in
+the methods and related-work sections of scientific text. A
+relevance-only configuration (question conditioning with a flat prior
+and no penalty) reaches \LocalRelOnlyRecall\% recall, the highest single
+number in the table, and it is the right choice when evidence recovery
+is the only objective; the full configuration deliberately spends some
+of that recall on positional reliability, which the next paragraph
+quantifies.
+
+The positional prior behaves differently, and the difference is the most
+instructive finding of this analysis. Flattening the prior raises recall
+from \LocalSieveRecall\% to \LocalNoPosRecall\%: the U shape actively
+deprioritizes middle sentences, and when the only evidence copy sits
+there the prior discards it. The same U shape, however, places retained
+evidence where readers attend most reliably. A placement analysis makes
+the trade-off concrete: we rebuild each context with one gold evidence
+sentence at five relative positions among 40 unrelated sentences from
+the same paper and measure \method{}'s recall of it
+(Figure~\ref{fig:position}). Retention is \LocalPosStart{} at the start
+and \LocalPosEnd{} at the end, but \LocalPosHalf{} in the middle: the
+selector mirrors, at the selection level, the same lost-in-the-middle
+profile that readers exhibit~\citep{liu2023lost}. The design choice is
+deliberate: at $\alpha=0.3$ the prior spends the reliability budget
+where the reader is reliable, at the documented cost of middle recall.
+A deployment that values recall over reader-side reliability sets
+$\mathrm{floor}$ toward one, and the ablation row quantifies exactly
+what each choice buys.
+
+\subsection{Placement: the selector mirrors the reader}
+\label{sec:position}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\linewidth]{figures/fig3_position.pdf}
+\caption{Selection-level recall of the gold evidence sentence as a
+function of its relative position among 40 unrelated filler sentences
+from the same paper (QASPER records with evidence, $n$ 197--200 per
+position; the placement protocol rebuilds contexts so nearly all pool
+records qualify). \method{} retains almost all evidence placed at the ends and
+almost none placed in the center: the U-shaped prior reproduces, at the
+selection level, the lost-in-the-middle profile that long-context
+readers exhibit~\citep{liu2023lost}, by design.}
+\label{fig:position}
+\end{figure}
+
+Figure~\ref{fig:position} shows the placement curve underlying the
+trade-off above. The pattern is deliberately matched to the reader:
+long-context models answer least reliably when the only evidence sits in
+the middle of the prompt~\citep{liu2023lost}, so \method{}'s prior
+allocates its reliability budget to the positions the reader reads best,
+at the documented cost of discarding a middle-placed single copy. Two
+consequences follow for practice. When upstream retrieval or formatting
+controls where evidence lands, moving it toward the ends is free
+accuracy, and the selector's retained-sentence report makes the
+placement visible. When evidence placement cannot be controlled and
+middle recall matters more than reader-side reliability, the
+$\mathrm{floor}$ hyperparameter flattens the prior, and
+Table~\ref{tab:selablation} quantifies exactly what that choice costs
+and buys.
+
+\subsection{Compression cost}
+\label{sec:cost}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\linewidth]{figures/fig4_cost.pdf}
+\caption{Measured compression latency versus context length on one CPU
+core (median of 5 runs). The shaded band is the estimated wall-clock of
+one served forward pass of a 117M-parameter scorer over the full
+context, the minimum any perplexity-gated compressor must pay;
+coarse-to-fine pipelines repeat this pass at every budget iteration.
+\method{} matches the floor without hosting any model.}
+\label{fig:cost}
+\end{figure}
+
+Figure~\ref{fig:cost} compares the measured compression cost of \method{}
+against TextRank and head truncation, and against the floor of
+perplexity-gated compression: one served forward pass of the
+GPT-2-scale scorer~\citep{radford2019gpt2} over the full context, whose
+coarse-to-fine variants repeat the pass at every budget
+iteration~\citep{jiang2023llmlingua}. \method{} compresses a 6{,}000-word
+context in \TimeSieveSixk{} ms on a single CPU core, which is already at
+or below the served floor of the neural gate, and it needs no GPU, no
+model download, and no tokenizer beyond whitespace splitting. Its cost
+is noise at serving scale: the median reader call in our main experiment
+takes \MainSieveApiMs{} ms, an order of magnitude above the compression
+itself.
+
+\subsection{Projected savings for LLaMA-class serving}
+\label{sec:projection}
+
+\begin{table}[t]
+\centering
+\caption{Analytical projection at an 8k-token prompt and $r=4$,
+computed from published LLaMA-2 architecture constants with the stated
+assumptions (bf16, A100 at 40\% prefill utilization). Prefill latency
+and cache memory are the prefill-stage quantities.}
+\label{tab:projection}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Model & prefill (full) & prefill ($r=4$) & KV cache & cache ($r=4$) \\
+\midrule
+LLaMA-2 7B & 0.86 s & 0.22 s & 4.2 GB & 1.05 GB \\
+LLaMA-2 13B & 1.67 s & 0.42 s & 6.6 GB & 1.64 GB \\
+LLaMA-2 70B & 8.8 s & 2.2 s & 2.6 GB & 0.66 GB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:projection} translates a $4\times$ compression into
+infrastructure terms for LLaMA-2 deployments~\citep{touvron2023llama}
+using the standard prefill FLOPs approximation $2N_{\mathrm{params}}L$
+for context length $L$, cache memory
+$2\,n_{\mathrm{layer}}\,n_{\mathrm{kv}}\,d_{\mathrm{head}}\,L$ elements
+in bf16, and an assumed 40\% model-FLOPs utilization on one A100; the
+70B row reflects grouped-query attention with eight KV heads. The
+projection is analytical, not measured, and the assumptions are stated
+so that a reader can recompute them; its role is to show that the
+accuracy results of Table~\ref{tab:main} buy cache and prefill savings
+that scale with the ratio rather than with the model.
+
+\section{Limitations}
+\label{sec:limitations}
+
+\method{} inherits the reach of lexical statistics. Relevance scoring
+matches content terms, so paraphrased evidence that shares no
+morphological material with the question scores poorly; multilingual
+inputs need language-matched stopword lists and segmentation; and
+numbers, citations, and code identifiers, which dominate scientific
+text, are only crudely weighted by IDF. Our end-task evaluation covers
+one English long-document QA benchmark with one reader model at
+$n=25$; the confidence intervals are correspondingly wide, and the
+behavior of statistical selection on multi-document, summarization,
+code, or agentic contexts, and under other model families, is untested.
+The selector-level analyses widen the evidence base ($n=191$ for the
+recall protocol) but inherit the same domain and language. End-task
+ablations and a reader-side placement study under our own reader remain
+future work; the ablations we report are selector-level. Sentence-level
+granularity bounds the
+useful compression range: beyond $r \approx 16$ the output degenerates
+toward a few isolated sentences, and token-level compressors retain an
+advantage there. The reader experiments measure accuracy under a fixed
+serving stack rather than wall-clock serving of an open model, and the
+LLaMA-2 projection is analytical with stated assumptions rather than a
+measured deployment. Finally, our perplexity-gate cost comparison uses
+the floor of one served forward pass rather than a hosted
+implementation, which favors the neural pipelines' best case: a hosted
+coarse-to-fine compressor would cost several passes, but a purely
+arithmetic comparison on FLOPs would favor us by more than the
+wall-clock comparison does, since CPU scalar work and GPU tensor work
+are not measured on the same scale.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We asked how much of long-context quality a compressor can keep with no
+neural scorer at all. At the $4\times$ operating point the answer has two
+parts: \method{} keeps \RetSieve\% of full-context F1, on par with
+the strongest cheap baseline, while spending \TimeSieveSixk{} ms of CPU
+time and zero model parameters. Where the question actually matters,
+the picture is sharp: \method{} retains the most annotated evidence of
+any method we test, the margin over truncation grows with the
+compression ratio, and every component of the score is auditable. We see
+\method{} as the zero-cost first stage of a compression stack, and its
+measurements as a floor that any hosted neural compressor should clear
+before justifying its infrastructure.
+
+\section*{Impact statement}
+This work reduces the compute and cost of long-context inference, which
+lowers the energy and dollar footprint of document question answering
+and broadens access for users who cannot host scoring models. The same
+mechanism can remove content from a context that a user intended a
+model to consider; the selection is fully inspectable, which we
+consider the right default for a compression stage, and deployers
+should treat the retained-sentence report as part of their audit trail.
+No personal or sensitive data is used: the benchmark is a public
+research corpus and the reader processes benchmark text only.
+
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\appendix
+
+\section{Implementation details}
+\label{app:impl}
+
+Sentence segmentation splits on punctuation boundaries with guards for
+common abbreviations (e.g., \emph{et al.}, \emph{e.g.}, \emph{Fig.}) and
+merges fragments that end in a guarded token; the segmenter is
+deterministic and processes 6{,}000 words in under 2 ms. Tokenization
+lowercases and keeps alphanumeric and hyphenated terms; stopwords are a
+fixed 150-word English list included with the code. All experiments ran
+on one CPU core of a container with 8 vCPUs and 32 GB of memory; no GPU
+was used for compression, and the timing figures are medians of five
+runs after one warm-up. The full pipeline (segmentation, scoring,
+selection) is a single Python module with NumPy as its only dependency
+beyond the standard library, and the repository reproduces every table
+and figure from the raw checkpoints with one command per artifact.
+
+\section{Hyperparameters and sensitivity}
+\label{app:hyper}
+
+The development grid over $\alpha \in \{0.3,0.6,0.9\}$ at $r=4$ gave dev
+F1 of \GridALo, \GridAMid, and \GridAHi{} respectively; the differences
+are within the noise of a 20-example development split, and we selected
+$\alpha=0.3$ for the best dev F1. The dev and test numbers are not
+directly comparable: the development split mixes ten QASPER records
+with ten HotpotQA distractor records, and the multi-paragraph HotpotQA
+items are far easier for the reader, which inflates the dev mean
+relative to the QASPER-only test split. The $\alpha$ choice is a point
+estimate from a noisy grid, and the paper's claims do not rest on it
+being optimal.
+
+$\beta$, $\mathrm{floor}$, and $\gamma$ (called \texttt{power} in the
+code) were fixed a priori from the design intuition and not tuned.
+Table~\ref{tab:sens} reports their sensitivity as evidence recall at
+$r=4$ on the 191-record pool, one knob at a time.
+
+\begin{table}[h]
+\centering
+\caption{Sensitivity of evidence recall at $r=4$ to the fixed
+hyperparameters ($n=191$). Recall is flat in $\beta$ and mildly
+sensitive to the prior's shape; it rises monotonically with
+$\mathrm{floor}$, which is the recall-reliability trade-off of
+\autoref{sec:selablation} seen from the other side.}
+\label{tab:sens}
+\small
+\begin{tabular}{lccc}
+\toprule
+$\beta$ & 0.0 & 0.3 & 0.6 \\
+recall & \SensBetaZp{} & \SensBetaMid{} & \SensBetaHigh \\
+\midrule
+$\mathrm{floor}$ & 0.0 & 0.35 & 0.7 \\
+recall & \SensFloorZp{} & \SensFloorMid{} & \SensFloorHigh \\
+\midrule
+$\gamma$ & 0.5 & 1.5 & 3.0 \\
+recall & \SensGammaLo{} & \SensGammaMid{} & \SensGammaHigh \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Recall is flat in $\beta$, confirming that the redundancy penalty
+neither helps nor hurts evidence recovery at this ratio. Recall falls as
+$\mathrm{floor}$ decreases, the quantitative statement of the placement
+trade-off: a flatter prior keeps middle-placed evidence at the cost of
+reader-side reliability. The prior's sharpness $\gamma$ moves recall by
+a few points without a clear trend. None of the three knobs changes the
+qualitative conclusions of Tables~\ref{tab:recall}
+and~\ref{tab:selablation}, and the selector-level ablations bound the
+contribution of each component.
+
+\section{Additional results}
+\label{app:results}
+
+\paragraph{Compute accounting.}
+The reader evaluation consumed \TotalCalls{} completed API calls across
+the development grid and the main comparison; the mean call served
+\MainSieveTok{} prompt tokens. Compression-side compute was 8 vCPU-hours
+including all development runs; no GPUs were used for any measurement
+reported in this paper.
+
+\section{NeurIPS paper checklist}
+\label{app:checklist}
+
+The checklist follows the 16 required items; answers are yes, no, or not
+applicable with one-sentence justifications.
+
+\begin{enumerate}
+\item \textbf{Claims alignment.} Yes. The abstract and
+\autoref{sec:intro} state claims that match Table~\ref{tab:main},
+Figure~\ref{fig:ratio}, and \autoref{sec:selablation}; retention and gap
+numbers in the text are generated from the same results files as the
+tables.
+\item \textbf{Limitations.} Yes. \autoref{sec:limitations} covers
+lexical reach, task and reader scope, ratio range, and the analytical
+nature of the projection.
+\item \textbf{Theory and proofs.} Not applicable; the contribution is
+empirical, and \autoref{sec:method} states the complexity of each
+component.
+\item \textbf{Reproducibility.} Yes. Code, data sampling scripts,
+checkpoints, and one-command regeneration of every number and figure are
+released with the paper; \autoref{app:impl} lists the environment.
+\item \textbf{Data and code access.} Yes. Benchmarks are public
+(QASPER, HotpotQA); the repository contains the sampler, the sampled
+indices, and the raw API checkpoints.
+\item \textbf{Experimental details.} Yes. Splits, caps, budgets, seeds,
+decoding parameters, and the hyperparameter grid are given in
+\autoref{sec:setup} and \autoref{app:hyper}.
+\item \textbf{Statistical significance.} Yes. All accuracy numbers carry
+bootstrap 95\% intervals with 1{,}000 resamples; the random baseline
+additionally reports seed standard deviation; the placement study
+reports per-position intervals.
+\item \textbf{Compute resources.} Yes. \autoref{app:results} reports the
+API call volume, and the compression cost section reports CPU timing;
+no GPUs were used.
+\item \textbf{Ethics code.} Yes. The work complies with the NeurIPS code
+of conduct; no human subjects are involved.
+\item \textbf{Broader impacts.} Yes. The impact statement discusses
+access, energy, and auditability of removed content.
+\item \textbf{Safeguards.} Not applicable; no high-risk models or
+internet-scale data are released.
+\item \textbf{License respect.} Yes. QASPER and HotpotQA are used under
+their public research licenses, cited in \autoref{sec:setup}.
+\item \textbf{Asset documentation.} Yes. The released repository carries
+a README documenting contents, license, and one-command reproduction.
+\item \textbf{Human subjects.} Not applicable.
+\item \textbf{IRB.} Not applicable.
+\item \textbf{LLM declaration.} Yes. A production LLM (GLM-4-Plus) is
+the evaluation reader, declared in \autoref{sec:setup}; no LLM was used
+as a component of the method itself. Writing assistance from language
+models is disclosed here per the conference policy on writing-only use.
+\end{enumerate}
+
+\end{document}

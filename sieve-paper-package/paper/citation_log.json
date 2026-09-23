@@ -1,0 +1,491 @@
+[
+ {
+  "key": "vaswani2017attention",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "arXiv API",
+   "CrossRef DOI 10.48550/ARXIV.1706.03762"
+  ],
+  "title": "Attention Is All You Need",
+  "authors": [
+   "Ashish Vaswani",
+   "Noam Shazeer",
+   "Niki Parmar",
+   "Jakob Uszkoreit",
+   "Llion Jones",
+   "Aidan N. Gomez",
+   "Lukasz Kaiser",
+   "Illia Polosukhin"
+  ],
+  "year": 2017
+ },
+ {
+  "key": "liu2023lost",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "arXiv API",
+   "CrossRef DOI 10.48550/ARXIV.2307.03172"
+  ],
+  "title": "Lost in the Middle: How Language Models Use Long Contexts",
+  "authors": [
+   "Nelson F. Liu",
+   "Kevin Lin",
+   "John Hewitt",
+   "Ashwin Paranjape",
+   "Michele Bevilacqua",
+   "Fabio Petroni",
+   "Percy Liang"
+  ],
+  "year": 2023
+ },
+ {
+  "key": "jiang2023llmlingua",
+  "status": "ARXIV_NOT_FOUND"
+ },
+ {
+  "key": "jiang2023longllmlingua",
+  "status": "ARXIV_NOT_FOUND"
+ },
+ {
+  "key": "pan2024llmlingua2",
+  "status": "ARXIV_NOT_FOUND"
+ },
+ {
+  "key": "touvron2023llama",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "arXiv API",
+   "CrossRef DOI 10.48550/ARXIV.2307.09288"
+  ],
+  "title": "Llama 2: Open Foundation and Fine-Tuned Chat Models",
+  "authors": [
+   "Hugo Touvron",
+   "Louis Martin",
+   "Kevin Stone",
+   "Peter Albert",
+   "Amjad Almahairi",
+   "Yasmine Babaei",
+   "Nikolay Bashlykov",
+   "Soumya Batra",
+   "Prajjwal Bhargava",
+   "Shruti Bhosale",
+   "Dan Bikel",
+   "Lukas Blecher",
+   "Cristian Canton Ferrer",
+   "Moya Chen",
+   "Guillem Cucurull",
+   "David Esiobu",
+   "Jude Fernandes",
+   "Jeremy Fu",
+   "Wenyin Fu",
+   "Brian Fuller",
+   "Cynthia Gao",
+   "Vedanuj Goswami",
+   "Naman Goyal",
+   "Anthony Hartshorn",
+   "Saghar Hosseini",
+   "Rui Hou",
+   "Hakan Inan",
+   "Marcin Kardas",
+   "Viktor Kerkez",
+   "Madian Khabsa",
+   "Isabel Kloumann",
+   "Artem Korenev",
+   "Punit Singh Koura",
+   "Marie-Anne Lachaux",
+   "Thibaut Lavril",
+   "Jenya Lee",
+   "Diana Liskovich",
+   "Yinghai Lu",
+   "Yuning Mao",
+   "Xavier Martinet",
+   "Todor Mihaylov",
+   "Pushkar Mishra",
+   "Igor Molybog",
+   "Yixin Nie",
+   "Andrew Poulton",
+   "Jeremy Reizenstein",
+   "Rashi Rungta",
+   "Kalyan Saladi",
+   "Alan Schelten",
+   "Ruan Silva",
+   "Eric Michael Smith",
+   "Ranjan Subramanian",
+   "Xiaoqing Ellen Tan",
+   "Binh Tang",
+   "Ross Taylor",
+   "Adina Williams",
+   "Jian Xiang Kuan",
+   "Puxin Xu",
+   "Zheng Yan",
+   "Iliyan Zarov",
+   "Yuchen Zhang",
+   "Angela Fan",
+   "Melanie Kambadur",
+   "Sharan Narang",
+   "Aurelien Rodriguez",
+   "Robert Stojnic",
+   "Sergey Edunov",
+   "Thomas Scialom"
+  ],
+  "year": 2023
+ },
+ {
+  "key": "xiao2023streaming",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "arXiv API",
+   "CrossRef DOI 10.48550/ARXIV.2309.17453"
+  ],
+  "title": "Efficient Streaming Language Models with Attention Sinks",
+  "authors": [
+   "Guangxuan Xiao",
+   "Yuandong Tian",
+   "Beidi Chen",
+   "Song Han",
+   "Mike Lewis"
+  ],
+  "year": 2023
+ },
+ {
+  "key": "zhang2023h2o",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "arXiv API",
+   "CrossRef DOI 10.48550/ARXIV.2306.14048"
+  ],
+  "title": "H$_2$O: Heavy-Hitter Oracle for Efficient Generative Inference of Large Language Models",
+  "authors": [
+   "Zhenyu Zhang",
+   "Ying Sheng",
+   "Tianyi Zhou",
+   "Tianlong Chen",
+   "Lianmin Zheng",
+   "Ruisi Cai",
+   "Zhao Song",
+   "Yuandong Tian",
+   "Christopher R\u00e9",
+   "Clark Barrett",
+   "Zhangyang Wang",
+   "Beidi Chen"
+  ],
+  "year": 2023
+ },
+ {
+  "key": "li2023selective",
+  "status": "ARXIV_NOT_FOUND"
+ },
+ {
+  "key": "kwon2023vllm",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "arXiv API",
+   "CrossRef DOI 10.48550/ARXIV.2309.06180"
+  ],
+  "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+  "authors": [
+   "Woosuk Kwon",
+   "Zhuohan Li",
+   "Siyuan Zhuang",
+   "Ying Sheng",
+   "Lianmin Zheng",
+   "Cody Hao Yu",
+   "Joseph E. Gonzalez",
+   "Hao Zhang",
+   "Ion Stoica"
+  ],
+  "year": 2023
+ },
+ {
+  "key": "dao2022flashattention",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "arXiv API",
+   "CrossRef DOI 10.48550/ARXIV.2205.14135"
+  ],
+  "title": "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness",
+  "authors": [
+   "Tri Dao",
+   "Daniel Y. Fu",
+   "Stefano Ermon",
+   "Atri Rudra",
+   "Christopher R\u00e9"
+  ],
+  "year": 2022
+ },
+ {
+  "key": "robertson2009bm25",
+  "status": "VERIFIED_DOI",
+  "title": "The Probabilistic Relevance Framework: BM25 and Beyond",
+  "authors": [
+   "Stephen Robertson",
+   "Hugo Zaragoza"
+  ],
+  "year": 2009,
+  "doi": "10.1561/1500000019",
+  "sources": [
+   "CrossRef search",
+   "DOI 10.1561/1500000019"
+  ],
+  "venue": "Foundations and Trends\u00ae in Information Retrieval"
+ },
+ {
+  "key": "radford2019gpt2",
+  "status": "VERIFIED_URL",
+  "title": "Language Models are Unsupervised Multitask Learners",
+  "year": 2019,
+  "sources": [
+   "URL https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf (HTTP 200)"
+  ]
+ },
+ {
+  "key": "jiang2023llmlingua",
+  "arxiv": "2310.05736",
+  "status": "FAILED",
+  "error": "HTTP Error 404: Not Found"
+ },
+ {
+  "key": "jiang2023longllmlingua",
+  "arxiv": "2311.12293",
+  "status": "FAILED",
+  "error": "HTTP Error 404: Not Found"
+ },
+ {
+  "key": "pan2024llmlingua2",
+  "arxiv": "2403.12968",
+  "status": "FAILED",
+  "error": "HTTP Error 404: Not Found"
+ },
+ {
+  "key": "li2023selective",
+  "arxiv": "2304.12102",
+  "status": "FAILED",
+  "error": "HTTP Error 404: Not Found"
+ },
+ {
+  "key": "jiang2023llmlingua",
+  "status": "FAILED",
+  "wanted": "LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models",
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ },
+ {
+  "key": "jiang2023longllmlingua",
+  "status": "FAILED",
+  "wanted": "LongLLMLingua: Accelerating and Enhancing LLMs in Long Context Scenarios via Prompt Compression",
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ },
+ {
+  "key": "pan2024llmlingua2",
+  "status": "FAILED",
+  "wanted": "LLMLingua-2: Data Distillation for Efficient and Effective Task-Agnostic Prompt Compression",
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ },
+ {
+  "key": "li2023selective",
+  "status": "FAILED",
+  "wanted": "Compressing Context to Enhance Inference Efficiency of Large Language Models",
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ },
+ {
+  "key": "jiang2023llmlingua",
+  "status": "VERIFIED_2SOURCES",
+  "wanted": "LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models",
+  "title": "LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models",
+  "authors": [
+   "Huiqiang Jiang",
+   "Qianhui Wu",
+   "Chin-Yew Lin",
+   "Yuqing Yang",
+   "Lili Qiu"
+  ],
+  "year": 2023,
+  "doi": "https://doi.org/10.18653/v1/2023.emnlp-main.825",
+  "venue": "",
+  "sources": [
+   "OpenAlex works search",
+   "doi.org https://doi.org/10.18653/v1/2023.emnlp-main.825"
+  ]
+ },
+ {
+  "key": "jiang2023longllmlingua",
+  "status": "VERIFIED_2SOURCES",
+  "wanted": "LongLLMLingua: Accelerating and Enhancing LLMs in Long Context Scenarios via Prompt Compression",
+  "title": "LongLLMLingua: Accelerating and Enhancing LLMs in Long Context Scenarios via Prompt Compression",
+  "authors": [
+   "Huiqiang Jiang",
+   "Qianhui Wu",
+   "Xufang Luo",
+   "Dongsheng Li",
+   "Chin-Yew Lin",
+   "Yuqing Yang",
+   "Lili Qiu"
+  ],
+  "year": 2024,
+  "doi": "https://doi.org/10.18653/v1/2024.acl-long.91",
+  "venue": "",
+  "sources": [
+   "OpenAlex works search",
+   "doi.org https://doi.org/10.18653/v1/2024.acl-long.91"
+  ]
+ },
+ {
+  "key": "pan2024llmlingua2",
+  "status": "VERIFIED_2SOURCES",
+  "wanted": "LLMLingua-2: Data Distillation for Efficient and Faithful Task-Agnostic Prompt Compression",
+  "title": "LLMLingua-2: Data Distillation for Efficient and Faithful Task-Agnostic Prompt Compression",
+  "authors": [
+   "Zhuoshi Pan",
+   "Qianhui Wu",
+   "Huiqiang Jiang",
+   "Menglin Xia",
+   "Xufang Luo",
+   "Jue Zhang",
+   "Qingwei Lin",
+   "Victor R\u00fchle",
+   "Yuqing Yang",
+   "Chin-Yew Lin",
+   "Huanhuan Zhao",
+   "Lili Qiu",
+   "Dongmei Zhang"
+  ],
+  "year": 2024,
+  "doi": "https://doi.org/10.18653/v1/2024.findings-acl.57",
+  "venue": "",
+  "sources": [
+   "OpenAlex works search",
+   "doi.org https://doi.org/10.18653/v1/2024.findings-acl.57"
+  ]
+ },
+ {
+  "key": "li2023selective",
+  "status": "VERIFIED_2SOURCES",
+  "wanted": "Compressing Context to Enhance Inference Efficiency of Large Language Models",
+  "title": "Compressing Context to Enhance Inference Efficiency of Large Language Models",
+  "authors": [
+   "Yucheng Li",
+   "Bo Dong",
+   "Frank Gu\u00e9rin",
+   "Chenghua Lin"
+  ],
+  "year": 2023,
+  "doi": "https://doi.org/10.18653/v1/2023.emnlp-main.391",
+  "venue": "",
+  "sources": [
+   "OpenAlex works search",
+   "doi.org https://doi.org/10.18653/v1/2023.emnlp-main.391"
+  ]
+ },
+ {
+  "key": "carbonell1998mmr",
+  "status": "VERIFIED_DOI",
+  "sources": [
+   "doi.org/10.1145/290941.291025"
+  ],
+  "title": "The Use of MMR, Diversity-Based Reranking for Reordering Documents and Producing Summaries",
+  "year": 1998
+ },
+ {
+  "key": "mihalcea2004textrank",
+  "status": "VERIFIED_ANTHOLOGY",
+  "sources": [
+   "aclanthology.org/volumes/W04-32 (index)",
+   "aclanthology.org/W04-3252.bib"
+  ],
+  "title": "TextRank: Bringing Order into Text",
+  "year": 2004,
+  "venue": "EMNLP 2004",
+  "pages": "404-411"
+ },
+ {
+  "key": "dasigi2021qasper",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "OpenAlex works search (title match)",
+   "doi.org/10.18653/v1/2021.naacl-main.365"
+  ],
+  "title": "A Dataset of Information-Seeking Questions and Answers Anchored in Research Papers",
+  "year": 2021,
+  "venue": "NAACL 2021"
+ },
+ {
+  "key": "yang2018hotpotqa",
+  "status": "VERIFIED_2SOURCES",
+  "sources": [
+   "OpenAlex works search (title match)",
+   "doi.org/10.18653/v1/d18-1259"
+  ],
+  "title": "HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering",
+  "year": 2018,
+  "venue": "EMNLP 2018"
+ },
+ {
+  "key": "glm2024chatglm",
+  "status": "VERIFIED_OPENALEX",
+  "sources": [
+   "OpenAlex works search"
+  ],
+  "title": "ChatGLM: A Family of Large Language Models from GLM-130B to GLM-4 All Tools",
+  "authors": [
+   "Team GLM",
+   ":",
+   "Aohan Zeng",
+   "Bin Xu",
+   "Bowen Wang",
+   "Chenhui Zhang",
+   "Da Gang Yin",
+   "Zhang, Dan",
+   "Diego Rojas",
+   "Guanyu Feng",
+   "Hanlin Zhao",
+   "Hanyu Lai",
+   "Hao Yu",
+   "Hongning Wang",
+   "Jiadai Sun",
+   "Jiajie Zhang",
+   "Jiale Cheng",
+   "Jiayi Gui",
+   "Jie Tang",
+   "Jing Zhang",
+   "Sun, Jingyu",
+   "Juanzi Li",
+   "Lei Zhao",
+   "Lindong Wu",
+   "Lucen Zhong",
+   "M. Liu",
+   "Minlie Huang",
+   "Peng Zhang",
+   "Qinkai Zheng",
+   "Rui Lu",
+   "Shuaiqi Duan",
+   "Shudan Zhang",
+   "Shulin Cao",
+   "Shuxun Yang",
+   "Weng Lam Tam",
+   "Wenyi Zhao",
+   "Xiao Liu",
+   "Xia Xiao",
+   "Xiaohan Zhang",
+   "Xiaotao Gu",
+   "LV Xin",
+   "Xinghan Liu",
+   "Xinyi Liu",
+   "Xinyue Yang",
+   "Xixuan Song",
+   "Zhang, Xunkai",
+   "Yifan An",
+   "Yifan Xu",
+   "Yilin Niu",
+   "Yuantao Yang",
+   "Yueyan Li",
+   "Yushi Bai",
+   "Yuxiao Dong",
+   "Zehan Qi",
+   "Zhaoyu Wang",
+   "Zhen Yang",
+   "Zhengxiao Du",
+   "Zhenyu Hou",
+   "Zihan Wang"
+  ],
+  "year": 2024
+ }
+]

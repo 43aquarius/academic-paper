@@ -1,0 +1,98 @@
+[
+ {
+  "context_words": 1000,
+  "method": "sieve",
+  "median_ms": 3.3,
+  "min_ms": 3.26,
+  "max_ms": 3.87,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "textrank",
+  "median_ms": 6.33,
+  "min_ms": 6.3,
+  "max_ms": 6.5,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "head",
+  "median_ms": 0.042,
+  "min_ms": 0.038,
+  "max_ms": 0.059,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "sieve",
+  "median_ms": 9.93,
+  "min_ms": 9.92,
+  "max_ms": 10.0,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "textrank",
+  "median_ms": 22.01,
+  "min_ms": 21.93,
+  "max_ms": 22.35,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "head",
+  "median_ms": 0.091,
+  "min_ms": 0.087,
+  "max_ms": 0.114,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "sieve",
+  "median_ms": 27.34,
+  "min_ms": 27.19,
+  "max_ms": 27.81,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "textrank",
+  "median_ms": 63.35,
+  "min_ms": 63.25,
+  "max_ms": 63.64,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "head",
+  "median_ms": 0.218,
+  "min_ms": 0.207,
+  "max_ms": 0.242,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "sieve",
+  "median_ms": 51.23,
+  "min_ms": 51.07,
+  "max_ms": 51.37,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "textrank",
+  "median_ms": 129.35,
+  "min_ms": 129.18,
+  "max_ms": 129.91,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "head",
+  "median_ms": 0.317,
+  "min_ms": 0.299,
+  "max_ms": 0.352,
+  "repeats": 5
+ }
+]
