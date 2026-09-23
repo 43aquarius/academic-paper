@@ -1,0 +1,710 @@
+{
+ "n_records": 100,
+ "recall_mean": 0.28721969696969696,
+ "latency_median_s": 7.469813112499992,
+ "latency_mediancontext_s": 8.20611482600009,
+ "latency_p90context_s": 13.146224055000062,
+ "median_ctx_words": 3591,
+ "per_record": {
+  "qasper-6e2899c444baaeb0469599f65722780894f90f29": {
+   "recall": 0.0,
+   "score_s": 9.076387983000018,
+   "n_tokens": 6415,
+   "ctx_words": 4060,
+   "n_sentences": 161
+  },
+  "qasper-faa4f28a2f2968cecb770d9379ab2cfcaaf5cfab": {
+   "recall": 0.0,
+   "score_s": 4.597315542000047,
+   "n_tokens": 3200,
+   "ctx_words": 2386,
+   "n_sentences": 99
+  },
+  "qasper-65e6a1cc2590b139729e7e44dce6d9af5dd2c3b5": {
+   "recall": 0.8,
+   "score_s": 5.256976167999937,
+   "n_tokens": 3597,
+   "ctx_words": 2866,
+   "n_sentences": 98
+  },
+  "qasper-931a2a13a1f6a8d9107d26811089bdccc39b0800": {
+   "recall": 0.75,
+   "score_s": 3.4968725179999183,
+   "n_tokens": 2371,
+   "ctx_words": 1731,
+   "n_sentences": 94
+  },
+  "qasper-4bdad5a20750c878d1a891ef255621f6172b6a79": {
+   "recall": 0.0,
+   "score_s": 9.53056113499997,
+   "n_tokens": 6354,
+   "ctx_words": 4210,
+   "n_sentences": 182
+  },
+  "qasper-b573b36936ffdf1d70e66f9b5567511c989b46b2": {
+   "recall": 0.0,
+   "score_s": 7.796105560000001,
+   "n_tokens": 5318,
+   "ctx_words": 3538,
+   "n_sentences": 157
+  },
+  "qasper-8486e06c03f82ebd48c7cfbaffaa76e8b899eea5": {
+   "recall": 0.0,
+   "score_s": 3.9944716769999786,
+   "n_tokens": 2736,
+   "ctx_words": 1859,
+   "n_sentences": 75
+  },
+  "qasper-578d0b23cb983b445b1a256a34f969b34d332075": {
+   "recall": 0.0,
+   "score_s": 6.26913584700003,
+   "n_tokens": 4390,
+   "ctx_words": 2840,
+   "n_sentences": 161
+  },
+  "qasper-62736ad71c76a20aee8e003c462869bab4ab4b1e": {
+   "recall": 1.0,
+   "score_s": 13.423512541999912,
+   "n_tokens": 8786,
+   "ctx_words": 6000,
+   "n_sentences": 277
+  },
+  "qasper-48cc41c372d44b69a477998be449f8b81384786b": {
+   "recall": 0.0,
+   "score_s": 8.808277850999957,
+   "n_tokens": 5969,
+   "ctx_words": 4116,
+   "n_sentences": 162
+  },
+  "qasper-e9b1e8e575809f7b80b1125305cfa76ae4f5bdfb": {
+   "recall": 0.0,
+   "score_s": 7.418167936000032,
+   "n_tokens": 5233,
+   "ctx_words": 3959,
+   "n_sentences": 163
+  },
+  "qasper-f319f2c3f9339b0ce47478f5aa0c32da387a156e": {
+   "recall": 0.0,
+   "score_s": 5.013657681000041,
+   "n_tokens": 3529,
+   "ctx_words": 2559,
+   "n_sentences": 121
+  },
+  "qasper-4c71ed7d30ee44cf85ffbd7756b985e32e8e07da": {
+   "recall": 1.0,
+   "score_s": 9.48049129399999,
+   "n_tokens": 6444,
+   "ctx_words": 4620,
+   "n_sentences": 177
+  },
+  "qasper-574f17134e4dd041c357ebb75a7ef590da294d22": {
+   "recall": 1.0,
+   "score_s": 13.146224055000062,
+   "n_tokens": 8786,
+   "ctx_words": 6000,
+   "n_sentences": 277
+  },
+  "qasper-2255c36c8c7ed6084da577b480eb01d349f52943": {
+   "recall": 1.0,
+   "score_s": 6.94936901799997,
+   "n_tokens": 4650,
+   "ctx_words": 3479,
+   "n_sentences": 146
+  },
+  "qasper-191107cd112f7ee6d19c1dc43177e6899452a2c7": {
+   "recall": 0.0,
+   "score_s": 3.4106412130000763,
+   "n_tokens": 2217,
+   "ctx_words": 1576,
+   "n_sentences": 76
+  },
+  "qasper-235c156d9c2adc895c9113f53c60f2dd8df45834": {
+   "recall": 0.0,
+   "score_s": 4.187983117000044,
+   "n_tokens": 2814,
+   "ctx_words": 2011,
+   "n_sentences": 103
+  },
+  "qasper-0b8d64d6cdcfc2ba66efa41a52e09241729a697c": {
+   "recall": 0.0,
+   "score_s": 5.702953690999948,
+   "n_tokens": 3686,
+   "ctx_words": 2318,
+   "n_sentences": 75
+  },
+  "qasper-537a786794604ecc473fb3ef6222e0c3cb81f772": {
+   "recall": 1.0,
+   "score_s": 6.299696320999942,
+   "n_tokens": 4003,
+   "ctx_words": 2768,
+   "n_sentences": 107
+  },
+  "qasper-828615a874512844ede9d7f7d92bdc48bb48b18d": {
+   "recall": 0.0,
+   "score_s": 5.361250277999943,
+   "n_tokens": 3381,
+   "ctx_words": 2435,
+   "n_sentences": 106
+  },
+  "qasper-4ecb6674bcb4162bf71aea8d8b82759255875df3": {
+   "recall": 0.6666666666666666,
+   "score_s": 4.076418830999955,
+   "n_tokens": 2584,
+   "ctx_words": 2031,
+   "n_sentences": 95
+  },
+  "qasper-7ce7edd06925a943e32b59f3e7b5159ccb7acaf6": {
+   "recall": 0.0,
+   "score_s": 7.231478257000049,
+   "n_tokens": 4897,
+   "ctx_words": 3711,
+   "n_sentences": 150
+  },
+  "qasper-85a7dbf6c2e21bfb7a3a938381890ac0ec2a19e0": {
+   "recall": 0.0,
+   "score_s": 7.950042323999924,
+   "n_tokens": 5496,
+   "ctx_words": 3970,
+   "n_sentences": 168
+  },
+  "qasper-62ba1fefc1eb826fe0cbac092d37a3e2098967e9": {
+   "recall": 0.0,
+   "score_s": 11.92946844000005,
+   "n_tokens": 7880,
+   "ctx_words": 5762,
+   "n_sentences": 256
+  },
+  "qasper-4d4b9ff2da51b9e0255e5fab0b41dfe49a0d9012": {
+   "recall": 0.0,
+   "score_s": 8.20611482600009,
+   "n_tokens": 5410,
+   "ctx_words": 3591,
+   "n_sentences": 150
+  },
+  "qasper-3b995a7358cefb271b986e8fc6efe807f25d60dc": {
+   "recall": 0.0,
+   "score_s": 4.357288560000029,
+   "n_tokens": 2834,
+   "ctx_words": 1670,
+   "n_sentences": 93
+  },
+  "qasper-6d0f2cce46bc962c6527f7b4a77721799f2455c6": {
+   "recall": 0.0,
+   "score_s": 8.325596364000035,
+   "n_tokens": 5576,
+   "ctx_words": 4408,
+   "n_sentences": 178
+  },
+  "qasper-2e3265d83d2a595293ed458152d3ee76ad19e244": {
+   "recall": 0.0,
+   "score_s": 3.995135724000079,
+   "n_tokens": 2714,
+   "ctx_words": 2147,
+   "n_sentences": 88
+  },
+  "qasper-15a1df59ed20aa415a4daf0acb256747f6766f77": {
+   "recall": 0.75,
+   "score_s": 9.755107442000053,
+   "n_tokens": 6672,
+   "ctx_words": 4676,
+   "n_sentences": 204
+  },
+  "qasper-e72a672f8008bbc52b93d8037a5fedf8956136af": {
+   "recall": 0.0,
+   "score_s": 7.824439566000024,
+   "n_tokens": 5406,
+   "ctx_words": 3752,
+   "n_sentences": 172
+  },
+  "qasper-86f24ecc89e743bb1534ac160d08859493afafe9": {
+   "recall": 0.0,
+   "score_s": 7.521458288999952,
+   "n_tokens": 5187,
+   "ctx_words": 3524,
+   "n_sentences": 161
+  },
+  "qasper-11c77ee117cb4de825016b6ccff59ff021f84a38": {
+   "recall": 0.0,
+   "score_s": 7.743989041000077,
+   "n_tokens": 5611,
+   "ctx_words": 3894,
+   "n_sentences": 190
+  },
+  "qasper-090fd9ce9a21438cdec1ea51ed216941d52eb3b6": {
+   "recall": 0.0,
+   "score_s": 7.175801178000029,
+   "n_tokens": 5139,
+   "ctx_words": 3801,
+   "n_sentences": 162
+  },
+  "qasper-9dc844f82f520daf986e83466de0c84d93953754": {
+   "recall": 0.0,
+   "score_s": 8.824313621000101,
+   "n_tokens": 6462,
+   "ctx_words": 4428,
+   "n_sentences": 198
+  },
+  "qasper-6367877c05beebfdbb31e83c1f25dfddf925b6b6": {
+   "recall": 0.0,
+   "score_s": 7.7971133220000866,
+   "n_tokens": 5749,
+   "ctx_words": 3886,
+   "n_sentences": 174
+  },
+  "qasper-d28260b5565d9246831e8dbe594d4f6211b60237": {
+   "recall": 0.0,
+   "score_s": 4.394453801000054,
+   "n_tokens": 3180,
+   "ctx_words": 1944,
+   "n_sentences": 97
+  },
+  "qasper-dcd6f18922ac5c00c22cef33c53ff5ae08b42298": {
+   "recall": 0.0,
+   "score_s": 5.687730358000181,
+   "n_tokens": 4204,
+   "ctx_words": 2884,
+   "n_sentences": 127
+  },
+  "qasper-347e86893e8002024c2d10f618ca98e14689675f": {
+   "recall": 0.0,
+   "score_s": 10.394172346999994,
+   "n_tokens": 7746,
+   "ctx_words": 5158,
+   "n_sentences": 212
+  },
+  "qasper-66f0dee89f084fe0565539a73f5bbe65f3677814": {
+   "recall": 1.0,
+   "score_s": 7.3351895860000695,
+   "n_tokens": 5279,
+   "ctx_words": 3861,
+   "n_sentences": 169
+  },
+  "qasper-56a3c9bd74c6573abce3805177cdebf941db0b71": {
+   "recall": 0.0,
+   "score_s": 6.427124520999996,
+   "n_tokens": 4781,
+   "ctx_words": 3407,
+   "n_sentences": 154
+  },
+  "qasper-ad4658c64056b6eddda00d3cbc55944ae01eb437": {
+   "recall": 1.0,
+   "score_s": 7.606396304999862,
+   "n_tokens": 5520,
+   "ctx_words": 4142,
+   "n_sentences": 185
+  },
+  "qasper-9c4ed8ca59ba6d240f031393b01f634a9dc3615d": {
+   "recall": 0.0,
+   "score_s": 13.096499386000005,
+   "n_tokens": 8971,
+   "ctx_words": 6000,
+   "n_sentences": 260
+  },
+  "qasper-46f175e1322d648ab2c0258a9609fe6f43d3b44e": {
+   "recall": 0.0,
+   "score_s": 8.600341277000098,
+   "n_tokens": 5921,
+   "ctx_words": 4554,
+   "n_sentences": 205
+  },
+  "qasper-b67420da975689e47d3ea1c12b601851018c4071": {
+   "recall": 1.0,
+   "score_s": 6.366644424000015,
+   "n_tokens": 3980,
+   "ctx_words": 2616,
+   "n_sentences": 114
+  },
+  "qasper-2b52d481b30185d2c6e7b403d37277f70337d6ca": {
+   "recall": 1.0,
+   "score_s": 13.700277357999994,
+   "n_tokens": 9823,
+   "ctx_words": 6000,
+   "n_sentences": 224
+  },
+  "qasper-af073d84b8a7c968e5822c79bef34a28655886de": {
+   "recall": 0.0,
+   "score_s": 11.574325388000034,
+   "n_tokens": 8170,
+   "ctx_words": 6000,
+   "n_sentences": 309
+  },
+  "qasper-542a87f856cb2c934072bacaa495f3c2645f93be": {
+   "recall": 0.0,
+   "score_s": 6.159521726000094,
+   "n_tokens": 4361,
+   "ctx_words": 3175,
+   "n_sentences": 111
+  },
+  "qasper-8ec94313ea908b6462e1f5ee809a977a7b6bdf01": {
+   "recall": 1.0,
+   "score_s": 7.3149079820000225,
+   "n_tokens": 4945,
+   "ctx_words": 3540,
+   "n_sentences": 168
+  },
+  "qasper-dee7383a92c78ea49859a2d5ff2a9d0a794c1f0f": {
+   "recall": 0.0,
+   "score_s": 9.478758944999981,
+   "n_tokens": 6521,
+   "ctx_words": 3857,
+   "n_sentences": 160
+  },
+  "qasper-0427ca83d6bf4ec113bc6fec484b2578714ae8ec": {
+   "recall": 0.0,
+   "score_s": 11.527809460999833,
+   "n_tokens": 8200,
+   "ctx_words": 6000,
+   "n_sentences": 237
+  },
+  "qasper-ba61ed892b4f7930430389e80a0c8e3b701c8e5d": {
+   "recall": 0.0,
+   "score_s": 5.551834368000073,
+   "n_tokens": 3962,
+   "ctx_words": 2638,
+   "n_sentences": 141
+  },
+  "qasper-86cd1228374721db67c0653f2052b1ada6009641": {
+   "recall": 0.0,
+   "score_s": 13.206716204000031,
+   "n_tokens": 8845,
+   "ctx_words": 5943,
+   "n_sentences": 265
+  },
+  "qasper-6aee16c4f319a190c2a451c1c099b66162299a28": {
+   "recall": 0.0,
+   "score_s": 7.955360529000018,
+   "n_tokens": 5410,
+   "ctx_words": 3591,
+   "n_sentences": 150
+  },
+  "qasper-8b71ede8170162883f785040e8628a97fc6b5bcb": {
+   "recall": 0.0,
+   "score_s": 5.08193075500003,
+   "n_tokens": 3565,
+   "ctx_words": 2742,
+   "n_sentences": 122
+  },
+  "qasper-e74ba39c35af53d3960be5a6c86eddd62cef859f": {
+   "recall": 0.0,
+   "score_s": 6.494699252000146,
+   "n_tokens": 4662,
+   "ctx_words": 3533,
+   "n_sentences": 172
+  },
+  "qasper-869aaf397c9b4da7ab52d6dd0961887ae08da9ae": {
+   "recall": 1.0,
+   "score_s": 10.108826722000003,
+   "n_tokens": 6979,
+   "ctx_words": 4961,
+   "n_sentences": 246
+  },
+  "qasper-c20b012ad31da46642c553ce462bc0aad56912db": {
+   "recall": 0.0,
+   "score_s": 6.004932099000143,
+   "n_tokens": 4032,
+   "ctx_words": 2533,
+   "n_sentences": 155
+  },
+  "qasper-b6858c505936d981747962eae755a81489f62858": {
+   "recall": 0.0,
+   "score_s": 7.579767417999847,
+   "n_tokens": 5314,
+   "ctx_words": 3424,
+   "n_sentences": 136
+  },
+  "qasper-c21d26130b521c9596a1edd7b9ef3fe80a499f1e": {
+   "recall": 1.0,
+   "score_s": 7.0959953459998815,
+   "n_tokens": 4742,
+   "ctx_words": 3492,
+   "n_sentences": 154
+  },
+  "qasper-5450f27ccc0406d3bffd08772d8b59004c2716da": {
+   "recall": 1.0,
+   "score_s": 3.8424252810000326,
+   "n_tokens": 2657,
+   "ctx_words": 1792,
+   "n_sentences": 80
+  },
+  "qasper-48fa2ccc236e217fcf0e5aab0e7a146faf439b02": {
+   "recall": 1.0,
+   "score_s": 14.131588405000002,
+   "n_tokens": 9823,
+   "ctx_words": 6000,
+   "n_sentences": 224
+  },
+  "qasper-1405824a6845082eae0458c94c4affd7456ad0f7": {
+   "recall": 0.0,
+   "score_s": 4.099270658000023,
+   "n_tokens": 2436,
+   "ctx_words": 1871,
+   "n_sentences": 85
+  },
+  "qasper-74b0d3ee0cc9b0a3d9b264aba9901ff97048a897": {
+   "recall": 1.0,
+   "score_s": 11.784941624000112,
+   "n_tokens": 7730,
+   "ctx_words": 6000,
+   "n_sentences": 335
+  },
+  "qasper-ad16c8261c3a0b88c685907387e1a6904eb15066": {
+   "recall": 0.0,
+   "score_s": 6.200630776000025,
+   "n_tokens": 4211,
+   "ctx_words": 3154,
+   "n_sentences": 159
+  },
+  "qasper-b686e10a725254695821e330a277c900792db69f": {
+   "recall": 1.0,
+   "score_s": 13.269407151999985,
+   "n_tokens": 9373,
+   "ctx_words": 5720,
+   "n_sentences": 217
+  },
+  "qasper-871c34219eb623bde9ac3937aa0f28fc3ad69445": {
+   "recall": 0.0,
+   "score_s": 11.456432726000003,
+   "n_tokens": 7831,
+   "ctx_words": 5397,
+   "n_sentences": 183
+  },
+  "qasper-31b631a8634f6180b20a72477040046d1e085494": {
+   "recall": 0.0,
+   "score_s": 8.936567230000037,
+   "n_tokens": 6142,
+   "ctx_words": 4160,
+   "n_sentences": 162
+  },
+  "qasper-81dc39ee6cdacf90d5f0f62134bf390a29146c65": {
+   "recall": 0.0,
+   "score_s": 3.8902161920000253,
+   "n_tokens": 2723,
+   "ctx_words": 1964,
+   "n_sentences": 93
+  },
+  "qasper-b6c235d5986914b380c084d9535a7b01310c0278": {
+   "recall": 0.0,
+   "score_s": 7.589843199999905,
+   "n_tokens": 5233,
+   "ctx_words": 3959,
+   "n_sentences": 163
+  },
+  "qasper-f748cb05becc60e7d47d34f4c5f94189bc184d33": {
+   "recall": 0.0,
+   "score_s": 5.974678551999887,
+   "n_tokens": 4111,
+   "ctx_words": 2985,
+   "n_sentences": 149
+  },
+  "qasper-1ef5fc4473105f1c72b4d35cf93d312736833d3d": {
+   "recall": 1.0,
+   "score_s": 8.772906549000027,
+   "n_tokens": 6166,
+   "ctx_words": 4246,
+   "n_sentences": 195
+  },
+  "qasper-53c8416f2983e07a7fa33bcb4c4281bbf49c8164": {
+   "recall": 0.0,
+   "score_s": 5.351982249999992,
+   "n_tokens": 3841,
+   "ctx_words": 2443,
+   "n_sentences": 91
+  },
+  "qasper-ad67ca844c63bf8ac9fdd0fa5f58c5a438f16211": {
+   "recall": 0.0,
+   "score_s": 4.789052657999946,
+   "n_tokens": 3381,
+   "ctx_words": 2435,
+   "n_sentences": 106
+  },
+  "qasper-10f560fe8e1c0c7dea5e308ee4cec16d07874f1d": {
+   "recall": 1.0,
+   "score_s": 10.095783409999967,
+   "n_tokens": 7022,
+   "ctx_words": 4891,
+   "n_sentences": 236
+  },
+  "qasper-b6ffa18d49e188c454188669987b0a4807ca3018": {
+   "recall": 0.0,
+   "score_s": 13.263065310999991,
+   "n_tokens": 9040,
+   "ctx_words": 5927,
+   "n_sentences": 214
+  },
+  "qasper-b42323d60827ecf0d9e478c9a31f90940cfae975": {
+   "recall": 0.0,
+   "score_s": 6.508613793999984,
+   "n_tokens": 4555,
+   "ctx_words": 3217,
+   "n_sentences": 183
+  },
+  "qasper-2159062595f24ec29826d517429e1b809ba068b3": {
+   "recall": 0.0,
+   "score_s": 8.458326365999937,
+   "n_tokens": 4970,
+   "ctx_words": 3721,
+   "n_sentences": 131
+  },
+  "qasper-84737d871bde8058d8033e496179f7daec31c2d3": {
+   "recall": 0.0,
+   "score_s": 7.291206195999848,
+   "n_tokens": 4729,
+   "ctx_words": 3166,
+   "n_sentences": 142
+  },
+  "qasper-21df76462c76d6e2d52fb7dce573ee5336627cb5": {
+   "recall": 0.0,
+   "score_s": 3.5046410939999078,
+   "n_tokens": 2444,
+   "ctx_words": 1989,
+   "n_sentences": 101
+  },
+  "qasper-06202ab8b28dcf3991523cf163b8844b42b9fc99": {
+   "recall": 0.0,
+   "score_s": 6.005369596999799,
+   "n_tokens": 4191,
+   "ctx_words": 2784,
+   "n_sentences": 134
+  },
+  "qasper-05671d068679be259493df638d27c106e7dd36d0": {
+   "recall": 0.0,
+   "score_s": 14.799163909000072,
+   "n_tokens": 10130,
+   "ctx_words": 6000,
+   "n_sentences": 222
+  },
+  "qasper-dd2046f5481f11b7639a230e8ca92904da75feed": {
+   "recall": 0.0,
+   "score_s": 5.423531534999938,
+   "n_tokens": 3809,
+   "ctx_words": 2952,
+   "n_sentences": 160
+  },
+  "qasper-cebf3e07057339047326cb2f8863ee633a62f49f": {
+   "recall": 0.0,
+   "score_s": 6.940826868000158,
+   "n_tokens": 4714,
+   "ctx_words": 3401,
+   "n_sentences": 149
+  },
+  "qasper-f103789b85b00ec973076652c639bd31c605381e": {
+   "recall": 0.0,
+   "score_s": 8.049657580999792,
+   "n_tokens": 5621,
+   "ctx_words": 3637,
+   "n_sentences": 162
+  },
+  "qasper-32a232310babb92991c4b1b75f7aa6b4670ec447": {
+   "recall": 1.0,
+   "score_s": 10.868811407999829,
+   "n_tokens": 7417,
+   "ctx_words": 5835,
+   "n_sentences": 213
+  },
+  "qasper-f5cf8738e8d211095bb89350ed05ee7f9997eb19": {
+   "recall": 0.0,
+   "score_s": 6.866728775000183,
+   "n_tokens": 4739,
+   "ctx_words": 3529,
+   "n_sentences": 168
+  },
+  "qasper-a9d530d68fb45b52d9bad9da2cd139db5a4b2f7c": {
+   "recall": 0.6666666666666666,
+   "score_s": 5.086419024999941,
+   "n_tokens": 3455,
+   "ctx_words": 2193,
+   "n_sentences": 97
+  },
+  "qasper-69ef007fc131b04b5b71b0b446db2f77f434f1b3": {
+   "recall": 0.8,
+   "score_s": 5.230133384000055,
+   "n_tokens": 3448,
+   "ctx_words": 2806,
+   "n_sentences": 154
+  },
+  "qasper-6916596253d67f74dba9222f48b9e8799581bad9": {
+   "recall": 0.0,
+   "score_s": 8.209758758999897,
+   "n_tokens": 5668,
+   "ctx_words": 3494,
+   "n_sentences": 149
+  },
+  "qasper-53807f435d33fe5ce65f5e7bda7f77712194f6ab": {
+   "recall": 0.125,
+   "score_s": 11.357130438000013,
+   "n_tokens": 7956,
+   "ctx_words": 6000,
+   "n_sentences": 234
+  },
+  "qasper-b11ee27f3de7dd4a76a1f158dc13c2331af37d9f": {
+   "recall": 0.0,
+   "score_s": 8.464883238000084,
+   "n_tokens": 5817,
+   "ctx_words": 3659,
+   "n_sentences": 171
+  },
+  "qasper-07c9863e1e86c31b740b5b5a77fe8000be00c273": {
+   "recall": 0.0,
+   "score_s": 4.431706712999812,
+   "n_tokens": 3008,
+   "ctx_words": 1957,
+   "n_sentences": 86
+  },
+  "qasper-9cc0fd3721881bd8e246d20fff5d15bd32365655": {
+   "recall": 1.0,
+   "score_s": 12.666735932000165,
+   "n_tokens": 8393,
+   "ctx_words": 5960,
+   "n_sentences": 303
+  },
+  "qasper-d40662236eed26f17dd2a3a9052a4cee1482d7d6": {
+   "recall": 1.0,
+   "score_s": 8.179466219000005,
+   "n_tokens": 5588,
+   "ctx_words": 4081,
+   "n_sentences": 168
+  },
+  "qasper-e4d16050f0b457c93e590261732a20401def9cde": {
+   "recall": 0.8,
+   "score_s": 4.697833893000052,
+   "n_tokens": 3149,
+   "ctx_words": 2394,
+   "n_sentences": 112
+  },
+  "qasper-00e9f088291fcf27956f32a791f87e4a1e311e41": {
+   "recall": 1.0,
+   "score_s": 8.604839640999899,
+   "n_tokens": 5910,
+   "ctx_words": 4229,
+   "n_sentences": 183
+  },
+  "qasper-423bb905e404e88a168e7e807950e24ca166306c": {
+   "recall": 0.0,
+   "score_s": 8.079394002000072,
+   "n_tokens": 5566,
+   "ctx_words": 3609,
+   "n_sentences": 172
+  },
+  "qasper-5cd5864077e4074bed01e3a611b747a2180088a0": {
+   "recall": 0.36363636363636365,
+   "score_s": 3.3126824080000006,
+   "n_tokens": 2291,
+   "ctx_words": 1688,
+   "n_sentences": 78
+  },
+  "qasper-76c8aac84152fc4bbc0d5faa7b46e40438353e77": {
+   "recall": 0.0,
+   "score_s": 5.745560743000169,
+   "n_tokens": 3860,
+   "ctx_words": 2754,
+   "n_sentences": 125
+  },
+  "qasper-dee116df92f9f92d9a67ac4d30e32822c22158a6": {
+   "recall": 1.0,
+   "score_s": 11.79804323999997,
+   "n_tokens": 8150,
+   "ctx_words": 6000,
+   "n_sentences": 222
+  }
+ }
+}
