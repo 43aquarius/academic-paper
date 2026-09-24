@@ -1,0 +1,226 @@
+[
+ {
+  "context_words": 1000,
+  "method": "sieve",
+  "median_ms": 3.31,
+  "min_ms": 3.28,
+  "max_ms": 3.41,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "textrank",
+  "median_ms": 6.41,
+  "min_ms": 6.4,
+  "max_ms": 6.45,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "head",
+  "median_ms": 0.05,
+  "min_ms": 0.05,
+  "max_ms": 0.06,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "random",
+  "median_ms": 1.19,
+  "min_ms": 1.17,
+  "max_ms": 1.22,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "stride",
+  "median_ms": 1.2,
+  "min_ms": 1.19,
+  "max_ms": 1.2,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "bm25",
+  "median_ms": 1.76,
+  "min_ms": 1.74,
+  "max_ms": 1.79,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "sieve",
+  "median_ms": 9.02,
+  "min_ms": 8.99,
+  "max_ms": 9.12,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "textrank",
+  "median_ms": 20.04,
+  "min_ms": 20.0,
+  "max_ms": 20.14,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "head",
+  "median_ms": 0.11,
+  "min_ms": 0.1,
+  "max_ms": 0.12,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "random",
+  "median_ms": 2.46,
+  "min_ms": 2.43,
+  "max_ms": 2.47,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "stride",
+  "median_ms": 2.47,
+  "min_ms": 2.45,
+  "max_ms": 2.49,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "bm25",
+  "median_ms": 3.57,
+  "min_ms": 3.53,
+  "max_ms": 3.64,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "sieve",
+  "median_ms": 29.95,
+  "min_ms": 29.66,
+  "max_ms": 30.25,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "textrank",
+  "median_ms": 69.17,
+  "min_ms": 68.88,
+  "max_ms": 69.71,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "head",
+  "median_ms": 0.22,
+  "min_ms": 0.21,
+  "max_ms": 0.25,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "random",
+  "median_ms": 4.97,
+  "min_ms": 4.94,
+  "max_ms": 4.98,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "stride",
+  "median_ms": 5.07,
+  "min_ms": 5.02,
+  "max_ms": 5.08,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "bm25",
+  "median_ms": 7.05,
+  "min_ms": 7.03,
+  "max_ms": 7.31,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "sieve",
+  "median_ms": 53.73,
+  "min_ms": 53.49,
+  "max_ms": 53.82,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "textrank",
+  "median_ms": 125.97,
+  "min_ms": 125.73,
+  "max_ms": 126.18,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "head",
+  "median_ms": 0.33,
+  "min_ms": 0.33,
+  "max_ms": 0.35,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "random",
+  "median_ms": 7.52,
+  "min_ms": 7.47,
+  "max_ms": 7.55,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "stride",
+  "median_ms": 7.59,
+  "min_ms": 7.55,
+  "max_ms": 7.59,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "bm25",
+  "median_ms": 10.64,
+  "min_ms": 10.49,
+  "max_ms": 10.72,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "gpt2-gate",
+  "median_ms": 2307.8,
+  "min_ms": 2292.8,
+  "max_ms": 2330.5,
+  "repeats": 3
+ },
+ {
+  "context_words": 2000,
+  "method": "gpt2-gate",
+  "median_ms": 4910.1,
+  "min_ms": 4874.4,
+  "max_ms": 4975.2,
+  "repeats": 3
+ },
+ {
+  "context_words": 4000,
+  "method": "gpt2-gate",
+  "median_ms": 9288.8,
+  "min_ms": 9186.5,
+  "max_ms": 9309.7,
+  "repeats": 3
+ },
+ {
+  "context_words": 6000,
+  "method": "gpt2-gate",
+  "median_ms": 13678.2,
+  "min_ms": 13315.6,
+  "max_ms": 13728.1,
+  "repeats": 3
+ }
+]
