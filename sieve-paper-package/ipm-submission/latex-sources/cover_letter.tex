@@ -1,0 +1,122 @@
+% Cover letter for the IP&M submission of the Sieve manuscript.
+% All factual statements are drawn from the manuscript (paper-journal,
+% 2026-09-24 version) and its auto-generated numbers.tex macros.
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{parskip}
+\pagestyle{empty}
+\setlength{\parskip}{0.55em}
+
+\newcommand{\PaperTitle}{Sieve: Training-Free, Model-Free, Question-Conditioned
+Context Compression for Efficient Long-Context LLM Inference: An
+Accuracy--Compression--Cost Frontier Study of Model-Free Information Selection}
+
+\begin{document}
+
+\begin{flushleft}
+September 28, 2026
+
+\bigskip
+The Editors\\
+Information Processing \& Management
+\end{flushleft}
+
+\bigskip
+\noindent\textbf{Re: Submission of a Full Length Article --- ``\PaperTitle{}''}
+
+\bigskip
+Dear Editors,
+
+Please consider the manuscript referenced above for publication in
+\emph{Information Processing \& Management} as a \textbf{Full Length Article}.
+I am the sole author of the manuscript and serve as its corresponding author.
+
+The manuscript studies a question that sits between two well-mapped regions
+of the prompt-compression landscape. Neural compressors such as LLMLingua
+and its successors recover most task quality at high ratios, but they
+require a hosted scorer, GPU capacity for at least one forward pass over
+the full context, and a tokenizer matched to the scorer. Truncation is
+free but question-agnostic, and it interacts badly with the positional
+biases of long-context models. Between the two lies a region that has not
+been mapped systematically: compressors that consult the question, cost
+milliseconds of arithmetic, and require no model at all. The manuscript
+measures how much quality that region gives up, at what compression, and
+at what computational cost.
+
+The vehicle of the study is \emph{Sieve}, a training-free, model-free
+sentence selector built from three corpus-local statistics: IDF-weighted
+coverage of query content terms, a U-shaped positional prior, and a
+redundancy penalty applied greedily under an explicit word budget, with
+selected sentences emitted in their original order. Its preprocessing is a
+linear-time pass over the context, its budgeted selection is
+$O(k\,n\,\bar{s})$, and on the evaluation container the full selector runs
+in tens of milliseconds on one CPU core (53.7\,ms at a 6{,}000-word
+context), with no model parameters, no training, and no dependency beyond
+NumPy.
+
+The evaluation is organized as a three-way accuracy--compression--cost
+frontier study over three evidence-annotated benchmarks --- QASPER,
+HotpotQA (distractor setting), and 2WikiMultihopQA --- totaling 1{,}600
+records under a reader-free evidence-recall protocol, plus end-task
+question answering with a production reader at the $4\times$ operating
+point, with sample sizes stated and claims scoped accordingly. The main
+findings, all reported with paired bootstrap intervals, are: (i) Sieve
+retains more gold evidence than every question-agnostic baseline on all
+three datasets, with margins over head truncation of 12.8, 44.8, and 22.8
+recall points at $4\times$; (ii) a BM25 sentence-ranking baseline, which
+the manuscript adds as the strongest question-conditioned model-free
+comparator, exceeds the full selector in raw recall on all three
+datasets --- a result the manuscript reports as measured and explains
+through the selector's own ablations as the positional prior trading
+recall for placement where readers attend reliably; (iii) a GPT-2
+perplexity gate, measured on the same hardware as every other method,
+reaches 28.7\% evidence recall at $4\times$ on QASPER at 255--320$\times$
+Sieve's measured cost; and (iv) evidence recall correlates only weakly
+with end-task answer F1 (pooled Pearson 0.30), so the two protocols are
+reported separately throughout. A formal analysis states the cost of each
+pipeline stage and the selection behavior under an explicit
+lexical-coverage condition, and a robustness study covers evidence
+placement, hyperparameter sensitivity, and cross-dataset transfer without
+retuning.
+
+I believe the manuscript fits the scope of \emph{Information Processing \&
+Management}. It is a quantitative study of question-conditioned information
+selection: it builds directly on classical information-retrieval machinery
+(IDF weighting, BM25, maximal marginal relevance), evaluates selection
+quality with recall protocols over annotated evidence, and connects
+selection decisions to the processing and cost of managing long contexts
+in information systems. The frontier analysis reports quality,
+compression, and compressor cost for every method, giving practitioners a
+measured basis for deciding when statistical selection suffices and when
+a hosted scorer earns its infrastructure.
+
+The manuscript substantially extends an earlier conference-format study of
+the same method, as described in the Introduction, with a three-dataset
+evaluation, a new BM25 baseline, a same-hardware measured comparison
+against a neural perplexity gate, formal analysis, and a recall--accuracy
+correlation study.
+
+I confirm that: the manuscript is original and has not been published
+previously in any form; it is not under consideration by any other
+journal; I have no known competing financial interests or personal
+relationships that could have appeared to influence the work reported; and
+the work received no specific funding. The benchmarks used are public
+(QASPER, HotpotQA, 2WikiMultihopQA), and the released repository
+reproduces every table and figure from raw checkpoints.
+
+Thank you for considering the manuscript. I look forward to the reviewers'
+comments.
+
+\bigskip
+Sincerely,
+
+\bigskip
+Chang Tan\\
+Undergraduate Student, School of Economics and Management\\
+Dalian University of Technology\\
+No.\,2 Linggong Road, Ganjingzi District, Dalian, Liaoning 116024, China\\
+E-mail: 2352935097@qq.com
+
+\end{document}

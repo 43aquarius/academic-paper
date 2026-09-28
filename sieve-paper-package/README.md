@@ -4,6 +4,8 @@
 
 ## 一分钟导览
 
+- `ipm-submission/` —— **Elsevier IP&M 新投稿系统可直接上传的四件套**
+  （Cover Letter / 匿名 Manuscript / Highlights / Title Page，含 LaTeX 源与重建说明）
 - `paper/Sieve_NeurIPS2025_submission.pdf` —— 可直接提交的论文（NeurIPS 2025 双盲格式，
   正文 9 页 + 参考文献 + 附录 + 16 项 checklist）
 - `research-repo/` —— 完整研究代码库（方法、基线、评测、实验脚本、原始数据与结果）

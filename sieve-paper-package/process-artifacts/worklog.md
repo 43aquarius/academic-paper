@@ -78,3 +78,34 @@ Stage Summary:
 - 产物：main.tex/numbers.tex/bibliography.bib(18 条全验证)/4 张矢量图/编译 PDF
 - 全流程文档齐备：design_philosophy.md、chart_choices.md、draft_cn.md、review_report.md、reader_test.md、notes.md
 - 待办：打包 zip 到 download/
+
+---
+Task ID: ipm-submission-prep
+Agent: Super Z (main agent)
+Task: 依据 2026-09-24 最终版论文，制作 IP&M（Information Processing & Management）
+投稿四件套并上传本仓库
+
+Work Log:
+- 克隆仓库，通读 paper-journal/main.tex（1811 行）、numbers.tex（430 宏）、README，
+  确认最新提交 2376d2b 即 2026-09-24 IP&M 版
+- Cover Letter：严格引用论文已验证数字（12.8/44.8/22.8 对 head 配对增益、BM25 原始
+  召回更高、GPT-2 gate 28.7% 召回与 255–320× 成本比、Pearson 0.30、53.7ms@6k 词、
+  1600 记录），含原创性/未一稿多投/无利益冲突/无基金/数据可用性声明与会议版扩展披露
+- 匿名稿：[review,12pt] + 显式 lineno（本版 elsarticle 的 review 选项不含行号）；
+  删除占位作者块；CRediT 改 "[Author name withheld for double-anonymous review]"；
+  .tex 仅 12 行改动，numbers.tex/bibliography.bib 逐字节一致，正文实质内容零改动
+- Highlights：5 条，实际字符数 78/77/84/77/69（均 ≤85），无 SOTA/significantly 类
+  夸大表述；数字与 numbers.tex 核对
+- Title Page：Chang Tan / Undergraduate Student / 大连理工经管学院完整地址 / 通讯作者
+  / Funding: None / Acknowledgements: None（未编造任何缺失信息）
+- 元数据：匿名稿与 Highlights 不含 /Author 字段；Cover Letter 与 Title Page 署名
+- 脚本化验证（verify_ipm_submission.py）全部通过：56 页身份泄露扫描（"Tan" 仅出现于
+  被引文献作者列表）、四文件标题一致性、作者信息一致性、字符数上限
+- 删除根目录 Sieve_Journal_submission.pdf（与 paper-journal/main.pdf 逐字节相同的
+  已被取代副本），源文件全部保留未动
+
+Stage Summary:
+- 产出 ipm-submission/：Cover_Letter.pdf(2页)、Sieve_IPM_Manuscript_Blinded.pdf(56页,
+  行号+1.5倍行距)、Highlights.pdf(1页)、Sieve_IPM_Title_Page.pdf(1页) + latex-sources/
+- 通讯邮箱暂取 git 提交邮箱 2352935097@qq.com，更换时改两处 tex 重编译即可
+- 四文件标题统一采用论文实际完整标题（含 Accuracy–Compression–Cost Frontier 副标题）

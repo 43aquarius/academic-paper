@@ -1,0 +1,40 @@
+% Highlights for the Elsevier IP&M submission of the Sieve manuscript.
+% 5 bullets, each at most 85 characters including spaces (rendered text).
+% Verified against the manuscript's numbers.tex (2026-09-24 version):
+%   - model-free / training-free, tens of ms on one CPU core (53.7 ms @ 6k words)
+%   - 3 datasets, 1600 records (1000 + 300 + 300)
+%   - BM25 raw recall above the full selector on all three datasets; the
+%     positional prior trades recall for reader-side placement reliability
+%   - GPT-2 gate: 28.7% recall @ 4x vs 255x (6k words) / 320x (median) cost
+%   - pooled Pearson 0.30 between evidence recall and end-task F1
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\pagestyle{empty}
+
+\newcommand{\PaperTitle}{Sieve: Training-Free, Model-Free, Question-Conditioned
+Context Compression for Efficient Long-Context LLM Inference: An
+Accuracy--Compression--Cost Frontier Study of Model-Free Information Selection}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Highlights}\\[0.6em]
+{\large \PaperTitle{}\\[0.35em]}
+{\normalsize\itshape Manuscript submitted to Information Processing \& Management
+(Full Length Article)}
+\end{center}
+
+\vspace{1.2em}
+
+\begin{itemize}[leftmargin=1.6em, itemsep=0.55em]
+\item A model-free, training-free selector compresses long contexts in milliseconds.
+\item Three-dataset, 1600-record study maps the accuracy--compression--cost frontier.
+\item BM25 leads raw recall; the positional prior trades recall for reader-side placement.
+\item A measured GPT-2 perplexity gate costs 255--320$\times$ more compute for less recall.
+\item Evidence recall correlates only weakly with end-task answer accuracy.
+\end{itemize}
+
+\end{document}
