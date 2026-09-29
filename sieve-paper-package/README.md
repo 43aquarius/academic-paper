@@ -162,3 +162,42 @@ novelty + results too premature，范围确认无问题）。据此完成两阶�
 
 剩余待办：路径 A0（API 配额恢复后 `python3 scripts/run_qa_driver.py
 540 760`）与路径 B（多阅读器）；数据落盘后重跑宏链即可自动升级。
+
+## 路径 A0 进行中 + B2 预置（2026-09-29，第三次更新）
+
+- **A0（端到端 QA n=100 协议恢复）进度 484/760**：full / head / random
+  三方法已各达 n=100（EM/F1 = 11.0/33.6、4.0/16.7、5.0/20.5，prompt
+  tokens 5181/1334/1354；full−head 配对 dF1 = +16.8，r=4 压缩代价在
+  端到端层清晰）；alpha 网格 60/60 完成；stride / textrank / bm25 /
+  sieve 各约 31/100，等端点配额恢复续跑。
+- **端点配额实况**：生产 LLM 端点（glm-4-plus，与会议版实验同源同
+  协议）为端点级限流（全模型共享，`probe_models.mjs` 验证）；本日
+  05:47–07:15 窗口完成 223 次调用后进入持续限流（至 09:46+ 未恢复）。
+- **新增脚本**：
+  - `run_qa_burst.py`：burst 模式驱动器（150s 短突发 + 探测门控 +
+    30s 重探），取代长窗口 driver 的空烧模式；泛化支持任意
+    worker/checkpoint 对（B2 复用同驱动器）；
+  - `run_position_reader.py`：路径 B2 阅读器侧位置剖面协议（M4 放置
+    逻辑反向、全上下文提问、提示与解码与 A0 逐字同构、记录池
+    pool[110:160] 与 test/dev 均不重叠，冒烟测试 50/50 可用）；
+  - `probe_models.mjs`：多模型配额独立性探测。
+- **宏链与图件预置**：`make_numbers_journal.py` 新增 PosR* 宏段
+  （每位置 ≥40 条门槛 + 配对 U 形检验 \PosRUGap*，数据未落地不发射）；
+  `fig_journal.py` 新增 `fig_position_reader`（fig6，bootstrap 置信带，
+  无数据自动跳过）；两者均有 \ifdefined/存在性护栏，论文 v2 当前仍为
+  conference 协议原样。
+- **PREREG.md**（research-repo/ 根目录）：A0 与 B2 的结局分支在
+  sieve/bm25/stride/textrank 数据落地**之前**冻结登记（声明纪律，
+  对应实验计划 e8 节）：三分支措辞（区间正分离/负分离/跨零）、负结果
+  作为结构性发现的报告路径、n=25 对冲措辞按新区间宽度逐条修订的
+  规则、B2 U 形三分支（复现/平坦/中庸偏好）。
+- **恢复指令**（配额恢复后，两条命令）：
+  ```bash
+  # A0 续跑至 760/760：
+  python3 scripts/run_qa_burst.py 540 150 760
+  # A0 完成后 B2（250 次调用）：
+  python3 scripts/run_qa_burst.py 540 150 250 run_position_reader.py position_reader.jsonl
+  # 然后（A0 完成即自动切换 expanded 协议，n=25→100，QABm* 宏激活）：
+  python3 scripts/run_correlation.py
+  python3 scripts/make_numbers_journal.py --out ../ipm-revision/paper-journal-v2/numbers.tex
+  ```
