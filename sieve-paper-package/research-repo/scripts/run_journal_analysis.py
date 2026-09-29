@@ -10,8 +10,14 @@ Runs, per dataset pool (QASPER n=1000, HotpotQA n=300, 2Wiki n=300):
   M5  sensitivity (QASPER only): beta/floor/gamma grids
   M6  pool statistics (median evidence position, evidence sentences/record)
   M7  per-record recall dump at r=4 (for the recall-F1 correlation study)
+  M8  config x budget x dataset matrix (Path C): the five ablation
+      configurations plus the five baselines at r in {2,4,8,16} on every
+      pool, each cell with bootstrap 95% CI, plus paired intervals
+      (sieve vs each variant and BM25) at r=4. Output:
+      results/journal_matrix.json (separate checkpoint file).
 
 No LLM calls; pure local compute. Output: results/journal_selector.json
+plus results/journal_matrix.json (M8).
 """
 import json
 import os
@@ -36,6 +42,14 @@ RATIOS = [2.0, 4.0, 8.0, 16.0]
 METHODS = ["sieve", "head", "random", "stride", "textrank", "bm25"]
 CKPT = os.path.join(RES, "journal_selector.json")
 
+# M8 matrix: five ablation configurations + five baselines.
+MATRIX_METHODS = ["sieve", "sieve-noq", "sieve-nopos", "sieve-nored",
+                  "sieve-relonly", "head", "random", "stride",
+                  "textrank", "bm25"]
+MCKPT = os.path.join(RES, "journal_matrix.json")
+PAIR_METHODS = ("sieve-noq", "sieve-nopos", "sieve-nored",
+                "sieve-relonly", "bm25")
+
 
 def load_ckpt():
     if os.path.exists(CKPT):
@@ -47,9 +61,28 @@ def load_ckpt():
 
 
 def save_ckpt(out):
-    with open(CKPT, "w") as f:
+    tmp = CKPT + ".tmp"
+    with open(tmp, "w") as f:
         json.dump(out, f, indent=1)
+    os.replace(tmp, CKPT)
     print("checkpoint saved", CKPT)
+
+
+def load_mckpt():
+    if os.path.exists(MCKPT):
+        try:
+            return json.load(open(MCKPT))
+        except Exception:
+            pass
+    return {}
+
+
+def save_mckpt(out):
+    tmp = MCKPT + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(out, f, indent=1)
+    os.replace(tmp, MCKPT)
+    print("matrix checkpoint saved", MCKPT)
 
 
 def gold_indices(sents, evidence):
@@ -315,6 +348,62 @@ def main():
         print(f"M6 {ds}: median_ev_pos="
               f"{out['pool_stats'][ds]['median_evidence_position']:.3f} "
               f"mean_ev_sents={out['pool_stats'][ds]['mean_evidence_sentences']:.1f}")
+
+    # ---- M8: config x budget x dataset matrix (Path C) ----
+    # Subsumes the cross-pool ablation (C1: the r=4 slice) and the
+    # config x budget matrix (C2). Stored in its own checkpoint file so
+    # the legacy journal_selector.json schema stays untouched.
+    mout = load_mckpt()
+    mout["pools"] = {k: len(v) for k, v in pools.items()}
+    mout.setdefault("matrix", {})
+    for ds, records in pools.items():
+        mout["matrix"].setdefault(ds, {})
+        # per-record recalls at r=4, kept in memory for the paired pass
+        pr_cache = {}
+        for ratio in RATIOS:
+            rs = str(ratio)
+            mout["matrix"][ds].setdefault(rs, {})
+            for m in MATRIX_METHODS:
+                if m in mout["matrix"][ds][rs]:
+                    continue
+                st = method_stats(records, m, ratio)
+                if st:
+                    mout["matrix"][ds][rs][m] = {
+                        "n": st["n"], "recall": st["recall"],
+                        "ci": st["ci"]}
+                    if ratio == 4.0:
+                        pr_cache[m] = st["per_record"]
+                    print(f"M8 {ds:7s} r={ratio:4.1f} {m:14s} "
+                          f"recall={st['recall'] * 100:.1f} "
+                          f"CI=[{st['ci'][0] * 100:.1f},"
+                          f"{st['ci'][1] * 100:.1f}]  ({time.time() - t0:.0f}s)")
+                    save_mckpt(mout)
+        # paired intervals at r=4: sieve vs each variant and BM25
+        if ds not in mout.get("paired_r4", {}):
+            need = ("sieve",) + PAIR_METHODS
+            for m in need:
+                if m not in pr_cache:
+                    st = method_stats(records, m, 4.0)
+                    if st:
+                        pr_cache[m] = st["per_record"]
+            pairs_out = {}
+            for other in PAIR_METHODS:
+                if other not in pr_cache or "sieve" not in pr_cache:
+                    continue
+                pairs = []
+                for rid, a in pr_cache["sieve"].items():
+                    if rid in pr_cache[other]:
+                        pairs.append((a, pr_cache[other][rid]))
+                if pairs:
+                    ci = paired_ci(pairs)
+                    md = statistics.mean(a - b for a, b in pairs)
+                    pairs_out[f"sieve-{other}"] = {
+                        "mean": md, "ci": ci, "n": len(pairs)}
+                    print(f"M8paired {ds:7s} sieve-{other:13s} "
+                          f"d={md * 100:+.1f} CI=[{ci[0] * 100:.1f},"
+                          f"{ci[1] * 100:.1f}]")
+            mout.setdefault("paired_r4", {})[ds] = pairs_out
+            save_mckpt(mout)
 
     save_ckpt(out)
     print(f"all stages complete ({time.time()-t0:.0f}s total)")

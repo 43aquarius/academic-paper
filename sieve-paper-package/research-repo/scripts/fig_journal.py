@@ -120,69 +120,109 @@ def fig_cost():
 
 
 def fig_frontier():
-    fig, axes = plt.subplots(1, 2, figsize=(9.2, 3.4), dpi=300,
-                             constrained_layout=True)
-    # left: recall vs ratio (QASPER) + QA F1 points at 4x
-    ax = axes[0]
-    sweep = JS["ratio_sweep"]["qasper"]
-    for m in ("sieve", "bm25", "head", "textrank", "random"):
-        xs, ys = [], []
-        for r in ("2.0", "4.0", "8.0", "16.0"):
-            v = sweep[r].get(m)
-            if v:
-                xs.append(float(r))
-                ys.append(v["recall"] * 100)
-        ax.plot(xs, ys, color=C[m], ls=LS[m], lw=1.9, marker=MK[m],
-                ms=4.2, label=NAME[m] + " (recall)", zorder=4)
-    # QA F1 at 4x (secondary story): from numbers macros would be static;
-    # read from checkpoints instead
-    import statistics
-    qa = {}
-    try:
-        for line in open(os.path.join(RES, "checkpoints", "main.jsonl")):
-            r = json.loads(line)
-            if r.get("ok") and r.get("dataset") == "qasper":
-                qa.setdefault(r["method"], []).append(r["f1"] * 100)
-    except FileNotFoundError:
-        pass
-    for m in ("full", "head", "sieve", "textrank"):
-        if m in qa:
-            ax.plot([4.0], [statistics.mean(qa[m])], marker=MK.get(
-                m, "*"), color=C[m], ms=9, ls="none",
-                label=NAME[m] + " (QA F1, n=25)", zorder=6,
-                markeredgecolor="white", markeredgewidth=0.6)
-    ax.set_xscale("log", base=2)
-    ax.set_xticks([2, 4, 8, 16])
-    ax.set_xticklabels(["2$\\times$", "4$\\times$", "8$\\times$",
-                        "16$\\times$"])
-    ax.minorticks_off()
-    ax.set_xlabel("compression ratio $r$", fontsize=9)
-    ax.set_ylabel("evidence recall / QA F1 (%)", fontsize=9)
-    ax.tick_params(labelsize=8)
-    ax.legend(fontsize=6.6, frameon=False, loc="upper right")
+    """Cost--recall frontier from the full config x budget x dataset matrix.
 
-    # right: recall vs latency at r=4 (QASPER), log x
-    ax = axes[1]
+    One panel per dataset. X: measured CPU latency of the selector at
+    the 6,000-word operating point (log scale). Y: gold evidence recall.
+    Thin gray lines connect configurations at the same compression
+    budget (equal-budget lines). The five Sieve variants run at
+    essentially identical cost, so the trade between raw recall and
+    placement/diversity appears as a vertical displacement at constant
+    cost. The GPT-2 gate was measured on QASPER records only, at r=4.
+    Requires results/journal_matrix.json and results/timing_variants.json
+    (Path C); otherwise skipped.
+    """
+    mx_path = os.path.join(RES, "journal_matrix.json")
+    tv_path = os.path.join(RES, "timing_variants.json")
+    if not (os.path.exists(mx_path) and os.path.exists(tv_path)):
+        print("journal_matrix.json / timing_variants.json missing; "
+              "frontier not redrawn")
+        return
+    MX = json.load(open(mx_path))
+    TV = {(r["context_words"], r["method"]): r["median_ms"]
+          for r in json.load(open(tv_path))}
     tmap = {(row["context_words"], row["method"]): row["median_ms"]
             for row in TM}
-    meth_lat = {
-        "head": tmap[(6000, "head")], "random": tmap[(6000, "random")],
-        "stride": tmap[(6000, "stride")], "textrank": tmap[(6000, "textrank")],
-        "bm25": tmap[(6000, "bm25")], "sieve": tmap[(6000, "sieve")],
-        "gate": tmap[(6000, "gpt2-gate")],
-    }
-    for m, lat in meth_lat.items():
-        rec = JS["methods"]["qasper"][m]["recall"] * 100 if m != "gate" \
-            else GATE["recall_mean"] * 100
-        ax.plot([lat], [rec], marker=MK[m], color=C[m], ms=8, ls="none",
-                label=NAME[m], zorder=5, markeredgecolor="white",
-                markeredgewidth=0.6)
-    ax.set_xscale("log")
-    ax.set_xlabel("selector latency, 6k-word context (ms, log)",
-                  fontsize=9)
-    ax.set_ylabel("evidence recall at 4$\\times$ (%)", fontsize=9)
-    ax.tick_params(labelsize=8)
-    ax.legend(fontsize=7.0, frameon=False, loc="upper left")
+
+    lat = {}
+    for m in ("head", "random", "stride", "bm25", "textrank"):
+        lat[m] = tmap[(6000, m)]
+    for m in ("sieve", "sieve-noq", "sieve-nopos", "sieve-nored",
+              "sieve-relonly"):
+        lat[m] = TV[(6000, m)]
+    lat["gate"] = tmap[(6000, "gpt2-gate")]
+
+    FC = {"sieve": "#0072B2", "sieve-noq": "#0072B2",
+          "sieve-nopos": "#0072B2", "sieve-nored": "#0072B2",
+          "sieve-relonly": "#D55E00", "head": "#E69F00",
+          "random": "#999999", "stride": "#56B4E9",
+          "textrank": "#009E73", "bm25": "#D55E00", "gate": "#CC79A7"}
+    FM = {"sieve": "o", "sieve-noq": "D", "sieve-nopos": "o",
+          "sieve-nored": "^", "sieve-relonly": "s", "head": "^",
+          "random": "v", "stride": "P", "textrank": "D",
+          "bm25": "s", "gate": "d"}
+    FF = {"sieve": True, "sieve-noq": False, "sieve-nopos": False,
+          "sieve-nored": False, "sieve-relonly": False, "head": True,
+          "random": True, "stride": True, "textrank": True,
+          "bm25": True, "gate": True}
+    FNAME = {"sieve": "Sieve (full)", "sieve-noq": "Sieve $-$question",
+             "sieve-nopos": "Sieve $-$position",
+             "sieve-nored": "Sieve $-$redundancy",
+             "sieve-relonly": "Sieve relevance-only",
+             "head": "Head", "random": "Random", "stride": "Stride",
+             "textrank": "TextRank", "bm25": "BM25",
+             "gate": "GPT-2 gate (r=4, QASPER)"}
+    order = ["head", "random", "stride", "bm25", "sieve-relonly",
+             "sieve-nopos", "sieve", "sieve-noq", "sieve-nored",
+             "textrank"]
+
+    fig, axes = plt.subplots(1, 3, figsize=(9.6, 3.5), dpi=300,
+                             constrained_layout=True)
+    for ax, ds in zip(axes, ("qasper", "hotpot", "2wiki")):
+        for r in ("2.0", "4.0", "8.0", "16.0"):
+            pts = []
+            for m in order:
+                v = MX["matrix"][ds][r].get(m)
+                if v:
+                    pts.append((lat[m], v["recall"] * 100))
+            if not pts:
+                continue
+            pts.sort()
+            ax.plot([p[0] for p in pts], [p[1] for p in pts],
+                    color="#BBBBBB", lw=0.9, alpha=0.55, zorder=2)
+            ax.annotate(f"{int(float(r))}$\\times$",
+                        (pts[0][0], pts[0][1]), fontsize=6.2,
+                        color="#777777", xytext=(3, 4),
+                        textcoords="offset points")
+        for m in order:
+            for r in ("2.0", "4.0", "8.0", "16.0"):
+                v = MX["matrix"][ds][r].get(m)
+                if not v:
+                    continue
+                lab = FNAME[m] if (r == "4.0" and ds == "2wiki") else None
+                ax.plot([lat[m]], [v["recall"] * 100], marker=FM[m],
+                        color=FC[m],
+                        markerfacecolor=(FC[m] if FF[m] else "white"),
+                        markeredgecolor=FC[m],
+                        ms=(7 if m == "sieve" else 5.2), ls="none",
+                        label=lab, zorder=5, markeredgewidth=1.1)
+        if ds == "qasper":
+            ax.plot([lat["gate"]], [GATE["recall_mean"] * 100],
+                    marker=FM["gate"], color=FC["gate"], ms=7, ls="none",
+                    zorder=5, markeredgecolor="white", markeredgewidth=0.6)
+        elif ds == "2wiki":
+            # legend proxy: the gate was measured on QASPER only
+            ax.plot([], [], marker=FM["gate"], color=FC["gate"], ms=7,
+                    ls="none", label=FNAME["gate"], zorder=5,
+                    markeredgecolor="white", markeredgewidth=0.6)
+        ax.set_xscale("log")
+        ax.set_xlim(0.2, 30000)
+        ax.set_title(DSNAME[ds], fontsize=9.5)
+        ax.set_xlabel("selector latency, 6k words (ms, log)", fontsize=9)
+        ax.tick_params(labelsize=8)
+    axes[0].set_ylabel("gold evidence recall (%)", fontsize=9)
+    axes[2].legend(fontsize=6.0, frameon=False, loc="lower right",
+                   handletextpad=0.2, borderpad=0.2, labelspacing=0.25)
     fig.savefig(os.path.join(FIG, "fig4_frontier.pdf"))
     plt.close(fig)
     print("fig4_frontier.pdf")
@@ -208,7 +248,25 @@ def fig_position():
 
 
 if __name__ == "__main__":
-    fig_ratio3()
-    fig_cost()
-    fig_frontier()
-    fig_position()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out-dir", default=None,
+                    help="output directory for figures (default: "
+                         "paper-journal/figures)")
+    ap.add_argument("--only", default=None,
+                    help="comma-separated subset of "
+                         "ratio3,cost,frontier,position (default: all)")
+    args = ap.parse_args()
+    if args.out_dir:
+        FIG = os.path.abspath(args.out_dir)
+        os.makedirs(FIG, exist_ok=True)
+    todo = {f.strip() for f in
+            (args.only or "ratio3,cost,frontier,position").split(",") if f.strip()}
+    if "ratio3" in todo:
+        fig_ratio3()
+    if "cost" in todo:
+        fig_cost()
+    if "frontier" in todo:
+        fig_frontier()
+    if "position" in todo:
+        fig_position()

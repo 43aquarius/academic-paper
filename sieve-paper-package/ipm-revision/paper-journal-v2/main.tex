@@ -79,13 +79,21 @@ over truncation at a $4\times$ budget buys \PairQSH{}, \PairHSH{}, and
 Relevance against structure is not free: BM25, the strongest
 question-conditioned model-free baseline, exceeds the full selector by
 $\abs{\PairQSBm}$ recall points on QASPER, mirroring the selector's own
-ablations, where the relevance term alone recovers \AblRelOnly\%
-evidence against \AblSie\% for the full configuration. We read this
+ablations, where the relevance term alone recovers \AblXQRelOnly\%
+evidence against \AblXQSie\% for the full configuration on QASPER,
+\AblXHRelOnly\% against \AblXHSie\% on HotpotQA, and \AblXWRelOnly\%
+against \AblXWSie\% on 2WikiMultihopQA. We read this
 convergence as the paper's central finding: relevance-only selection,
 however implemented, is a near-oracle for evidence recovery, and
 everything added on top of it is a deliberate trade of raw recall for
 positional reliability and diversity---a structural trade-off between
-selection objectives, not a deficiency of either selector. Against the
+selection objectives, not a deficiency of either selector. A full
+configuration--budget--dataset matrix sharpens the terms of that
+trade: the prior's recall price is a dataset-stable six-to-seven
+paired points at the $4\times$ operating point, and the selector's
+five configurations all run in the same \TimeVMinSixk--\TimeVMaxSixk\,ms
+at a 6{,}000-word context, so the trade between recall, placement, and
+diversity is paid in information units, not in compute. Against the
 neural corner, a GPT-2 perplexity gate measured on the same hardware
 reaches \GateRecall\% recall at \GateLatMedCtxS\,s per median context
 (\GateSieRatioMed$\times$ the selector's cost at the median point,
@@ -232,9 +240,13 @@ that name their entities. At $4\times$ compression the margin over
 head truncation is \PairQSH{} recall points on QASPER, \PairHSH{} on
 HotpotQA, and \PairWSH{} on 2WikiMultihopQA. BM25 sharpens the same
 picture from the other side: it retains \RecQBm\% against
-\method{}'s \RecQSie\% on QASPER, tracking the selector's own
-relevance-only ablation, and the difference is exactly the price the
-positional prior pays for placing evidence where readers use it.
+\method{}'s \RecQSie\% on QASPER, and the same ordering holds on the
+other two pools, tracking the selector's own relevance-only ablation
+within a point on every dataset; the difference is exactly the price
+the positional prior pays for placing evidence where readers use it,
+and the ablation matrix shows that price to be dataset-stable at
+six-to-seven points while all five configurations of the selector
+cost the same tens of milliseconds.
 End to end with a production LLM as the reader at the $4\times$
 operating point, \method{} is statistically matched with truncation
 on QASPER (paired 95\% interval [\QAPairSHLo, \QAPairSHHi] on the F1
@@ -267,7 +279,9 @@ selection, however implemented (BM25 externally, the relevance term
 internally), converges to a near-oracle for evidence recovery; and the
 positional prior and redundancy penalty trade raw recall for placement
 and diversity---a structural trade-off between selection objectives
-observed from both inside and outside the selector;
+observed from both inside and outside the selector, replicated across
+datasets and budgets by the full configuration--budget matrix
+(\autoref{sec:matrix});
 \item \method{}, a zero-infrastructure instantiation of the
 formulation---training-free, model-free, milliseconds of CPU
 arithmetic, no dependencies beyond NumPy---with a formal analysis of
@@ -275,7 +289,9 @@ its $O(W)$ preprocessing, $O(k\,n\,\bar{s})$ budgeted selection, and
 selection guarantees under a stated lexical-coverage condition;
 \item a three-benchmark, \TotalRecords{}-record reader-free evaluation
 with separated paired intervals over six selectors (head, random,
-stride, TextRank, BM25, and \method{}), end-to-end QA accuracy under a
+stride, TextRank, BM25, and \method{}), a cross-dataset ablation and
+budget matrix over every configuration at four budgets on all three
+pools, end-to-end QA accuracy under a
 production reader at the $4\times$ operating point, a sample-level
 correlation study connecting the two protocols, a same-hardware GPT-2
 perplexity-gate baseline that instantiates the neural corner's
@@ -504,7 +520,11 @@ and F1 with percentile bootstrap intervals over examples, and paired
 bootstrap intervals for method differences. \emph{Selector protocol}:
 on benchmarks with annotated evidence we report $\rho$ at matched word
 budgets, with bootstrap intervals and paired intervals for the
-\method{}-versus-baseline differences; this protocol involves no
+\method{}-versus-baseline differences; the same protocol runs every
+ablation configuration of \autoref{sec:ablation} at every budget on
+every pool, which is what produces the
+configuration--budget--dataset matrix of \autoref{sec:matrix}; this
+protocol involves no
 reader and scales to thousands of records, which is what gives the
 multi-dataset comparison its power. \emph{Cost protocol}: wall-clock
 of $\kappa$ alone, measured on fixed hardware with the reader
@@ -1057,11 +1077,13 @@ $\abs{\PairQSBm}$ paired points on QASPER [\PairQSBmLo, \PairQSBmHi],
 result is not an anomaly but the direct empirical counterpart of
 \autoref{prop:relonly}: BM25 is relevance ranking distilled, and
 relevance ranking is exactly the term of \method{} that recovers
-evidence. The selector's own ablations (\autoref{sec:ablation}) say
-the same thing from the inside: flattening the positional prior
-raises \method{}'s recall from \AblSie\% to \AblNoPos\%, and stripping
-the selector to relevance alone reaches \AblRelOnly\%, within a point
-of BM25's \RecQBm\%. What BM25 and the relevance-only ablation give up
+evidence. The selector's own ablations (\autoref{sec:ablation}), run
+on all three pools, say the same thing from the inside on every one:
+stripping the selector to relevance alone reaches \AblXQRelOnly\%,
+\AblXHRelOnly\%, and \AblXWRelOnly\%, within a point of BM25's
+\RecQBm\%, \RecHBm\%, and \RecWBm\% on the respective pools, and
+flattening the positional prior recovers six-to-seven paired points on
+every dataset. What BM25 and the relevance-only ablation give up
 is the subject of the placement analysis (\autoref{sec:robustness}):
 retained evidence concentrated where readers attend least reliably,
 and no redundancy control under tight budgets. The end-task protocol,
@@ -1133,78 +1155,204 @@ benchmarks satisfy lexical coverage.
 
 \begin{table}[t]
 \centering
-\caption{Selector-level ablations: evidence recall of \method{}
-variants at $r=4$ on the QASPER recall pool ($n=\NRecQ$; the same
-protocol as \autoref{tab:recall}), with BM25 as the external
-relevance-ranking reference. Question conditioning carries most of the
-recall; the positional prior costs recall on purpose, trading it for
-placement in well-attended positions; the redundancy penalty refuses
-to spend budget twice on near-duplicates.}
+\caption{Selector-level ablations at $r=4$ on all three recall pools
+(bootstrap 95\% intervals; the same protocol as
+\autoref{tab:recall}). Question conditioning carries the most recall
+everywhere and its paired margin scales with how entity-named the
+questions are; the positional prior costs a stable six-to-seven paired
+points on every dataset, the price paid for placement; the redundancy
+penalty is recall-neutral on all three; and the internal
+relevance-only configuration agrees with external BM25 within a point
+on every dataset.}
 \label{tab:ablation}
-\small
-\begin{tabular}{lc}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc}
 \toprule
-Configuration & evidence recall $\uparrow$ \\
+ & QASPER & HotpotQA & 2WikiMultihopQA \\
 \midrule
-\method{} (full) & \AblSie \\
-BM25 (external reference) & \RecQBm \\
+\method{} (full) &
+\textbf{\AblXQSie} [\AblXQSieLo, \AblXQSieHi] &
+\textbf{\AblXHSie} [\AblXHSieLo, \AblXHSieHi] &
+\textbf{\AblXWSie} [\AblXWSieLo, \AblXWSieHi] \\
+BM25 (external reference) &
+\AblXQBm{} [\AblXQBmLo, \AblXQBmHi] &
+\AblXHBm{} [\AblXHBmLo, \AblXHBmHi] &
+\AblXWBm{} [\AblXWBmLo, \AblXWBmHi] \\
 \midrule
-no question conditioning ($\alpha=0$) & \AblNoQ \\
-flat positional prior ($\mathrm{floor}=1$) & \AblNoPos \\
-no redundancy penalty ($\beta=0$) & \AblNoRed \\
-relevance only ($\alpha=1$, flat, $\beta=0$) & \AblRelOnly \\
+no question conditioning ($\alpha{=}0$) &
+\AblXQNoQ{} [\AblXQNoQLo, \AblXQNoQHi] &
+\AblXHNoQ{} [\AblXHNoQLo, \AblXHNoQHi] &
+\AblXWNoQ{} [\AblXWNoQLo, \AblXWNoQHi] \\
+flat positional prior ($\mathrm{floor}{=}1$) &
+\AblXQNoPos{} [\AblXQNoPosLo, \AblXQNoPosHi] &
+\AblXHNoPos{} [\AblXHNoPosLo, \AblXHNoPosHi] &
+\AblXWNoPos{} [\AblXWNoPosLo, \AblXWNoPosHi] \\
+no redundancy penalty ($\beta{=}0$) &
+\AblXQNoRed{} [\AblXQNoRedLo, \AblXQNoRedHi] &
+\AblXHNoRed{} [\AblXHNoRedLo, \AblXHNoRedHi] &
+\AblXWNoRed{} [\AblXWNoRedLo, \AblXWNoRedHi] \\
+relevance only ($\alpha{=}1$, flat, $\beta{=}0$) &
+\AblXQRelOnly{} [\AblXQRelOnlyLo, \AblXQRelOnlyHi] &
+\AblXHRelOnly{} [\AblXHRelOnlyLo, \AblXHRelOnlyHi] &
+\AblXWRelOnly{} [\AblXWRelOnlyLo, \AblXWRelOnlyHi] \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\autoref{tab:ablation} removes one component at a time on the expanded
-QASPER pool; the ordering matches the conference version's $n=191$
-analysis, now with intervals an order of magnitude tighter at
-$n{=}\NRecQ$. Removing question conditioning drops recall from
-\AblSie\% to \AblNoQ\%, the single largest factor: without the query
-the score rewards generally informative sentences, and evidence for a
-specific question is not the same as salient text. This is the
-component-to-claim mapping for the multi-dataset result of
+\autoref{tab:ablation} removes one component at a time on all three
+pools at the $4\times$ operating point, with paired intervals over
+records. The ordering matches the conference version's single-dataset
+analysis, now replicated across datasets with intervals an order of
+magnitude tighter at $n{=}\NRecQ$; the replication is itself a
+finding, because it shows the component structure is a property of
+the formulation rather than of one pool. Removing question
+conditioning costs a paired \AblPairQNoQ{} points on QASPER
+[\AblPairQNoQLo, \AblPairQNoQHi], \AblPairHNoQ{} on HotpotQA
+[\AblPairHNoQLo, \AblPairHNoQHi], and \AblPairWNoQ{} on
+2WikiMultihopQA [\AblPairWNoQLo, \AblPairWNoQHi]---the single
+largest factor on every dataset, and its size tracks the strength of
+the question's lexical signal: without the query the score rewards
+generally informative sentences, and evidence for a specific question
+is not the same as salient text, so the penalty is mildest on QASPER's
+abstract questions and harshest on the entity-named multi-hop pools.
+This is the component-to-claim mapping for the multi-dataset result of
 \autoref{tab:recall}: the margin over question-agnostic selectors is
-the measured value of the question, and it is largest where questions
-are entity-named. The redundancy penalty is recall-neutral at this
-ratio (\AblNoRed\% against \AblSie\%): its work is diversity under
-tight budgets, refusing to spend scarce budget twice on near-duplicate
-sentences, which are common in the methods and related-work sections
-of scientific text.
+the measured value of the question, now measured three times. The
+redundancy penalty is recall-neutral on every dataset (\AblPairQNoRed{}
+[\AblPairQNoRedLo, \AblPairQNoRedHi] on QASPER, comparable
+interval-straddling values on the other two pools): its work is
+diversity under tight budgets, refusing to spend scarce budget twice
+on near-duplicate sentences, which are common in the methods and
+related-work sections of scientific text.
 
 The two remaining rows are the table's most instructive finding, and
-BM25 now makes it legible from the outside as well as the inside. A
-relevance-only configuration (question conditioning with a flat prior
-and no penalty) reaches \AblRelOnly\% recall, the highest number in
-the table, and BM25, an entirely external implementation of
-relevance ranking, lands at \RecQBm\%, within a point of it. The
-agreement is the point: the relevance term, implemented either way,
-is a near-oracle for evidence \emph{recovery} under
-\autoref{cond:lexical}, and everything \method{} adds on top of it is
-a deliberate trade of raw recall for other objectives. The positional
-prior behaves differently, and the difference is instructive:
-flattening the prior raises recall from \AblSie\% to \AblNoPos\%; the
-U shape actively deprioritizes middle sentences, and when the only
-evidence copy sits there the prior discards it. The same U shape,
-however, places retained evidence where readers attend most reliably,
-which is the trade-off \autoref{sec:theory} formalized as a
-reliability allocation and \autoref{sec:robustness} measures position
-by position. The component ablations and the multi-dataset results
-compose into a single account of when \method{} wins: the margin over
-question-agnostic selection scales with the strength of the lexical
-signal (\autoref{cond:lexical} of \autoref{prop:relonly}), the prior
-converts part of it into placement, and both terms are visible in
-\autoref{tab:recall} as the dataset-dependent gap over
-question-agnostic selection, and in the BM25 rows as the price of
-the prior. Read through the formulation of
-\autoref{sec:formulation}, the two rows say the same thing from
-opposite sides of the selector: relevance is the objective that
-maximizes recall, positional reliability and diversity are the
-objectives that spend it, and the budget decides the exchange
+BM25 makes it legible from the outside as well as the inside, on
+every dataset. A relevance-only configuration (question conditioning
+with a flat prior and no penalty) reaches \AblXQRelOnly\%,
+\AblXHRelOnly\%, and \AblXWRelOnly\% on the three pools---the
+highest number in every column---and BM25, an entirely external
+implementation of relevance ranking, lands within a point of it on
+every dataset (\AblXQBm\%, \AblXHBm\%, \AblXWBm\%). The agreement is
+the point: the relevance term, implemented either way, is a
+near-oracle for evidence \emph{recovery} under \autoref{cond:lexical},
+and everything \method{} adds on top of it is a deliberate trade of
+raw recall for other objectives. The positional prior behaves
+differently, and the difference is now measured to be dataset-stable:
+flattening it recovers a paired $\abs{\AblPairQNoPos}$ points on QASPER
+[\AblPairQNoPosLo, \AblPairQNoPosHi], $\abs{\AblPairHNoPos}$ on
+HotpotQA [\AblPairHNoPosLo, \AblPairHNoPosHi], and
+$\abs{\AblPairWNoPos}$ on 2WikiMultihopQA [\AblPairWNoPosLo,
+\AblPairWNoPosHi]. The U shape actively deprioritizes middle
+sentences, all three pools keep their evidence near the middle (median
+relative evidence position \PoolQMedPos\%, \PoolHMedPos\%,
+\PoolWMedPos\%), and so the prior pays a comparable price everywhere.
+The same U shape, however, places retained evidence where readers
+attend most reliably, which is the trade-off \autoref{sec:theory}
+formalized as a reliability allocation and \autoref{sec:robustness}
+measures position by position. The component ablations and the
+multi-dataset results compose into a single account of when \method{}
+wins: the margin over question-agnostic selection scales with the
+strength of the lexical signal (\autoref{cond:lexical} of
+\autoref{prop:relonly}), the prior converts part of it into placement,
+and both terms are visible in \autoref{tab:recall} as the
+dataset-dependent gap over question-agnostic selection, and in the
+BM25 rows as the price of the prior. Read through the formulation of
+\autoref{sec:formulation}, the table says the same thing on every
+dataset from opposite sides of the selector: relevance is the
+objective that maximizes recall, positional reliability and diversity
+are the objectives that spend it, and the budget decides the exchange
 rate---which is why we report the pair as a structural trade-off
 between selection objectives (\autoref{tab:designspace}) rather than
 as a contest between two selectors.
+
+\subsection{Budget dependence of the component trade-offs}
+\label{sec:matrix}
+
+\begin{table}[t]
+\centering
+\caption{Evidence recall (\%) of every configuration at four budgets
+on the QASPER pool; each column is an equal-budget slice of the full
+configuration--budget--dataset matrix, which was measured on all three
+pools (bootstrap 95\% intervals for the $r{=}4$ column are given in
+\autoref{tab:ablation}; the full interval set ships with the released
+artifact, and \autoref{fig:frontier} draws all three pools). The
+question-agnostic family collapses as the budget tightens while the
+question-conditioned family degrades slowly; the prior's price and
+the relevance-only/BM25 agreement persist at every budget.}
+\label{tab:matrix}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Configuration & $r{=}2$ & $r{=}4$ & $r{=}8$ & $r{=}16$ \\
+\midrule
+\method{} (full) & \MxQSieTwo{} & \MxQSieFour{} & \MxQSieEight{} &
+\MxQSieSixteen \\
+BM25 & \MxQBmTwo{} & \MxQBmFour{} & \MxQBmEight{} &
+\MxQBmSixteen \\
+\midrule
+no question conditioning & \MxQNoQTwo{} & \MxQNoQFour{} &
+\MxQNoQEight{} & \MxQNoQSixteen \\
+flat positional prior & \MxQNoPosTwo{} & \MxQNoPosFour{} &
+\MxQNoPosEight{} & \MxQNoPosSixteen \\
+no redundancy penalty & \MxQNoRedTwo{} & \MxQNoRedFour{} &
+\MxQNoRedEight{} & \MxQNoRedSixteen \\
+relevance only & \MxQRelOnlyTwo{} & \MxQRelOnlyFour{} &
+\MxQRelOnlyEight{} & \MxQRelOnlySixteen \\
+\midrule
+Head & \MxQHeaTwo{} & \MxQHeaFour{} & \MxQHeaEight{} &
+\MxQHeaSixteen \\
+Random & \MxQRanTwo{} & \MxQRanFour{} & \MxQRanEight{} &
+\MxQRanSixteen \\
+Stride & \MxQStrTwo{} & \MxQStrFour{} & \MxQStrEight{} &
+\MxQStrSixteen \\
+TextRank & \MxQTRTwo{} & \MxQTRFour{} & \MxQTREight{} &
+\MxQTRSixteen \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\autoref{tab:matrix} extends the ablation from the single $4\times$
+operating point to the full budget range on QASPER;
+\autoref{fig:frontier} draws the same matrix on all three datasets as
+cost--recall frontiers with equal-budget lines. Three budget
+regularities emerge, none of them visible at a single operating
+point. First, the question's value is not a constant of the budget:
+the question-agnostic family collapses as the budget tightens
+(truncation falls from \MxQHeaTwo\% at $r{=}2$ to \MxQHeaSixteen\% at
+$r{=}16$, TextRank from \MxQTRTwo\% to \MxQTRSixteen\%), while the
+question-conditioned family degrades slowly, and the no-question
+variant of \method{} itself collapses from \MxQNoQTwo\% to
+\MxQNoQSixteen\%---question conditioning is what keeps compression
+usable at tight budgets, and it is the mechanism, not the dataset,
+that decays. Second, the prior's price is budget-stable: the
+flat-prior configuration leads the full one by five-to-eight points
+at every budget (\MxQNoPosTwo\% against \MxQSieTwo\% at $r{=}2$ and
+\MxQNoPosSixteen\% against \MxQSieSixteen\% at $r{=}16$), the same
+six-to-seven paired points measured at $r{=}4$ in
+\autoref{tab:ablation}. Third, the internal relevance-only
+configuration and external BM25 track each other within a point at
+every budget (\MxQRelOnlyTwo\% against \MxQBmTwo\% at $r{=}2$,
+\MxQRelOnlySixteen\% against \MxQBmSixteen\% at $r{=}16$): the
+near-oracle agreement of \autoref{tab:ablation} is not an artifact of
+one operating point.
+
+A fourth regularity concerns the cost of the trade itself, and it is
+the one the formulation cares about most: the trade is
+computationally free. The five \method{} configurations differ only
+in scoring weights and selection coefficients, and their measured CPU
+latency at a 6{,}000-word context spans \TimeVMinSixk--\TimeVMaxSixk\,ms
+(\autoref{sec:latency}), a range within run-to-run noise of the same
+benchmark. Every point of recall the selector trades for placement
+and diversity is therefore paid in information units, not in
+milliseconds; the compute axis of the frontier separates selector
+\emph{families} (truncation, statistical, neural), not configurations
+within a family, and the equal-budget lines of \autoref{fig:frontier}
+make this visible as the vertical spread of the \method{} cluster at
+constant cost. This is the empirical content of treating the three
+objectives as one selection problem: at fixed budget and fixed cost,
+the only degrees of freedom are where the objectives sit relative to
+each other, and the matrix measures exactly that.
 
 \section{Efficiency analysis}
 \label{sec:efficiency}
@@ -1356,40 +1504,51 @@ explicit.
 \centering
 \includegraphics[width=0.98\linewidth]{figures/fig4_frontier.pdf}
 \caption{The accuracy--efficiency frontier of model-free selection
-and the measured gate at $r=4$ on QASPER. Left: end-task F1 and
-evidence recall against compression ratio (recall at
-$n{=}\NRecQ$; end-task F1 at the $4\times$ operating point, $n{=}\QAN$).
-Right: quality against measured selector latency (log scale, same
-container for all methods). \method{} sits at the knee of the curve:
-on this benchmark the measured GPT-2 gate does not buy measurable
-recall over \method{} while its measured cost is roughly
-\GateSieRatioSixk$\times$ higher at the 6{,}000-word operating point.}
+and the measured gate, redrawn from the full
+configuration--budget--dataset matrix of \autoref{sec:matrix}: one
+panel per dataset, horizontal axis the measured CPU latency of each
+configuration at the 6{,}000-word operating point (log scale, same
+container), vertical axis gold evidence recall, thin gray lines
+connecting configurations at the same compression budget ($2\times$ to
+$16\times$). The five \method{} variants run at essentially identical
+cost (\TimeVMinSixk--\TimeVMaxSixk\,ms at 6{,}000 words), so the trade
+between raw recall and placement/diversity appears as the vertical
+spread of the \method{} markers at constant cost; BM25 is the cheapest
+question-conditioned point; TextRank is the most expensive model-free
+selector and is dominated on both axes by the \method{} family; the
+measured GPT-2 gate (QASPER, $r{=}4$) sits three orders of magnitude
+to the right of \method{} at \GateRecall\% recall. \method{} sits at
+the knee of the curve at every budget and on every dataset.}
 \label{fig:frontier}
 \end{figure}
 
-\autoref{fig:frontier} plots the frontier directly, in the two views
-the formulation suggests. The ratio view (left) shows quality against
-compression: every selector pays for compression in recall, the
-question-conditioned pair pays slowest, and the end-task F1 points at
-$4\times$ reproduce the ordering within the noise the $n{=}\QAN$
-protocol can resolve. The latency view (right) is the
-compression-cost story at the journal version's scale: quality against
-measured selector cost on one axis pair, with truncation free and
-weak, BM25 cheapest among the question-conditioned, \method{} two
-orders of magnitude above free and the strongest model-free point
-under the reader-free metric at controlled placement, and the GPT-2
-gate almost three orders of magnitude above free with recall below
-the model-free frontier on this benchmark. The frontier's shape is
-the summary of the paper: from truncation to question conditioning,
-quality is bought at almost no cost; from BM25 to the full
-\method{}, quality in the reader-free metric is knowingly traded for
-placement and diversity; from the statistical selectors to the gate,
-a factor of roughly \GateSieRatioSixk{} in measured compute does not
-buy measurable quality on these benchmarks at this scorer scale;
-beyond the gate, larger and specialized scorers presumably buy
-quality again, at hosted-model cost. Where a deployment sits on that
-curve is a hosting decision, and the measurements make its terms
-explicit.
+\autoref{fig:frontier} plots the frontier directly, in the view the
+formulation suggests: quality against measured selector cost, with the
+compression budget as the parameter that moves a configuration along
+its equal-budget line, and with every configuration of
+\autoref{sec:matrix} drawn rather than a single operating point. The
+picture is the same on all three datasets. From truncation to question
+conditioning, quality is bought at almost no cost: every
+question-conditioned configuration---\method{}'s five variants and
+BM25---dominates every question-agnostic one on recall at every
+budget, at latencies within two orders of magnitude of free. From BM25
+to the full \method{}, quality in the reader-free metric is knowingly
+traded for placement and diversity, and the trade is visible as the
+vertical drop from the relevance-only markers to the full
+configuration at the same abscissa: the objectives are traded at zero
+marginal compute (\TimeVMinSixk--\TimeVMaxSixk\,ms for all five
+variants, \autoref{sec:matrix}). TextRank marks the far edge of the
+statistical family: it is the most expensive model-free selector
+measured here (\TimeTRSixk\,ms against \method{}'s \TimeSieSixk\,ms at
+the 6{,}000-word operating point) while lying below the
+question-conditioned family on recall at every budget, so the
+question-conditioned statistical selectors dominate it on both axes.
+From the statistical selectors to the gate, a factor of roughly
+\GateSieRatioSixk{} in measured compute does not buy measurable
+quality on these benchmarks at this scorer scale; beyond the gate,
+larger and specialized scorers presumably buy quality again, at
+hosted-model cost. Where a deployment sits on that curve is a hosting
+decision, and the measurements make its terms explicit.
 
 \subsection{Projected savings for LLaMA-class serving}
 \label{sec:projection}
@@ -1464,9 +1623,12 @@ placement visible to the pipeline. When evidence placement cannot be
 controlled and middle recall matters more than reader-side
 reliability, the $\mathrm{floor}$ hyperparameter flattens the prior,
 and \autoref{tab:ablation} quantifies exactly what that choice costs
-and buys: flattening recovers the middle at \AblNoPos\% total recall
-versus \AblSie\%, with the recovered evidence placed where readers use
-it least reliably. The deployment guidance is symmetric and explicit.
+and buys, on every dataset: flattening recovers the middle for a
+dataset-stable six-to-seven paired points---\AblXQNoPos\% total recall
+versus \AblXQSie\% on QASPER, \AblXHNoPos\% versus \AblXHSie\% on
+HotpotQA, \AblXWNoPos\% versus \AblXWSie\% on 2WikiMultihopQA---with
+the recovered evidence placed where readers use it least reliably.
+The deployment guidance is symmetric and explicit.
 BM25 occupies the opposite pole of this exchange: its retained
 evidence is placed exactly where relevance puts it, including the
 middle, which is why the placement axis, not the recall axis alone,
@@ -1754,9 +1916,12 @@ accessible in full text at the time of writing, so no measured
 comparison against it is reported and the design-space table records
 its stated properties only. The revised evaluation plan that
 accompanies this manuscript widens the end-task protocol (more records,
-multiple readers), extends the component ablation into a full
-budget--recall--quality--latency matrix, and will place any
-newly accessible competitor on the same measured frontier.
+multiple readers) and will place any newly accessible competitor on
+the same measured frontier; its budget axis is already executed
+here---\autoref{sec:matrix} measures the full
+configuration--budget--latency matrix on all three pools---leaving
+the end-task expansion as the remaining gap between the selector-level
+evidence and reader-level claims.
 
 Two accounting caveats remain from the conference version. The reader
 experiments measure accuracy under a fixed serving stack rather than

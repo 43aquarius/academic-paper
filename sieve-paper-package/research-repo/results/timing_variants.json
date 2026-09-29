@@ -1,0 +1,162 @@
+[
+ {
+  "context_words": 1000,
+  "method": "sieve",
+  "median_ms": 3.25,
+  "min_ms": 3.21,
+  "max_ms": 3.28,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "sieve-noq",
+  "median_ms": 3.18,
+  "min_ms": 3.17,
+  "max_ms": 3.21,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "sieve-nopos",
+  "median_ms": 3.23,
+  "min_ms": 3.21,
+  "max_ms": 3.26,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "sieve-nored",
+  "median_ms": 3.22,
+  "min_ms": 3.18,
+  "max_ms": 3.23,
+  "repeats": 5
+ },
+ {
+  "context_words": 1000,
+  "method": "sieve-relonly",
+  "median_ms": 3.24,
+  "min_ms": 3.22,
+  "max_ms": 3.26,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "sieve",
+  "median_ms": 8.91,
+  "min_ms": 8.88,
+  "max_ms": 8.93,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "sieve-noq",
+  "median_ms": 8.47,
+  "min_ms": 8.44,
+  "max_ms": 8.48,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "sieve-nopos",
+  "median_ms": 8.83,
+  "min_ms": 8.81,
+  "max_ms": 8.9,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "sieve-nored",
+  "median_ms": 8.96,
+  "min_ms": 8.91,
+  "max_ms": 9.06,
+  "repeats": 5
+ },
+ {
+  "context_words": 2000,
+  "method": "sieve-relonly",
+  "median_ms": 8.49,
+  "min_ms": 8.46,
+  "max_ms": 8.52,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "sieve",
+  "median_ms": 29.41,
+  "min_ms": 29.25,
+  "max_ms": 29.54,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "sieve-noq",
+  "median_ms": 29.76,
+  "min_ms": 29.68,
+  "max_ms": 30.15,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "sieve-nopos",
+  "median_ms": 29.72,
+  "min_ms": 29.59,
+  "max_ms": 30.08,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "sieve-nored",
+  "median_ms": 29.42,
+  "min_ms": 29.34,
+  "max_ms": 29.49,
+  "repeats": 5
+ },
+ {
+  "context_words": 4000,
+  "method": "sieve-relonly",
+  "median_ms": 30.19,
+  "min_ms": 30.13,
+  "max_ms": 30.34,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "sieve",
+  "median_ms": 53.14,
+  "min_ms": 52.88,
+  "max_ms": 53.35,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "sieve-noq",
+  "median_ms": 53.53,
+  "min_ms": 53.39,
+  "max_ms": 53.66,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "sieve-nopos",
+  "median_ms": 51.36,
+  "min_ms": 51.2,
+  "max_ms": 51.43,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "sieve-nored",
+  "median_ms": 54.31,
+  "min_ms": 54.17,
+  "max_ms": 74.07,
+  "repeats": 5
+ },
+ {
+  "context_words": 6000,
+  "method": "sieve-relonly",
+  "median_ms": 50.86,
+  "min_ms": 50.81,
+  "max_ms": 50.96,
+  "repeats": 5
+ }
+]

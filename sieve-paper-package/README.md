@@ -120,3 +120,45 @@ novelty + results too premature，范围确认无问题）。据此完成两阶�
 执行顺序：先做本地零依赖的路径 C，再恢复 A0（API 配额恢复后
 `python3 scripts/run_qa_driver.py 540 760`），实验数据落盘后按
 《实验补强计划》§7 的宏链自动注入 paper-journal-v2 并重编译。
+
+## 路径 C 执行完成（2026-09-29，第二次更新）
+
+按《实验补强计划》完成纯本地的路径 C（C1 消融跨数据集 + C2 配置×预算×
+数据集统一矩阵 + C3 frontier 图升级），全部宏链自动注入，论文 v2 从
+43 页更新至 45 页：
+
+- **research-repo 新增/改动**：
+  - `run_journal_analysis.py` 新增 M8 任务：五消融配置 + 五基线共 10 个
+    方法 × 4 档预算（r=2/4/8/16）× 3 数据池 = 120 格，每格含 bootstrap
+    95% 区间；另含 r=4 处 Sieve 对各变体与 BM25 的配对区间（15 组）。
+    输出独立检查点 `results/journal_matrix.json`，原有
+    `journal_selector.json` 结构与内容零改动（M1–M7 全部命中检查点跳过，
+    M6 确定性重算后逐字节一致）。检查点写入改为临时文件 + 原子替换。
+  - 新增 `run_timing_variants.py`：五个 Sieve 变体的 CPU 时序基准
+    （协议与 run_timing_journal.py 完全同构），输出
+    `results/timing_variants.json`。
+  - `fig_journal.py`：fig4_frontier 重绘为三数据集子图（横轴 6k 词实测
+    时序对数刻度、纵轴证据召回、灰色等预算线、Sieve 变体簇、GPT-2 门
+    单点），新增 `--out-dir`/`--only` 参数（默认行为不变，v1 图件未触碰）。
+  - `make_numbers_journal.py`：新增 Path C 宏段（\AblX* 跨池消融、
+    \AblPair* 配对区间、\Mx* 预算矩阵、\TimeV* 变体时序，共 517 个新宏）；
+    新增 `--out` 参数；修复预存的 bootstrap 无种子不可复现问题
+    （`random.Random(None)` → 固定 BOOT_SEED，重生成现为逐字节稳定；
+    旧 v1 numbers.tex 中部分 CI 宏因原脚本无种子而与重生成值相差
+    ≤0.5 点，属 CI 抽样噪声，点估计完全一致，v1 原件未动）。
+- **论文 v2 更新**（`ipm-revision/paper-journal-v2/`，45 页）：
+  - tab:ablation 升级为三数据集消融表（含区间）；新增 §Ablation/
+    Budget-dependence 小节与 tab:matrix（QASPER 十配置 × 四预算矩阵）；
+  - 摘要、引言、贡献列表、BM25 段、位置段、frontier 图注与论述、
+    局限节按矩阵发现改写；highlights 第 5 条更新；
+  - 四大跨数据集发现：①问题条件化配对增益 16.3/38.5/23.1 点，随
+    实体命名强度放大；②位置先验召回代价数据集稳定（6–7 配对点）；
+    ③冗余惩罚全程召回中性；④内部 relonly 与外部 BM25 三池全部吻合
+    （≤1 点）且四档预算全部吻合；⑤五变体时序 50.9–54.3ms ——三目标
+    权衡零边际算力，frontier 的算力轴分隔的是选择器家族而非家族内配置。
+- **执行细节**：M8 全程约 15 分钟（三次 timeout 分段续跑 + 每格原子
+  检查点）；变体时序测量约 1 分钟；所有数字经 make_numbers_journal.py
+  宏链注入，正文零手写数字。
+
+剩余待办：路径 A0（API 配额恢复后 `python3 scripts/run_qa_driver.py
+540 760`）与路径 B（多阅读器）；数据落盘后重跑宏链即可自动升级。
