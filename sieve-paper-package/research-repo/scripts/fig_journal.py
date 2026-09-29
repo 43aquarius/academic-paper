@@ -247,6 +247,54 @@ def fig_position():
     print("fig5_position.pdf")
 
 
+def fig_position_reader():
+    """B2: reader-side positional profile (full-context F1 vs evidence
+    position). Only produced when position_reader.jsonl is complete
+    enough; callers guard on data availability."""
+    import statistics
+    pr_path = os.path.join(RES, "checkpoints", "position_reader.jsonl")
+    if not os.path.exists(pr_path):
+        print("fig6 skipped: no position_reader.jsonl")
+        return
+    pr = {}
+    for line in open(pr_path):
+        try:
+            r = json.loads(line)
+        except Exception:
+            continue
+        if r.get("ok"):
+            pr.setdefault(float(r["pos"]), []).append(r["f1"] * 100)
+    if any(len(pr.get(p, [])) < 40 for p in (0.0, 0.25, 0.5, 0.75, 1.0)):
+        print("fig6 skipped: position_reader.jsonl incomplete")
+        return
+    fig, ax = plt.subplots(figsize=(4.6, 3.2), dpi=300,
+                           constrained_layout=True)
+    xs = [0, 25, 50, 75, 100]
+    keys = (0.0, 0.25, 0.5, 0.75, 1.0)
+    ys = [statistics.mean(pr[k]) for k in keys]
+    # bootstrap CI band (fixed seed for reproducibility)
+    import random as _random
+    rng = _random.Random(20260923)
+    lo, hi = [], []
+    for k in keys:
+        v = pr[k]
+        means = sorted(statistics.mean(
+            [v[rng.randrange(len(v))] for _ in range(len(v))])
+            for _ in range(1000))
+        lo.append(means[25])
+        hi.append(means[975])
+    ax.fill_between(xs, lo, hi, color=C["sieve"], alpha=0.18, lw=0)
+    ax.plot(xs, ys, color=C["sieve"], lw=2.0, marker="o", ms=5)
+    ax.set_xlabel("relative position of gold evidence (%)", fontsize=9)
+    ax.set_ylabel("Reader F1, full context (%)", fontsize=9)
+    ax.set_xticks(xs)
+    ax.set_xticklabels(["0", "25", "50", "75", "100"])
+    ax.tick_params(labelsize=8)
+    fig.savefig(os.path.join(FIG, "fig6_position_reader.pdf"))
+    plt.close(fig)
+    print("fig6_position_reader.pdf")
+
+
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
@@ -255,7 +303,8 @@ if __name__ == "__main__":
                          "paper-journal/figures)")
     ap.add_argument("--only", default=None,
                     help="comma-separated subset of "
-                         "ratio3,cost,frontier,position (default: all)")
+                         "ratio3,cost,frontier,position,position_reader "
+                         "(default: all)")
     args = ap.parse_args()
     if args.out_dir:
         FIG = os.path.abspath(args.out_dir)
@@ -270,3 +319,5 @@ if __name__ == "__main__":
         fig_frontier()
     if "position" in todo:
         fig_position()
+    if "position_reader" in todo:
+        fig_position_reader()

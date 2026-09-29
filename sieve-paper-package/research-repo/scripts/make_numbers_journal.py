@@ -411,6 +411,59 @@ def main(out=None):
     # total calls behind the paper's QA numbers
     A(f"\\newcommand{{\\TotalCalls}}{{{total_calls}}}")
 
+    # ---------------- B2: reader-side positional profile ----------------
+    # From results/checkpoints/position_reader.jsonl: full-context QA F1
+    # with the gold evidence sentence placed at 5 relative positions
+    # (same construction as the M4 selector-side study, direction
+    # reversed). Macros are emitted only when every position has >= 40
+    # successful records; the paper guards usage with \ifdefined.
+    pr_path = os.path.join(RES, "checkpoints", "position_reader.jsonl")
+    if os.path.exists(pr_path):
+        pr = defaultdict(list)
+        for line in open(pr_path):
+            try:
+                r = json.loads(line)
+            except Exception:
+                continue
+            if r.get("ok"):
+                pr[float(r["pos"])].append(r)
+        POSNAME = {0.0: "Zero", 0.25: "Quarter", 0.5: "Mid",
+                   0.75: "ThreeQ", 1.0: "One"}
+        if all(len(pr.get(p, [])) >= 40 for p in POSNAME):
+            A("% ---- B2: reader-side positional profile (full context, "
+              "evidence at 5 relative positions, reader GLM-4-Plus) ----")
+            f1_by = {}
+            for p, name in sorted(POSNAME.items()):
+                rs = pr[p]
+                em = statistics.mean(r["em"] for r in rs) * 100
+                f1m = statistics.mean(r["f1"] for r in rs) * 100
+                flo, fhi = boot([r["f1"] * 100 for r in rs])
+                f1_by[p] = {r["id"]: r["f1"] for r in rs}
+                A(f"\\newcommand{{\\PosR{name}N}}{{{len(rs)}}}")
+                A(f"\\newcommand{{\\PosR{name}EM}}{{{em:.1f}}}")
+                A(f"\\newcommand{{\\PosR{name}F}}{{{f1m:.1f}}}")
+                A(f"\\newcommand{{\\PosR{name}Flo}}{{{flo:.1f}}}")
+                A(f"\\newcommand{{\\PosR{name}Fhi}}{{{fhi:.1f}}}")
+            ends = (statistics.mean(r["f1"] for r in pr[0.0]) +
+                    statistics.mean(r["f1"] for r in pr[1.0])) / 2 * 100
+            mid = statistics.mean(r["f1"] for r in pr[0.5]) * 100
+            A(f"\\newcommand{{\\PosREndsF}}{{{ends:.1f}}}")
+            A(f"\\newcommand{{\\PosRMidF}}{{{mid:.1f}}}")
+            A(f"\\newcommand{{\\PosRMidGap}}{{{mid - ends:.1f}}}")
+            # paired U-shape test: mid F1 vs per-record mean of both ends
+            common = (set(f1_by[0.0]) & set(f1_by[1.0]) &
+                      set(f1_by[0.5]))
+            if common:
+                pairs = [(f1_by[0.5][i] * 100,
+                          (f1_by[0.0][i] + f1_by[1.0][i]) / 2 * 100)
+                         for i in common]
+                d = statistics.mean(a - b for a, b in pairs)
+                lo, hi = paired(pairs)
+                A(f"\\newcommand{{\\PosRUGap}}{{{d:.1f}}}")
+                A(f"\\newcommand{{\\PosRUGapLo}}{{{lo:.1f}}}")
+                A(f"\\newcommand{{\\PosRUGapHi}}{{{hi:.1f}}}")
+                A(f"\\newcommand{{\\PosRUPairs}}{{{len(pairs)}}}")
+
     # ---------------- correlation ----------------
     try:
         c = json.load(open(os.path.join(RES, "correlation.json")))
