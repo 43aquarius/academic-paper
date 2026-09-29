@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\usepackage[UTF8]{ctex}
+\usepackage{geometry}
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{adjustbox}
+\usepackage{enumitem}
+\usepackage{longtable}
+\usepackage{needspace}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.35em}
+\widowpenalty=10000
+\clubpenalty=10000
+
+% hyperref last
+\usepackage[
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  citecolor=blue!55!black,
+  urlcolor=blue!55!black,
+  bookmarks=true,
+  bookmarksnumbered=true,
+  unicode=true
+]{hyperref}
+
+\newcommand{\ck}{\ensuremath{\checkmark}}
+\newcommand{\no}{\ensuremath{\times}}
+\newcommand{\partl}{\ensuremath{\ast}}
+\newcommand{\unk}{\ensuremath{?}}
+\newcommand{\sieve}{\textsc{Sieve}}
+
+\title{Sieve 拒稿后重构·第一阶段：Novelty 审计报告}
+\author{Super Z 研究助手}
+\date{2026 年 9 月 29 日}
+
+\begin{document}
+
+\tableofcontents
+\newpage
+
+\input{sections/s1_diagnosis}
+\input{sections/s2_method}
+\input{sections/s3_cards}
+\input{sections/s4_taxonomy}
+\input{sections/s5_conclusion}
+\input{sections/s6_reformulation}
+\input{sections/s7_pending}
+
+\appendix
+\input{sections/appendix}
+
+\end{document}

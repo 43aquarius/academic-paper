@@ -1,0 +1,27 @@
+\section{research-repo 对接清单}
+
+以下按脚本粒度给出改动清单，全部路径相对 \texttt{sieve-paper-package/research-repo/}。改动的共同纪律：不修改 \texttt{src/sieve/} 与 \texttt{baselines/} 的任何现有行为（选择器实现是论文声明的对象，动它等于换方法）；新增逻辑一律以参数化或新脚本形式叠加；每个新结果文件登记到 \texttt{make\_numbers\_journal.py} 的宏生成链，保证论文引用继续走宏而非手写数字。
+
+\begin{enumerate}[itemsep=2pt]
+
+\item \texttt{scripts/run\_journal\_analysis.py}（C1+C2，一个文件两处改动）：其一，把 M3 的池选择从硬编码 QASPER 改为命令行参数（\texttt{--pools qasper,hotpot,2wiki}），消融配置数组抽出为模块级常量便于复用；其二，新增 M8 任务``配置 $\times$ 预算矩阵''——外层循环遍历消融五配置与基线（复用 M2 的预算循环体），内层复用现有打分与 bootstrap 函数，输出 \texttt{results/journal\_matrix.json}。预计净增 80--120 行。
+
+\item \texttt{scripts/run\_qa\_expanded.py}（A1）：把``前 100 条''的测试集切分参数化为 \texttt{--n 100|300}；其余零改动（提示、解码、断点、七方法全部冻结）。
+
+\item \texttt{scripts/run\_qa\_driver.py}（A0/A1/B1）：目标数与窗口已有参数；B1 复用时新增 \texttt{--reader} 参数透传给 \texttt{llm\_query.mjs} 的端点配置。检查点文件按阅读器分目录（\texttt{checkpoints/qa\_\{reader\}.jsonl}），避免混写。
+
+\item \texttt{scripts/llm\_query.mjs}（B1）：抽象出端点/模型/密钥的三元配置表（GLM 既有 + 两个新阅读器 + 可选本地 vLLM 的 OpenAI 兼容端点）；本地档用 vLLM 起 OpenAI 兼容服务即可零改动接入现有调用封装。
+
+\item 新增 \texttt{scripts/run\_reader\_position.py}（B2）：复用 M4 的证据放置构造逻辑（反向使用：放置后不压缩、直接端到端提问），输出每阅读器的位置--F1 曲线数据 \texttt{results/reader\_position.json}。
+
+\item \texttt{scripts/run\_correlation.py}（B3）：加 \texttt{--by-reader} 分组输出；合并逻辑不变。
+
+\item \texttt{scripts/run\_qa\_cross\_dataset.py}（A2，新脚本）：从 hotspot/2wiki 池按固定种子抽 $n{=}100$，方法集四元组（full/head/bm25/sieve），复用 \texttt{run\_qa\_expanded.py} 的提问与度量函数（抽公共模块或直接复制其核心函数，保持协议字符串逐字一致）。
+
+\item \texttt{scripts/fig\_journal.py}（C3）：frontier 图数据源从 M2 单点切换为 \texttt{journal\_matrix.json} 全矩阵；等预算线分组逻辑新增约 40 行。
+
+\item \texttt{scripts/make\_numbers\_journal.py}：为每个新结果文件补宏生成段（消融跨池、矩阵、$n{=}100/300$ 端到端、多阅读器、位置剖面、扩展相关），宏命名沿用现有 \texttt{Abl*/Rec*/QA*} 风格前缀以便 diff 审查。
+
+\end{enumerate}
+
+配套的论文侧（\texttt{paper-journal-v2/}）对接：C1/C2 落盘后，\texttt{numbers.tex} 重生成并在消融节引用跨池宏；A/B 系列落盘后，端到端节的主表与样本量数字替换、局限一节第一条与第三条边界改写、相关研究节更新。所有替换走 \texttt{make\_numbers\_journal.py}$\rightarrow$\texttt{numbers.tex} 宏链，写作时禁止手写数字。

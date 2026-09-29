@@ -1,0 +1,56 @@
+\section{逐篇方法审计}
+\label{sec:cards}
+
+本章对十四个方法逐一建立审计卡片。每张卡片包含四项内容：机制描述（选择信号如何计算、在什么粒度上截断）、基础设施需求（运行时必须驻留什么模型或服务）、七维判定（问题条件化 Q、位置感知 P、冗余控制 R、免模型 MF、免训练 TF、句子级完整单元 SL、显式预算与成本刻画 BF），以及证据等级与来源。判定符号：\ck{} 表示满足，\no{} 表示不满足，\partl{} 表示部分满足或存在重要限定，\unk{} 表示本次审计无法验证。
+
+\subsection{经典基线（四项）}
+
+\paragraph{头截断（head truncation）。}
+保留上下文的前 $B$ 个词。选择信号为零——不做任何计算，位置上隐式地押注``证据集中在开头''。它免模型、免训练、无成本，但既不看问题也不控制冗余；对长上下文模型已知的位置偏差（中间位置的注意力可靠性最低）而言，固定前缀同时丢弃后部证据并把风险集中在模型读取最可靠的位置上，这在 \sieve{} 论文中已被用作 frontier 的零成本左端点。七维判定：Q \no{}，P \partl{}（隐式位置押注，非感知），R \no{}，MF \ck{}，TF \ck{}，SL \no{}（词级硬切），BF \no{}。证据等级 A（论文内部基线，机制自明）。
+
+\paragraph{随机与跨步选择（random / stride）。}
+在词预算内均匀随机抽句（两个种子），或每第 $k$ 句保留一句以凑满预算。同样零信号零成本，跨步选择隐式地保留了全文档的均匀位置覆盖，这恰好是无位置先验的下界参照。七维判定：Q \no{}，P \no{}（跨步为均匀覆盖而非感知），R \no{}，MF \ck{}，TF \ck{}，SL \ck{}，BF \no{}。证据等级 A。
+
+\paragraph{TextRank（2004）。}
+在 IDF 加权余弦相似度图上以 PageRank 中心性排序句子，取排名最高者打包进预算。它是``最强的免模型、免训练、不看问题的摘要器''——冗余通过图结构的间接方式获得部分控制（彼此相似的句子分享中心性，但没有显式惩罚项），不看问题因此对证据召回无能为力。七维判定：Q \no{}，P \no{}，R \partl{}（隐式，无显式惩罚），MF \ck{}，TF \ck{}，SL \ck{}，BF \no{}。证据等级 A（经典算法，\sieve{} 论文已正确将其纳入基线集）。
+
+\paragraph{BM25 句子排序（2009）与 MMR（1998）。}
+BM25 以问题为查询、以句子为文档做相关性排序，是``问题条件化 + 免模型 + 免训练 + 句子级''的最强古典实现，其 IDF 在上下文内部平滑后与 \sieve{} 共享语料局部统计。MMR 把抽取形式化为相关性与冗余的边际权衡，是 \sieve{} 的直接学术祖先——\sieve{} 论文 v1 自己就承认是``MMR 的一个带 IDF 加权与位置先验的特化实例''。两者的七维判定合写：BM25 为 Q \ck{}，P \no{}，R \no{}，MF \ck{}，TF \ck{}，SL \ck{}，BF \partl{}（有预算打包，无问题形式化与成本刻画）；MMR 为 Q \ck{}，P \no{}，R \ck{}（显式惩罚项的起源），MF \ck{}，TF \ck{}，SL \ck{}，BF \no{}。证据等级 A。这两条卡片在审计中承担特殊角色：它们证明``问题条件化 + 句子级 + 免模型免训练''的组合在 1998--2009 年就已经存在，因此 \sieve{} 的新颖性绝不能建立在该组合之上，而必须建立在其后新增的维度上。
+
+\subsection{神经 token 级压缩（四篇）}
+
+\paragraph{LLMLingua（EMNLP 2023，Jiang 等）。}
+以小语言模型（论文使用 GPT-2 级别打分器）计算 token 困惑度，按困惑度从高到低迭代删除 token，粗到细两阶段在固定 token 预算内搜索压缩方案。选择信号是一次完整的神经前向打分，粒度为 token。基础设施需求：一个与打分器匹配的托管小模型（含对应 tokenizer），粗到细流程需要多次前向。原始版本不看问题（问题无关压缩），后续 LongLLMLingua 才加入问题条件化。七维判定：Q \no{}，P \no{}，R \no{}，MF \no{}，TF \ck{}，SL \no{}，BF \ck{}（显式 token 预算迭代搜索）。证据等级 A（arXiv 摘要与 \sieve{} 论文的同机制 GPT-2 复刻互证）。值得记录的审计细节：\sieve{} 论文用 GPT-2 困惑度门（句子粒度、int8、同容器测量）复刻了该机制的 成本下界——28.7\% 证据召回、每中位上下文 7.5--8.2 秒打分成本，这组数字在后面第 \ref{sec:delta} 节的增量分析中反复使用。
+
+\paragraph{LongLLMLingua（ACL 2024，Jiang 等）。}
+在 LLMLingua 之上加入四个组件：问题过滤（对比困惑度，即问题条件下 token 重要性的重新打分）、文档重排序（按与问题的相关性从高到低重排演示，直接针对 lost-in-the-middle 位置偏差）、token 级预算分配器（线性调度器，按需给不同 token 分配预算）、以及四层粒度的粗到细压缩。这一篇是审计中最关键的``组件重叠''证据：问题条件化与位置感知两项 \sieve{} 的核心组件在此已经同时出现，且以 token 粒度实现。七维判定：Q \ck{}，P \ck{}（重排 + 位置相关 token 处理），R \no{}，MF \no{}（依赖小 LM 打分），TF \ck{}，SL \no{}，BF \ck{}（显式预算分配器）。证据等级 A（ACL Anthology 页面与多个二手技术分析交叉确认）。它相对 \sieve{} 的差异在粒度（token 碎片化 vs 完整句子保序）与打分器（托管 GPT-2 vs 纯统计），不在组件清单。
+
+\paragraph{LLMLingua-2（ACL 2024 Findings，Pan 等）。}
+把压缩重构为 token 分类任务：从 GPT-4 压缩结果蒸馏出 117M 参数的 token 分类器（BERT 级），推理时一次分类决定 token 去留。质量上与 LLMLingua 相当或更好且更快，但引入了训练阶段（数据蒸馏）与一个非通用小模型权重。七维判定：Q \no{}（任务无关分类器），P \no{}，R \no{}，MF \no{}（117M 神经分类器），TF \no{}（需要蒸馏训练），SL \no{}，BF \ck{}（token 预算控制）。证据等级 A。对 \sieve{} 的意义：它把``压缩器自身基础设施''问题推到台前——即便推理侧不需要完整 LLM，仍要托管一个专用网络，这与 \sieve{} 的零基础设施角落形成干净对照（\sieve{} 论文 limitations 已如实声明没有复刻它，属诚实范围控制）。
+
+\paragraph{Selective Context（EMNLP 2023，Li 等）。}
+按自信息（self-information，由一个因果 LM 计算的 $-\log p$）过滤 token、短语或句子三个粒度的低信息单元。它是``用语言模型感知信息量''路线的起点，不看问题（自信息度量的是上下文自身的信息密度而非与问题的相关性）。七维判定：Q \no{}，P \no{}，R \partl{}（信息密度间接抑制重复），MF \no{}（需要 LM 计算自信息），TF \ck{}，SL \partl{}（支持句子粒度但以词组删除为主），BF \no{}。证据等级 A（\sieve{} 论文 v1 相关工作已正确描述其机制）。
+
+\subsection{Training-free 直接竞品（两篇，重点审计）}
+
+\paragraph{Perception Compressor（NAACL 2025 Findings，Tang 等；arXiv:2409.19272）。}
+这是拒稿意见所指``training-free prompt compression 已有大量工作''的最直接证据，审计详查其官方实现。机制由三个组件构成：其一，perception retriever 用引导问题（guiding questions）与指令作为查询，通过 SentenceBERT（all-mpnet-base-v2，约 110M 参数）计算语义相似度检索最相关的演示并按相关度重排；其二，dual-slope ratio allocator 依据位置敏感假设动态分配各位置的压缩率与开卷率——这是位置感知组件的显式实现；其三，semi-guided iterative compression 在 token 级做半引导迭代压缩，由 LLaMA-2-7B 作为压缩用 LLM 执行。此外，每个输入问题的引导问题本身需要先用 LLM 生成。实验覆盖 NaturalQuestions、LongBench、MuSiQue。七维判定：Q \ck{}（引导问题检索），P \ck{}（重排 + dual-slope 位置分配），R \no{}（无显式冗余惩罚），MF \no{}（SentenceBERT + LLaMA-2-7B 双重模型依赖），TF \ck{}，SL \no{}（token 级压缩，演示级检索），BF \partl{}（ratio allocator 分配压缩率，无选择成本刻画）。证据等级 A（arXiv 摘要与官方 GitHub README 的``Relevant LLMs''配置节直接互证）。审计结论：它证明``training-free + question-aware + position-aware''三元组已被占领；\sieve{} 相对它的可辩护差异只剩两条——零模型依赖（纯统计 vs BERT+7B LLM）与句子级完整单元保序输出（vs token 碎片化），两者都是结构性差异而非组件差异。
+
+\paragraph{QASPC（ACM 2025/2026，Chen、Liu、Fu；DOI 10.1145/3800227.3800247）。}
+从可获得的摘要片段确认的属性有四项：training-free、question-aware、两阶段框架、句子级与从句级（clause-level）双层过滤并显式以``减少句子与从句两层冗余''为目标。发表日期显示为 2026 年 4 月在线。这意味着 \sieve{} 的``training-free + question-aware + sentence-level + 冗余控制''四属性组合已被公开占位——其中冗余控制在 \sieve{} 中以 MMR 式惩罚实现，在 QASPC 中以从句级二次过滤实现，实现路径不同但问题意识相同。无法验证的维度：打分机制（是否依赖嵌入相似度或语言模型）、位置感知、预算与成本刻画——全文在 ACM 付费墙后，无 arXiv 预印本，无公开代码，Semantic Scholar 与 OpenAlex 的摘要字段均被出版商屏蔽。七维判定：Q \ck{}，P \unk{}，R \ck{}，MF \unk{}，TF \ck{}，SL \ck{}（外加从句粒度），BF \unk{}。证据等级 B（多源摘要片段交叉）。审计结论：在拿到全文之前，\sieve{} 相对 QASPC 唯一可以负责任声明的差异是已测量的零模型依赖与位置先验组件（若 QASPC 验证后不具备），以及完整的三轴成本刻画；论文 v2 的相关工作必须引用并如实标注这一不确定性，而不是装作它不存在——忽略最近的同名属性竞品是审稿人最容易抓到的硬伤。
+
+\subsection{句子级但需训练（两篇）}
+
+\paragraph{RECOMP（ICLR 2024，Xu 等）。}
+在检索与生成之间插入压缩层，提供两个学习型压缩器：抽取式压缩器从检索文档中选择有用句子（训练的双编码器打分），抽象式压缩器生成文本摘要（训练的 seq2seq）。它是``句子级抽取 + 问题条件化''的神经学习版本，质量稳健但需要标注数据训练专用模型。七维判定：Q \ck{}，P \no{}，R \no{}（抽取式选择隐式抑制重复），MF \no{}（训练的双编码器），TF \no{}，SL \partl{}（抽取式为句子级，抽象式不保句），BF \no{}。证据等级 A（OpenReview 页面摘要）。对 \sieve{} 的定位价值：它划出了``句子级选择走学习路线''的既有坐标，\sieve{} 的差异是不训练任何部件。
+
+\paragraph{CPC（AAAI 2025，Liskavets 等；arXiv:2409.01227）。}
+训练一个上下文感知的句子编码器（以问题--正例--负例三元组对比学习），推理时以编码器分数过滤句子。2026 年其作者群另有任务无关的 TPC 扩展。七维判定：Q \ck{}（训练信号来自问题对），P \no{}，R \partl{}（上下文感知编码部分覆盖），MF \no{}，TF \no{}，SL \ck{}，BF \no{}。证据等级 A（AAAI 页面摘要）。它进一步坐实：句子级 + 问题感知的学习型方案在 2025 年已成熟，纯统计路线的空间恰好在于零训练与零基础设施。
+
+\subsection{预算自适应与外围（两项入表，四项简评）}
+
+\paragraph{AdaComp（arXiv:2409.01579，Zhang 等）。}
+面向 RAG 的抽取式上下文压缩，核心是自适应压缩率：依据问题复杂度与检索质量动态决定保留的文档数量，动机是复杂多跳问题需要更多文档而低质量检索需要更多冗余。选择单元为文档级，信号来自检索器分数。七维判定：Q \ck{}，P \no{}，R \no{}，MF \partl{}（依赖检索器但无需额外模型），TF \ck{}，SL \no{}（文档级），BF \ck{}（自适应压缩率是其核心贡献）。证据等级 A（arXiv 摘要）。它证明``预算不固定、按问题自适应''的想法也已被占位——但自适应的是文档数而非词预算内的多目标权衡，与 \sieve{} 的显式三目标 formulation 仍然不同。
+
+\paragraph{外围方法简评（不入主表）。}
+QUITO（arXiv 2024-08）用问题对上下文的注意力分数过滤无用内容，机制上需要完整 LLM 前向，属模型依赖的 question-aware 过滤。QGC（ACL 2024）是 query 引导的软压缩器（编码器--解码器路线），证明问题引导思想也进入了 soft prompt 分支。CompAct（EMNLP 2024）以主动压缩结合小摘要模型做转写式压缩。Divide-Prompt-Refine（2026-05 arXiv）与 SmartChunk（2026）是检索可见的最新 training-free / query-adaptive 工作，尚待正式版本核实机制，列入第 \ref{sec:pending} 节的跟踪清单。这批文献的共同作用是把``问题引导压缩''从单点想法变成 2024--2026 年的密集研究线，\sieve{} 的 novelty 表述必须在这个背景下重新校准。

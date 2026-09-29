@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://arxiv.org/html/2409.19272v2",
+    "name": "A training-free prompt compression method in long context",
+    "snippet": "Perception Compressor, a training-free prompt compression method. It includes a perception retriever that leverages to dynamically allocate compression ratios ...",
+    "host_name": "arxiv.org",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://aclanthology.org/2025.findings-naacl.229",
+    "name": "Perception Compressor: A Training-Free Prompt",
+    "snippet": "by J Tang · 2025 · Cited by 24 — Experiment results show that Perception Compressor outperforms existing methods by a large margin, achieving state-of-the-art performance.",
+    "host_name": "aclanthology.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://openreview.net/pdf?id=JJiCd0ksDW",
+    "name": "A training-free prompt compression method in long context",
+    "snippet": "guided iterative compression to obtain the final compressed prompt. involve training retrieval models on large corpora, for queries 164 and demonstrations ...",
+    "host_name": "openreview.net",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://papers.cool/venue/2025.findings-naacl.229@ACL",
+    "name": "A Training-Free Prompt Compression Framework in Long",
+    "snippet": "It includes a perception retriever that leverages guiding questions and instruction to retrieve the most relevant demonstrations, a dual-slope ratio allocator ...",
+    "host_name": "papers.cool",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.researchgate.net/publication/384501950_Perception_CompressorA_training-free_prompt_compression_method_in_long_context_scenarios",
+    "name": "Perception Compressor:A training-free prompt",
+    "snippet": "Perception Compressor, a training-free prompt compression method. Perception Compressor outperforms existing methods by a large margin, ...",
+    "host_name": "www.researchgate.net",
+    "rank": 4,
+    "date": "May 20, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/Twilightaaa/PerceptionCompressor",
+    "name": "[NAACL' 2025 Findings] Code for \"Perception Compressor",
+    "snippet": "A Training-Free Prompt Compression Framework … it performs a semi-guided iterative compression to obtain the final compressed prompt. We use LLaMA-2-7B as the ...",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://arxiv.org/html/2409.19272v5",
+    "name": "A Training-Free Prompt Compression Framework in Long",
+    "snippet": "Perception Compressor, a training-free prompt compression framework. It includes a perception retriever that leverages guiding questions and ...",
+    "host_name": "arxiv.org",
+    "rank": 6,
+    "date": "Feb 8, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.semanticscholar.org/paper/Perception-Compressor%3A-A-Training-Free-Prompt-in-Tang-Xu/544718be71f1598d95744f30498368d16f39a3e3",
+    "name": "A Training-Free Prompt Compression Framework in Long",
+    "snippet": "Perception Compressor is presented, a training-free prompt compression framework that includes a perception retriever that leverages guiding questions and ...",
+    "host_name": "www.semanticscholar.org",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,52 @@
+\section{重构方案：研究问题、标题与逐节改写指令}
+\label{sec:rewrite}
+
+\subsection{新研究问题的表述}
+\label{sec:req}
+
+拒稿诊断指出，v1 把研究问题写成了``能否在不训练模型的情况下压缩上下文''，这个问题已被 2023--2026 年文献大量回答。审计确认了更准确的问题定位：现有工作没有回答的是``选择目标的结构''与``选择成本的地位''。据此，v2 的研究问题重述为：
+
+\begin{quote}\itshape
+（中文表述）上下文选择能否被形式化为一个显式的信息选择问题——在固定词预算下联合核算相关性覆盖、位置可靠性分配与冗余惩罚，并把选择器自身的计算成本纳入约束？由此产生的选择器族，在质量--压缩率--成本的测度上，相对于词汇方法（BM25）、统计方法（\sieve{}）与神经方法（困惑度门）各落在何处；不同选择目标之间是否存在结构性权衡？
+\end{quote}
+
+\begin{quote}\itshape
+（English）Can context selection be formulated as an explicit information-selection problem that jointly accounts for relevance coverage, positional reliability, and redundancy under a fixed word budget, with the selector's own computational cost treated as a first-class constraint? Where do the resulting selector families sit on the quality--compression--cost frontier relative to lexical, statistical, and neural scorers, and do distinct selection objectives induce structural trade-offs?
+\end{quote}
+
+这一表述的三处关键改动值得点名。其一，主语从方法换成了问题：被研究的对象是``选择问题的形式化''，\sieve{} 只是它的一个 instantiation，这直接回应``组合式新颖性''的指控。其二，位置项被显式命名为``位置可靠性分配''而非``位置感知''，与 LongLLMLingua/Perception Compressor 的``位置机制''在措辞上区分开：它们把位置当作重排或分配压缩率的启发式，\sieve{} 把位置当作与相关性和冗余并列的选择目标并给出理论刻画（v1 的 reliability allocation 小节已有此基础）。其三，成本进入约束集合：``选择器自身的成本''在问题陈述里就出现，而不是拖到效率章节才补——这是三轴方法论在问题层面的对应物。
+
+\subsection{标题方案}
+\label{sec:retitle}
+
+v1 标题堆叠了十余个定语，编辑看到的``新东西是什么''因此被稀释。按第 \ref{sec:req} 节的新研究问题，给出三个候选，均收窄到先例未覆盖的层面：
+
+\begin{enumerate}[itemsep=2pt]
+\item \textbf{Budgeted Question-Conditioned Information Selection for Training-Free Long-Context Compression}——formulation 层面命名，``budgeted''与``information selection''对应支柱二，副属性 training-free 保留为限定语。审计范围内未检索到同构标题；最接近的 QASPC 标题不含 budget 与 selection 问题形式。
+\item \textbf{Relevance, Position, and Redundancy under a Word Budget: A Model-Free Selector and the Accuracy--Compression--Cost Frontier}——三目标 + frontier 双命名，直接把支柱二与支柱三抬进标题，``Model-Free Selector''明确差异化定位。长度可接受（不超过 v1）。
+\item \textbf{The Zero-Infrastructure Corner of Context Compression: Budgeted Statistical Selection on the Accuracy--Compression--Cost Frontier}——象限定位命名，差异化最锐利，但``corner''的修辞比前两者更口语化，期刊偏好下略险。
+\end{enumerate}
+
+推荐方案 1 作为工作标题、方案 2 作为备选，最终定稿在第二阶段实验结果落定后确认（届时若多 reader 稳健性成立，frontier 主张的分量变化可能影响取舍）。无论选哪个，v1 标题中的``Efficient Long-Context LLM Inference''与``Frontier Study of Model-Free Information Selection''两个尾巴应当整体放弃——前者是赛道通用词，后者把 frontier 降低为副标题装饰。
+
+\subsection{逐节改写指令}
+
+以下指令以``改动什么、为什么、怎么改''的格式给出，全部对应第 \ref{sec:delta} 节的支柱结构。
+
+\paragraph{摘要（Abstract）。}
+v1 摘要首句是``We study how far question-conditioned, model-free information selection can move the frontier\dots{} using \sieve{}, a training-free sentence selector''——方法先行。v2 首句改为 formulation 先行：先给出``显式三目标预算选择问题''的一句话陈述，第二句才引入 \sieve{} 作为其零基础设施 instantiation。BM25 负结果在 v1 摘要中已经诚实出现（``trades raw recall for positional reliability''），保留并把措辞升级为``结构性权衡''：``the full selector trades raw recall for placement and diversity, a structural trade-off the relevance-only corner of the design space cannot reach''。神经门对照保留 255--320 倍数字（这是支柱一与支柱三的硬证据）。摘要末句``a low-cost reference point''是 v1 里最有价值的一句，保留并前置分量。
+
+\paragraph{引言（Introduction）。}
+v1 引言第二段把压缩机版图分为``神经侧''与``截断侧''并指出中间地带未被系统刻画——这个``未映射区域''的叙事方向是对的，但把该区域定义为``compressors that consult the question, cost milliseconds, and require no model at all''，即以 \sieve{} 的属性定义区域，有循环论证之嫌。v2 改为以 taxonomy 表的 $2\times2$ 结构定义区域（组件丰富度 $\times$ 基础设施依赖），并引用 QASPC 与 Perception Compressor 说明``training-free''的通行含义是``免训练但带模型''，从而``零模型象限''是一个真实的、有先例环绕的空缺。v1 第三段（``A natural objection precedes the study''）是全文最好的一段——它把 BM25 反对意见主动摆上台面并给出结构性回答，v2 保留并进一步升格为引言的骨架段落。贡献列表按第 \ref{sec:delta} 节的顺序重排：形式化第一、frontier 方法论第二、实证发现（含 Pareto 权衡与门对照）第三、instantiation 与理论第四、可复现工件第五。
+
+\paragraph{相关工作（Related Work）。}
+这是 v2 改动最大的一节。v1 只有四段（神经 token 打分、注意力与缓存、经典选择、位置偏差），缺三样东西：2024--2026 竞品的正面处理、taxonomy 对比表、以及 delta 声明。v2 结构改为五段加一表：（1）神经 token 级家族（LLMLingua/LongLLMLingua/LLMLingua-2/Selective Context），补齐各机制的组件归属；（2）training-free 竞品专段——Perception Compressor 与 QASPC 必须出现，前者如实描述其 SentenceBERT+LLaMA-2-7B 依赖（引官方仓库），后者如实标注``mechanism behind paywall, properties as stated''；（3）句子级学习路线（RECOMP、CPC）与预算自适应（AdaComp）；（4）经典选择传统（MMR/BM25/TextRank），保持 v1 已有的``\sieve{} 是 MMR 特化''的诚实定位；（5）delta 声明段，用一句话把三根支柱说清。表 \ref{tab:taxonomy} 的七维表以论文表 1 的形式进入本节（列头改用论文语言），这张表同时服务于审稿人（novelty 可审计）与读者（设计空间地图）。
+
+\paragraph{BM25 的定位升级。}
+v1 已把 BM25 称作``任何选择器机制都必须证明自身价值的参照点''，方向正确但埋在 baselines 小节。v2 在三处同步升格：baselines 小节保留机制描述；主结果节把 BM25 与 relevance-only 消融的互证（43.1\% 与 43.6\% 的外部--内部一致）提升为单独的发现段（``两个独立实现的相关性打分在同一预算下收敛到同一召回，说明相关性是这个设计空间的可靠地板，而 \sieve{} 的增量是用召回换取放置与多样性''）；讨论或结论节把``不同选择目标产生结构性 trade-off''与 frontier 图连接。QASPC 若在补查后确认无位置组件，此处可加一句对照。
+
+\paragraph{局限与结论（Limitations / Conclusion）。}
+limitations 的五条边界（单 reader、n=25、GPT-2 门非完整 LLMLingua、位置剖面借用自 prior work、句子粒度限制极端压缩率）全部保留——诚实边界是 v1 的资产而非负债。新增一条：与 QASPC 的机制级对比在写作时不可得，已在修订说明中标注。结论的收束句从``\sieve{} 是零成本第一级''升级为``本研究的产出是一个形式化、一个测量框架与一个 instantiation；任何后续压缩器（神经或统计）都可以在这条三轴 frontier 上被定价''——把论文的遗产从方法转移到框架。与第二阶段实验计划的衔接（n=100 端到端协议已随仓库发布、多 reader、完整消融矩阵）写入 limitations 的相应条目，使``premature''批评在下一版有明确的、已开工的回应。
+
+\paragraph{Highlights。}
+v1 highlights 的五条中两条以方法属性开头（``A training-free\dots{}''），与红线冲突。v2 重写为：formulation 一条、frontier/权衡一条、零基础设施量级一条（53.7\,ms 对 255--320 倍）、跨数据集证据一条、可复现一条，字符数继续遵守 85 上限。

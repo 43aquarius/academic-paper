@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://arxiv.org",
+    "name": "Divide-Prompt-Refine: a Training-Free, Structure-Aware",
+    "snippet": "May 20, 2026 — Q. Fu , and Y. Liu ( 2025 ) When splitting makes stronger: a theoretical and empirical analysis of divide-and-conquer prompting in LLMs.",
+    "host_name": "arxiv.org",
+    "rank": 0,
+    "date": "May 20, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://dl.acm.org",
+    "name": "LLMs Are Also Effective Embedding Models: An In-depth",
+    "snippet": "6 days ago — Large language models (LLMs) have revolutionized natural language processing by achieving state-of-the-art performance across various tasks.",
+    "host_name": "dl.acm.org",
+    "rank": 1,
+    "date": "Sep 23, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://openreview.net",
+    "name": "Guidance: Sentence-Level Citation Enforcement via Prefix-Tail",
+    "snippet": "Details of Prefix-Tail Extraction Prompt . Below is the exact system prompt used for the LLM-based extraction pipeline. 14. Page 15. Guidance: Sentence - Level ...",
+    "host_name": "openreview.net",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.sciencedirect.com",
+    "name": "GAPrompt: A soft prompt compression model for few-shot",
+    "snippet": "by T Hang · 2025 — This study proposes a soft prompt compression model (GAPrompt), combining dynamic graph convolutional networks and adversarial training.",
+    "host_name": "www.sciencedirect.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.alphaxiv.org",
+    "name": "SmartChunk Retrieval: Query-Aware Chunk Compression",
+    "snippet": "We present SmartChunk retrieval , a query-adaptive framework for efficient and robust long-document question answering (QA). SmartChunk uses (i) a planner that ... Read more",
+    "host_name": "www.alphaxiv.org",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://jcst.ict.ac.cn",
+    "name": "JCST Papers",
+    "snippet": "In this paper, we provide a comprehensive survey of data preparation algorithms and workflows for LLMs, categorized into three stages: pre-training, continual ...",
+    "host_name": "jcst.ict.ac.cn",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://dspace.mit.edu",
+    "name": "MIT Open Access Articles Abstraction Alignment: Comparing",
+    "snippet": "Abstract. While interpretability methods identify a model's learned concepts, they overlook the relationships between concepts that make up its. Read more",
+    "host_name": "dspace.mit.edu",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.researchgate.net",
+    "name": "(PDF) LLMLingua: Compressing Prompts for Accelerated",
+    "snippet": "A prompt compression system is designed to. Demonstration- level prompt compression . strations or sentences of the original prompt .",
+    "host_name": "www.researchgate.net",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://arxiv.org",
+    "name": "Understanding LLM Reasoning for Abstractive",
+    "snippet": "Jun 15, 2026 — Zheng Adacomp: extractive context compression with adaptive predictor for retrieval-augmented large language models. arXiv preprint arXiv ...",
+    "host_name": "arxiv.org",
+    "rank": 0,
+    "date": "Jun 15, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.alphaxiv.org",
+    "name": "AdaComp: Compresión Extractiva de Contexto con Predictor",
+    "snippet": "Los documentos recuperados que contienen ruido dificultarán que RAG detecte pistas de respuesta y harán que el proceso de inferencia sea lento y costoso.",
+    "host_name": "www.alphaxiv.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://dl.acm.org",
+    "name": "Compact Clue Selection for Efficient Retrieval-Augmented",
+    "snippet": "Apr 12, 2026 — 2024. Adacomp: Extractive context compression with adaptive predictor for retrieval-augmented large language models. arXiv preprint arXiv ...",
+    "host_name": "dl.acm.org",
+    "rank": 2,
+    "date": "Apr 12, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com",
+    "name": "detailed_report_how_to_improve",
+    "snippet": "AdaComp: Extractive Context Compression with Adaptive Predictor for Retrieval-Augmented ... DynamicKV: Task-Aware Adaptive KV Cache Compression for Long Context ...",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://scholar.google.co.th/citations?user=D22QG1557LgC&hl=th",
+    "name": "‪Hainan Zhang‬ - ‪Google Scholar‬",
+    "snippet": "Adacomp: Extractive context compression with adaptive predictor for retrieval-augmented large language models. Q Zhang, H Zhang, L Pang, H Zheng, Z Zheng.",
+    "host_name": "scholar.google.co.th",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://openreview.net",
+    "name": "CORE: PERFORMANCE-LOSSLESS CONTEXT COM",
+    "snippet": "by Z Cui · Cited by 1 — Adacomp: Ex- tractive context compression with adaptive predictor for retrieval-augmented large language mod- els. arXiv preprint arXiv:2409.01579, 2024a.",
+    "host_name": "openreview.net",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  }
+]

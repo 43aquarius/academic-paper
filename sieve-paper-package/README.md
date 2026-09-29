@@ -83,3 +83,40 @@
 `run_gpt2_gate.py`、`run_timing_journal.py`、`run_correlation.py`、
 `make_numbers_journal.py`、`fig_journal.py`、`run_qa_expanded.py`、
 `run_qa_driver.py`、`probe_api.mjs`
+
+## 拒稿后重构（2026-09-29，本次更新）
+
+IP&M 于 2026-09 对 2026-09-24 版发出 desk rejection（lack of sufficient
+novelty + results too premature，范围确认无问题）。据此完成两阶段重构，
+全部产物在 `ipm-revision/`，原 `paper-journal/` 与 `ipm-submission/` 保持
+原样未动（历史版本留档）：
+
+- `ipm-revision/novelty-audit/` —— **第一阶段《Novelty 审计报告》**
+  （17 页 PDF + LaTeX 源）：逐篇查证 2023–2026 文献（Perception Compressor、
+  QASPC、LongLLMLingua、RECOMP、CPC、AdaComp 等 14 个方法），七维可审计
+  对比表（Q/P/R/MF/TF/SL/BF），结论为三根增量支柱（零模型象限定位、
+  显式三目标 formulation、三轴 frontier 方法论）+ 六条新颖性红线；
+  `searches/` 内保存全部检索原始 JSON 与抓取页（含 QASPC 付费墙拦截记录），
+  附录来源清单可按 URL 复核。
+- `ipm-revision/paper-journal-v2/` —— **重构后的论文 v2**（43 页 PDF）：
+  标题收窄为 “Sieve: Budgeted Question-Conditioned Information Selection
+  for Training-Free Long-Context Compression”（工作标题，终稿待第二阶段
+  实验落定后确认）；摘要与引言改为 formulation 先行；贡献列表重排为
+  “形式化 → 方法论 → 发现 → 实例”；相关工作新增七维设计空间表
+  （tab:designspace）与 “What is new here” delta 段，正面引用并如实标注
+  QASPC（全文不可得，属性按其摘要记录）；BM25 升格为结构性权衡参照；
+  limitations 新增 QASPC 对照边界与修订计划衔接；highlights 重写
+  （5 条均 ≤85 字符）。`numbers.tex` 与 `figures/` 与 v1 逐字节一致，
+  新增 6 条 bibtex 全部经 arXiv/DBLP/ACL Anthology/S2 API 程序化验证。
+- `ipm-revision/experiment-plan/` —— **第二阶段《实验补强计划》**
+  （11 页 PDF + LaTeX 源）：针对 “too premature” 的三路径协议——
+  路径 A 端到端扩容（A0 恢复已发布的 n=100 协议 → A1 n=300 → A2 跨数据集）、
+  路径 B 三阅读器稳健性 + 阅读器侧位置剖面重测、路径 C 消融跨数据集与
+  配置×预算统一矩阵（纯本地计算）；含 research-repo 逐脚本对接清单
+  （run_journal_analysis.py 参数化 M3 + 新增 M8 等）、样本量论证
+  （n=25 区间半宽 ±11.4 → n=300 约 ±3.3 F1 点）、声明纪律与
+  拒稿意见逐条 DoD 映射表。
+
+执行顺序：先做本地零依赖的路径 C，再恢复 A0（API 配额恢复后
+`python3 scripts/run_qa_driver.py 540 760`），实验数据落盘后按
+《实验补强计划》§7 的宏链自动注入 paper-journal-v2 并重编译。

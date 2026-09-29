@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://dl.acm.org/doi/10.1145/3800227.3800247",
+    "name": "Question-Aware Sentence-Level Prompt Compression",
+    "snippet": "In this work, we present QASPC, a training-free, question-aware prompt compression framework that reduces redundancy at both sentence and ...",
+    "host_name": "dl.acm.org",
+    "rank": 0,
+    "date": "Apr 29, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.semanticscholar.org/paper/QASPC%3A-Question-Aware-Sentence-Level-Prompt-Chen-Liu/96e178c845a54a7eccb8320fea0df78452f43896",
+    "name": "Question-Aware Sentence-Level Prompt Compression",
+    "snippet": "Question-Aware Sentence-Level Prompt Compression (QASPC) is proposed, a fully training-free, two-stage framework that integrates ...",
+    "host_name": "www.semanticscholar.org",
+    "rank": 1,
+    "date": "Dec 12, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://arxiv.org/html/2409.01227v3",
+    "name": "Prompt Compression with Context-Aware Sentence",
+    "snippet": "In this work, we address the problem of prompt compression by developing a novel sentence-level context-aware compression method. To train our ...",
+    "host_name": "arxiv.org",
+    "rank": 2,
+    "date": "Dec 18, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://ojs.aaai.org/index.php/AAAI/article/view/34639/36794",
+    "name": "Prompt Compression with Context-Aware Sentence",
+    "snippet": "by B Liskavets · 2025 · Cited by 71 — In this work, we propose a sentence-level compression technique called Context-aware Prompt Compression (CPC) that compresses the prompt by removing the ...",
+    "host_name": "ojs.aaai.org",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://dl.acm.org/doi/pdf/10.1145/3800227.3800247",
+    "name": "Question-Aware Sentence-Level Prompt Compression",
+    "snippet": "We propose a novel training-free prompt compression frame- work that combines sentence-level and clause-level filtering. By selecting a semantically maximal ...",
+    "host_name": "dl.acm.org",
+    "rank": 4,
+    "date": "by Z Chen · 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://openreview.net/forum?id=TpGcX9UTOt",
+    "name": "Task-agnostic Prompt Compression with Context-aware",
+    "snippet": "by B Liskavets · Cited by 1 — Task-agnostic Prompt Compression (TPC), a novel framework that generalizes compression across tasks and domains without requiring input questions or templates.",
+    "host_name": "openreview.net",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.researchgate.net/publication/383701295_Prompt_Compression_with_Context-Aware_Sentence_Encoding_for_Fast_and_Improved_LLM_Inference",
+    "name": "(PDF) Prompt Compression with Context-Aware Sentence",
+    "snippet": "To train this encoder, we generate a new dataset consisting of questions, positives, and negative pairs where positives are sentences relevant ...",
+    "host_name": "www.researchgate.net",
+    "rank": 6,
+    "date": "Sep 2, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/ZongqianLi/Prompt-Compression-Survey",
+    "name": "ZongqianLi/Prompt-Compression-Survey: [NAACL 2025",
+    "snippet": "Illustrative examples of prompt compression methods. Hard prompt methods remove low-information tokens or paraphrase for conciseness.",
+    "host_name": "github.com",
+    "rank": 7,
+    "date": "Oct 16, 2024",
+    "favicon": ""
+  }
+]

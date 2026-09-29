@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Inter:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    @page { size: 794px 1123px; margin: 0; }
+    :root {
+      --c-bg: #1a1a2e;
+      --c-accent: #8B7E5A;
+      --c-text: #FFFFFF;
+      --c-muted: #8080A0;
+      --c-footer: #606070;
+    }
+    html, body { margin: 0; padding: 0; width: 794px; height: 1123px; background: var(--c-bg); color: var(--c-text); font-family: 'Noto Sans SC', 'Inter', sans-serif; }
+    @media screen {
+      html { height: auto; display: flex; justify-content: center; min-height: 100vh; background: var(--c-bg); }
+      body { transform-origin: top center; scale: min(1, calc(100vw / 794), calc(100vh / 1123)); margin: 0 auto; box-shadow: 0 0 60px rgba(0,0,0,0.3); }
+    }
+    .cover { width: 794px; height: 1123px; position: relative; box-sizing: border-box; }
+    .vline { position: absolute; left: 57px; top: 76px; bottom: 76px; width: 2.5px; background: var(--c-accent); }
+    .content { position: absolute; left: 100px; right: 76px; top: 0; bottom: 0; }
+    .label { position: absolute; top: 132px; font-size: 9pt; color: var(--c-accent); letter-spacing: 3px; text-transform: uppercase; font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+    .title { position: absolute; top: 218px; font-size: 30pt; font-weight: 700; line-height: 1.42; font-family: 'Noto Serif SC', serif; color: var(--c-text); max-width: 600px; }
+    .subtitle { position: absolute; top: 500px; font-size: 12pt; line-height: 1.65; color: var(--c-muted); max-width: 540px; }
+    .authors { position: absolute; top: 700px; font-size: 12pt; color: var(--c-text); }
+    .institution { position: absolute; top: 745px; font-size: 10pt; color: var(--c-muted); line-height: 1.5; max-width: 540px; }
+    .footer { position: absolute; bottom: 76px; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 9pt; color: var(--c-footer); }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <div class="vline"></div>
+    <div class="content">
+      <div class="label">REVISION PLAN · PHASE 2</div>
+      <div class="title">Sieve 拒稿后重构<br>第二阶段：<br>实验补强计划</div>
+      <div class="subtitle">针对“结果过于不成熟”意见的三路径补强：端到端评估扩容（n=100→300）、三阅读器稳健性与位置剖面重测、跨数据集消融与统一实验矩阵——含 research-repo 逐脚本对接清单与完成定义映射表。</div>
+      <div class="authors">Super Z 研究助手</div>
+      <div class="institution">配套文档：第一阶段《Novelty 审计报告》（叙事重构已完成于 paper-journal-v2）<br>对象仓库：GitHub 43aquaris/academic-paper</div>
+      <div class="footer">
+        <span>内部工作文档 · 两阶段重构计划之二</span>
+        <span>2026 年 9 月 29 日</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

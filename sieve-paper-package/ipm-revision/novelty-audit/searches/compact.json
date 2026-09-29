@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://arxiv.org",
+    "name": "A Comprehensive Survey on Long Context Language",
+    "snippet": "they involve training additional modules that transform discrete tokens into continuous embeddings, facilitating efficient prompt compression .",
+    "host_name": "arxiv.org",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://openreview.net",
+    "name": "On Linguistic Rules as Effective Prompt Compressors",
+    "snippet": "Learning to compress prompts with gist tokens . s with 1046 context compression and selective augmentation. Per-input compression latency (ms) at the 6× target ...",
+    "host_name": "openreview.net",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.swiftscholar.net",
+    "name": "Adaptive Multi-Resolution Procedural Knowledge",
+    "snippet": "Jun 10, 2026 — 500xCompressor : A soft compression method that retains KV cache tensors. It introduces massive storage pressure, making it unsuitable for ...",
+    "host_name": "www.swiftscholar.net",
+    "rank": 2,
+    "date": "Jun 10, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.researchgate.net",
+    "name": "(PDF) AdaMem: Adaptive Memory Token Allocation for Soft",
+    "snippet": "4 days ago — Soft compression addresses this challenge by encoding passages as compact sequences of continuous memory embeddings before generation. However, ... Read more",
+    "host_name": "www.researchgate.net",
+    "rank": 3,
+    "date": "Sep 25, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.scribd.com",
+    "name": "Long Context Language Modeling Survey | PDF",
+    "snippet": "Compression Soft prompts [268] present an innovative paradigm by eliminating the reliance on discrete tokens . training additional modules that transform ...",
+    "host_name": "www.scribd.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.alphaxiv.org",
+    "name": "RECOMP: Improving Retrieval-Augmented LMs with",
+    "snippet": "RECOMP presents a framework for retrieval-augmented language models. We achieve a compression rate of as low as 6% LatentPress: Context … 500xCompressor : ...",
+    "host_name": "www.alphaxiv.org",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  }
+]

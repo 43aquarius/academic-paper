@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://github.com",
+    "name": "fak/docs/awesome-token-efficiency.md at main",
+    "snippet": "Prompt compression (lossy, semantic). LLMLingua — small LM scores token perplexity ; coarse -to- fine budget controller drops low-information tokens (~20×). Read more",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.arxiv.org",
+    "name": "Not All Tokens Are What You Need In Thinking",
+    "snippet": "a small language model to assess the importance of each lexical unit (such as sentences or tokens ) in the original prompts , and then drops the less in ...",
+    "host_name": "www.arxiv.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://openreview.net",
+    "name": "Perception Compressor: A training-free prompt compression",
+    "snippet": "token -level compression stage, LongLLMLingua . 076 retains tokens with high contrast perplexity . While. 077 this preserves KITs with high contrast perplexity , it.",
+    "host_name": "openreview.net",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.scribd.com",
+    "name": "Llmlingua-2: Data Distillation For Efficient and Faithful Task",
+    "snippet": "... Compressed prompts should be short in length to 2023a). They employ a small language model to reduce cost and speed up inference. ( ii ) Informa- estimate ...",
+    "host_name": "www.scribd.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.researchgate.net",
+    "name": "Low Token Consumption Methods in Large Language",
+    "snippet": "May 21, 2026 — ... rough a quiet infrastructure crisis. It does not announce itself in ... LLMLingua : Compressing Prompts for Accelerated Inference of Large Language ... Read more",
+    "host_name": "www.researchgate.net",
+    "rank": 4,
+    "date": "May 21, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://oulurepo.oulu.fi",
+    "name": "THE COORDINATION CLIFF: HOW CONTEXT COMPRESSION",
+    "snippet": "Every token an LLM reads has a cost: energy, latency, and money. Context compression is a direct lever on all three. The prompt - compression literature is ...",
+    "host_name": "oulurepo.oulu.fi",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://bytez.com",
+    "name": "Efficient Prompt Compression with Evaluator Heads for Long-",
+    "snippet": "The paper introduces a new method called EHPC that helps large language models (LLMs) quickly and efficiently process long texts. Instead of requiring a lot ...",
+    "host_name": "bytez.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://lemma-public-asset.analemma.ai",
+    "name": "Investigating Early-Exit Logit Lens for Code Context Compression",
+    "snippet": "token -level compression based on perplexity scores from a small language model . LongLLMLin- gua (Jiang et al., 2023b) extends this framework to long-context ...",
+    "host_name": "lemma-public-asset.analemma.ai",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,15 @@
+\section{审计方法、检索范围与证据等级}
+
+\subsection{检索渠道与检索日期}
+
+全部检索于 2026 年 9 月 29 日完成。检索渠道包括：arXiv（摘要页与 HTML 全文）、ACL Anthology 论文页、ACM Digital Library 条目页（仅元数据与摘要片段）、Semantic Scholar API（\texttt{api.semanticscholar.org}，用于元数据与引用图谱）、OpenAlex API（\texttt{api.openalex.org}）、GitHub 官方代码仓库（Perception Compressor 与 NAACL 2025 综述的 README）、以及通过网页搜索服务获取的出版商页面摘要片段。NAACL 2025 的综述《Prompt Compression for Large Language Models: A Survey》（Li 等）的论文清单被用作方法谱系的交叉核对源：凡综述清单中属于 hard prompt filtering 与 paraphrasing 两个分支、且与句子级选择相关的方法，均纳入候选审计集。
+
+检索策略围绕 \sieve{} 的四个核心组件设计：问题条件化（question conditioning / question-aware / query-aware）、位置感知（position-aware / positional bias / reordering）、冗余控制（redundancy / maximal marginal relevance / diversity）、以及预算与成本（budget / compression ratio / cost）。对每个组件，检索覆盖 2023--2026 年的 prompt compression、context compression、context selection、retrieval-based compression、training-free compression 与 sentence-level selection 六个关键词族。共执行二十余次针对性检索，原始结果以 JSON 形式存档于审计工作目录，附录 \ref{sec:appendix} 列出全部来源 URL。
+
+\subsection{证据等级的定义与已知局限}
+
+文献判定分为三级。A 级表示机制描述由论文全文、官方摘要或官方代码仓库直接确认，例如 Perception Compressor 的三组件机制（perception retriever、dual-slope ratio allocator、semi-guided iterative compression）同时由 arXiv 摘要与官方 GitHub README 的``Relevant LLMs''一节确认——其中明确记载压缩用 LLM 为 LLaMA-2-7B、演示检索用 SentenceBERT（all-mpnet-base-v2）计算引导问题相似度。B 级表示判定由出版商页面的多个摘要片段交叉确认，但没有全文，例如 QASPC 的 training-free、question-aware、sentence-level 与 clause-level 去冗余四项属性。C 级表示该维度无法从任何公开渠道核实。
+
+本次审计最重要的已知局限是 QASPC（ACM DOI 10.1145/3800227.3800247）。该文全文位于 ACM 付费墙之后，检索期间 ACM Digital Library 对自动化访问返回反爬拦截页，论文没有 arXiv 预印本，Semantic Scholar 与 OpenAlex 的摘要字段均被出版商屏蔽，也未检索到公开代码仓库。因此 QASPC 的打分机制（是否依赖嵌入模型或语言模型）、是否具备位置感知组件、是否有显式预算机制三个维度全部标注为未验证。这一局限在第 \ref{sec:pending} 节被列为最高优先级的遗留验证事项：在获取全文之前，任何关于``\sieve{} 优于 QASPC''或``QASPC 与 \sieve{} 等价''的断言都不应写入论文。审计能确认的只有下限：QASPC 与 \sieve{} 在 training-free、question-aware、sentence-level 三个公开可见的属性上重叠，这已经足以否决``这三个属性的组合是新的''这一类表述。
+
+另有两处范围边界需要说明。第一，soft prompt 家族（GIST、AutoCompressor、ICAE、500xCompressor、xRAG、LLoCO、QGC 等）将上下文压缩为连续向量而非可读文本，与 \sieve{} 的离散句子选择属于不同技术路线，正文仅在相关工作定位中简要涉及，不进入七维对比主表。第二，KV cache 层面的方法（H2O、StreamingLLM、FlashAttention、vLLM）作用于模型内部注意力与缓存，与提交前的上下文压缩正交，论文 v1 已正确地将其定位为可组合的独立层面，本次审计不重复展开。

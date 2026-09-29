@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://arxiv.org",
+    "name": "RECOMP: Improving Retrieval-Augmented LMs with",
+    "snippet": "by F Xu · 2023 · Cited by 300 — We present two compressors -- an extractive compressor which selects useful sentences from retrieved documents and an abstractive compressor ... Read more",
+    "host_name": "arxiv.org",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.alphaxiv.org",
+    "name": "RECOMP: Improving Retrieval-Augmented LMs with",
+    "snippet": "RECOMP presents a framework for retrieval-augmented language models that incorporates an intermediate compression step between document retrieval and ...",
+    "host_name": "www.alphaxiv.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://proceedings.iclr.cc",
+    "name": "RECOMP: Improving Retrieval-Augmented LMs with",
+    "snippet": "by F Xu · 2024 · Cited by 315 — We present two compressors -- an extractive compressor which selects useful sentences from retrieved documents and an abstractive compressor which generates ... Read more",
+    "host_name": "proceedings.iclr.cc",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://openreview.net",
+    "name": "RECOMP: Improving Retrieval-Augmented LMs with",
+    "snippet": "by F Xu · Cited by 313 — This paper introduces a method called RECOMP to compress retrieved documents into textual summaries to improve in-context retrieval augmented ... Read more",
+    "host_name": "openreview.net",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com",
+    "name": "RECOMP: Improving Retrieval-Augmented LMs with",
+    "snippet": "This is the repository for the paper RECOMP : Improving Retrieval - Augmented LMs with Compression and Selective Augmentation. Data. Download the files from here ... Read more",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://eunsol.github.io",
+    "name": "RECOMP: Improving Retrieval-Augmented LMs with",
+    "snippet": "by F Xu · Cited by 300 — Learn a compressor that maps noisy retrieval outputs into a summary and then prepend the summary as an input to LM Experiments & Results 1 page",
+    "host_name": "eunsol.github.io",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  }
+]

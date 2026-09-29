@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://www.alphaxiv.org",
+    "name": "LongLLMLingua: Accelerating and Enhancing LLMs in",
+    "snippet": "This paper identifies the \"lost in the middle\" issue, a key problem that LongLLMLingua directly addresses with its document reordering strategy. Furthermore ...",
+    "host_name": "www.alphaxiv.org",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com",
+    "name": "momo-research/LongLLMLingua.md at main",
+    "snippet": "Tokens unrelated to the question have low contrastive perplexity even if they have high information content. Perplexity Distribution. 3. Document Reordering .",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://arxiv.org",
+    "name": "QUITO: Accelerating Long-Context Reasoning through",
+    "snippet": "Aug 1, 2024 — In this paper, we introduce a novel QUITO ( QUITO ) method, which leverages attention of the question over the contexts to filter useless ...",
+    "host_name": "arxiv.org",
+    "rank": 2,
+    "date": "Aug 1, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://aiadvances.org",
+    "name": "Advanced RAG 09: Prompt Compression | by Florian June",
+    "snippet": "Apr 3, 2024 — LongLLMLingua employs a linear scheduler for the adaptive allocation , the budget of each token xi can be formulated as: Press enter or click ...",
+    "host_name": "aiadvances.org",
+    "rank": 3,
+    "date": "Apr 3, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.wasilzafar.com",
+    "name": "AI Application Development Mastery Part 6: Memory &",
+    "snippet": "Apr 1, 2026 — The technique preserves forced tokens (like question marks and key entities) while stripping filler words, redundant phrases, and ...",
+    "host_name": "www.wasilzafar.com",
+    "rank": 4,
+    "date": "Apr 1, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://aclanthology.org",
+    "name": "Perception Compressor: A Training-Free Prompt",
+    "snippet": "by J Tang · Cited by 24 — LongLLMLin- gua first reorders and retrieves the demonstrations based on their relevance to the input question , then performs token -level compression based on ...",
+    "host_name": "aclanthology.org",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  }
+]

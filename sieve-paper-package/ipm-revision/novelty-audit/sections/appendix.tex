@@ -1,0 +1,41 @@
+\section{证据来源清单}
+\label{sec:appendix}
+
+以下为本次审计引用的全部文献与证据来源，检索日期均为 2026-09-29。证据等级：[A] 全文/官方摘要/官方代码直接确认；[B] 多源摘要片段交叉确认；[C] 不可验证。
+
+\subsection*{被审计文献}
+
+\begin{enumerate}[itemsep=1pt,label={[\arabic*]}]
+\item LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models. Jiang et al., EMNLP 2023. \url{https://aclanthology.org/2023.emnlp-main.825/} [A]
+\item LongLLMLingua: Accelerating and Enhancing LLMs in Long Context Scenarios via Prompt Compression. Jiang et al., ACL 2024. \url{https://aclanthology.org/2024.acl-long.91/} [A]
+\item LLMLingua-2: Data Distillation for Efficient and Faithful Task-Agnostic Prompt Compression. Pan et al., ACL 2024 Findings. \url{https://aclanthology.org/2024.findings-acl.57/} [A]
+\item Compressing Context to Enhance Inference Efficiency of Large Language Models (Selective Context). Li et al., EMNLP 2023. \url{https://aclanthology.org/2023.emnlp-main.391/} [A]
+\item Perception Compressor: A Training-Free Prompt Compression Framework in Long Context Scenarios. Tang et al., NAACL 2025 Findings. arXiv:2409.19272；摘要页 \url{https://arxiv.org/abs/2409.19272}；官方代码 \url{https://github.com/Twilightaaa/PerceptionCompressor}（README 记载：LLaMA-2-7B 压缩、SentenceBERT all-mpnet-base-v2 相似度、LongChat-7B/LLaMA-3-8B 目标模型）[A]
+\item QASPC: Question-Aware Sentence-Level Prompt Compression. Chen, Liu, Fu. ACM DOI 10.1145/3800227.3800247，在线日期 2026-04-29。元数据经 Semantic Scholar API（paperId 96e178c8\dots）与 OpenAlex API 交叉确认；摘要片段来自 ACM DL 检索快照；全文付费墙不可得 [B]
+\item RECOMP: Improving Retrieval-Augmented LMs with Compression and Selective Augmentation. Xu et al., ICLR 2024. \url{https://openreview.net/forum?id=xjdzfPscOW}（检索入口 openreview.net）[A]
+\item Prompt Compression with Context-Aware Sentence Encoding for Fast and Improved LLM Inference (CPC). Liskavets et al., AAAI 2025. arXiv:2409.01227；任务无关扩展 TPC 见 OpenReview（TpGcX9UTOt）[A]
+\item AdaComp: Extractive Context Compression with Adaptive Predictor for Retrieval-Augmented Large Language Models. Zhang et al., arXiv:2409.01579 [A]
+\item Prompt Compression for Large Language Models: A Survey. Li et al., NAACL 2025 Main（Selected Oral）。论文清单仓库 \url{https://github.com/ZongqianLi/Prompt-Compression-Survey}（用于方法谱系交叉核对）[A]
+\item The Use of MMR, Diversity-Based Reranking for Reordering Documents and Producing Summaries. Carbonell \& Goldstein, SIGIR 1998（经典，机制自明）[A]
+\item The Probabilistic Relevance Framework: BM25 and Beyond. Robertson \& Zaragoza, 2009（经典，机制自明）[A]
+\item TextRank: Bringing Order into Texts. Mihalcea \& Tarau, 2004（经典，机制自明）[A]
+\item Lost in the Middle: How Language Models Use Long Contexts. Liu et al., TACL 2024（位置偏差背景文献，\sieve{} 论文 v1 已引用）[A]
+\end{enumerate}
+
+\subsection*{外围参考（未入主表）}
+
+\begin{enumerate}[itemsep=1pt,label={[\arabic*]}]
+\item QUITO: Accelerating Long-Context Reasoning through Question-Guided Context Compression（注意力过滤路线）. arXiv 2024-08 [B]
+\item Retaining Key Information under High Compression Ratios: Query-Guided Compressor for LLMs (QGC). ACL 2024（软压缩分支）[A]
+\item CompAct: Compressing Retrieved Documents Actively for Question Answering. EMNLP 2024（转写式压缩）[A]
+\item 软提示家族条目：GIST（ICLR 2024）、AutoCompressor（EMNLP 2023）、ICAE（ICLR 2024）、500xCompressor（arXiv:2408.03094）、xRAG、LLoCO（EMNLP 2024）、COCOM——均引自综述清单 [A]
+\item Divide-Prompt-Refine（arXiv 2026-05，training-free、structure-aware）与 SmartChunk Retrieval（query-adaptive 分块）——正式版待跟踪 [C]
+\end{enumerate}
+
+\subsection*{论文 v1 内部来源}
+
+\begin{enumerate}[itemsep=1pt,label={[\arabic*]}]
+\item \sieve{} 期刊版源文件：\texttt{sieve-paper-package/paper-journal/main.tex}（1{,}812 行，2026-09-24 提交 2376d2b）
+\item 数据宏：\texttt{sieve-paper-package/paper-journal/numbers.tex}（全部数字引用的权威来源）
+\item IP\&MMM 投稿四件套与匿名稿（提交 db6cbab，本次重构的对象为其基础版本）
+\end{enumerate}

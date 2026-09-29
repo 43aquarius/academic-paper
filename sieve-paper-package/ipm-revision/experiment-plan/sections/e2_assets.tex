@@ -1,0 +1,15 @@
+\section{现状资产盘点}
+
+补强计划必须建立在对已有资产的精确盘点上，避免重复实现或误判工作量。以下盘点全部来自对 research-repo 的直接检视（文件与脚本头部注释），非转述。
+
+\subsection{选择器层资产（成熟，无需改动）}
+
+数据与池：\texttt{scripts/build\_pools.py} 与 \texttt{download\_data.py} 以固定种子构建三个评估池（QASPER 1{,}000、HotpotQA 300、2WikiMultihopQA 300，共 1{,}600 条证据标注记录）。选择器实现：\texttt{src/sieve/} 五个模块（分句、分词、打分、选择、压缩），基线在 \texttt{baselines/baselines.py} 单文件内（head、random、stride、TextRank、BM25）。本地分析：\texttt{scripts/run\_journal\_analysis.py} 实现七个分析任务 M1--M7——M1 主表、M2 预算扫描（$r\in\{2,4,8,16\}$，五种选择器）、M3 组件消融（目前限 QASPER）、M4 证据位置研究、M5 超参敏感性网格、M6 池统计、M7 逐记录召回导出（供相关研究用）——全部纯本地计算，无 LLM 调用。神经门：\texttt{scripts/run\_gpt2\_gate.py} 已在 100 条 QASPER 记录上完成测量（召回 28.7\%，延迟与成本对照齐备）。时序与投影：\texttt{run\_timing\_journal.py} 与 \texttt{run\_projection.py}。这一层的数字以 \texttt{make\_numbers\_journal.py} 生成 numbers.tex 宏，论文引用纪律已有保障。
+
+\subsection{端到端层资产（协议在、数据缺）}
+
+$n{=}25$ 的会议版端到端评估由 \texttt{run\_api\_experiment.py} 完成。关键资产是 $n{=}100$ 扩容协议：\texttt{scripts/run\_qa\_expanded.py} 已实现并随仓库发布，其头部文档明确记载——七个方法（full/head/random/stride/textrank/bm25/sieve）在 $r{=}4$ 操作点；测试集为重建召回池的前 100 条 QASPER 记录（与 GPT-2 门完全同集，故逐记录召回与 F1 可精确连接做相关研究）；阅读器为同一生产 API（temperature 0、最多 96 个答案 token、最短片段指令）；断点续跑存于 \texttt{results/checkpoints/qa\_expanded.jsonl}。配套的 \texttt{run\_qa\_driver.py} 是限流感知的驱动器：以时间窗口（默认 540 秒）为节奏推进，目标成功调用数默认 760（100 记录 $\times$ 7 方法 $= 700$，加失败重试余量），失败记录由断点机制自动补跑。也就是说，路径 A 的第一步不缺任何工程：论文局限一节所述``被持续限流阻塞''的任务，在 API 配额恢复后重新挂起驱动器即可继续。相关研究 \texttt{run\_correlation.py} 已能把逐记录召回与 F1 合并。
+
+\subsection{缺口清单（本计划要补的）}
+
+对照三条 premature 构成，缺口精确为四项：其一，$n{=}100$ 端到端数据未落盘（阻塞因素是限流，非设计）；其二，端到端未扩展到 HotpotQA 与 2Wiki，也未越过 $n{=}100$；其三，组件消融被 M3 硬编码限制在 QASPER 池，且预算扫描（M2）与消融（M3）是分离的两个任务，没有``配置 $\times$ 预算''的交叉矩阵，GPT-2 门也未进入矩阵行；其四，阅读器只有一个，且阅读器侧位置剖面整段借用自 \texttt{liu2023lost} 而非在自建阅读器上重测。四项缺口分别由 A0/A1--A3、C1--C3、B1--B3 承接，下一章起逐条展开。

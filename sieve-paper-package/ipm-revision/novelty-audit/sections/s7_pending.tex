@@ -1,0 +1,16 @@
+\section{遗留验证事项与证据登记}
+\label{sec:pending}
+
+审计在三个位置留下未闭合的验证环，按优先级登记如下。这些事项不阻塞论文 v2 的写作——改写指令已按``可确认下限''设计——但在投稿前应尽量闭合，尤其是第一项。
+
+\textbf{P1：QASPC 全文获取与机制补查。}
+当前七维表中 QASPC 有三个 \unk{}（P、MF、BF）。闭合路径：通过机构订阅或 ACM 个人访问获取 DOI 10.1145/3800227.3800247 全文，补查三点——打分信号（统计/嵌入/语言模型）、是否有任何位置机制、预算如何设定。补查结果直接决定两处表述的措辞：相关工作 delta 段的差异化声明，以及``左上象限空缺''主张的强度。若 QASPC 确为纯统计实现，则 \sieve{} 的差异化将收窄到位置先验、三轴刻画与跨数据集证据三件套，formulation 与 frontier 两根支柱不受影响；若其依赖嵌入模型，象限主张完整成立。
+
+\textbf{P2：2026 最新工作的正式版跟踪。}
+检索中出现的 Divide-Prompt-Refine（arXiv 2026-05，training-free、structure-aware）与 SmartChunk（query-adaptive 分块压缩）在审计时仅见预印本描述，机制细节不足以判定七维。建议在 v2 定稿前复查其正式出版版本；若其中任何一个具备``零模型 + 问题条件化 + 预算形式化''组合，需要进入对比表并调整 delta 声明。同类跟踪项：QUITO 的注意力过滤机制在正式发表后的定位变化。
+
+\textbf{P3：论文 v1 若干数字与 v2 写作的对应关系。}
+本次审计已核对 numbers.tex 的关键宏：消融（AblSie 36.2、AblNoPos 43.3、AblRelOnly 43.6、AblNoQ 19.9、AblNoRed 36.3）、BM25（RecQBm 43.1）、GPT-2 门（GateRecall 28.7、GateN 100、GateLatMedCtxS 8.2、GateSieRatioSixk 255、GateSieRatioMed 320）、配对增益（PairQSH 12.8、PairHSH 44.8、PairWSH 22.8）、端到端样本量（QAN 25）与总记录数（TotalRecords 1600）。v2 写作中所有引用上述数字的句子必须继续从 numbers.tex 宏展开，禁止手写数字——本次审计过程中已发生过一次凭印象写错消融数字（43.6 被误写为 44.6）并被宏核对纠正的事故，该事故本身即证明宏引用纪律的必要性。
+
+\textbf{检索结果的存档说明。}
+全部二十余次检索的原始 JSON、抓取的 arXiv 摘要页、GitHub README 与综述论文清单保存于审计工作目录 \texttt{novelty-audit/searches/}，可按 URL 复核。附录 \ref{sec:appendix} 的来源清单与之一一对应。任何后续agent或作者本人复核本报告的判定时，应从附录 URL 出发重走证据链，而不是信任本报告的转述——这是可审计性的本义，也是这套流程区别于``AI 生成文献综述''的地方。

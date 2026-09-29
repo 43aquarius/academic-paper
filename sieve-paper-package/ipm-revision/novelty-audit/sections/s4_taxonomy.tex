@@ -1,0 +1,42 @@
+\section{七维对比总表}
+\label{sec:taxonomy}
+
+表 \ref{tab:taxonomy} 汇总全部十四项方法的七维判定。七个维度直接对应 \sieve{} 的组件清单与设计主张：Q（问题条件化）、P（位置感知）、R（冗余控制）、MF（免模型：运行时零神经/嵌入模型）、TF（免训练）、SL（句子级完整单元输出）、BF（显式预算形式化与压缩器成本刻画）。符号沿用第 \ref{sec:cards} 节：\ck{} 满足，\no{} 不满足，\partl{} 部分满足或有重要限定，\unk{} 本次审计无法验证。
+
+\begin{table}[htbp]
+\centering
+\caption{上下文选择与压缩方法的七维对比。判定依据见第 \ref{sec:cards} 节各方法卡片；Q = 问题条件化，P = 位置感知，R = 冗余控制，MF = 免模型，TF = 免训练，SL = 句子级完整单元，BF = 显式预算与成本刻画。\partl{} 表示部分满足，\unk{} 表示未验证（QASPC 全文不可得）。}
+\label{tab:taxonomy}
+\small
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l c c c c c c c c}
+\toprule
+方法 & 年份 & Q & P & R & MF & TF & SL & BF \\
+\midrule
+MMR & 1998 & \ck{} & \no{} & \ck{} & \ck{} & \ck{} & \ck{} & \no{} \\
+BM25 & 2009 & \ck{} & \no{} & \no{} & \ck{} & \ck{} & \ck{} & \partl{} \\
+TextRank & 2004 & \no{} & \no{} & \partl{} & \ck{} & \ck{} & \ck{} & \no{} \\
+头截断/随机/跨步 & --- & \no{} & \no{} & \no{} & \ck{} & \ck{} & \partl{} & \no{} \\
+\midrule
+Selective Context & 2023 & \no{} & \no{} & \partl{} & \no{} & \ck{} & \partl{} & \no{} \\
+LLMLingua & 2023 & \no{} & \no{} & \no{} & \no{} & \ck{} & \no{} & \ck{} \\
+LongLLMLingua & 2024 & \ck{} & \ck{} & \no{} & \no{} & \ck{} & \no{} & \ck{} \\
+LLMLingua-2 & 2024 & \no{} & \no{} & \no{} & \no{} & \no{} & \no{} & \ck{} \\
+RECOMP & 2024 & \ck{} & \no{} & \no{} & \no{} & \no{} & \partl{} & \no{} \\
+\midrule
+Perception Compressor & 2025 & \ck{} & \ck{} & \no{} & \no{} & \ck{} & \no{} & \partl{} \\
+CPC & 2025 & \ck{} & \no{} & \partl{} & \no{} & \no{} & \ck{} & \no{} \\
+AdaComp & 2024 & \ck{} & \no{} & \no{} & \partl{} & \ck{} & \no{} & \ck{} \\
+QASPC & 2026 & \ck{} & \unk{} & \ck{} & \unk{} & \ck{} & \ck{} & \unk{} \\
+\midrule
+\sieve{} & 本作 & \ck{} & \ck{} & \ck{} & \ck{} & \ck{} & \ck{} & \ck{} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+读表的方式决定结论的走向，因此这里把三种读法都摆出来并逐一检验。第一种读法是清单式读法：\sieve{} 是表中唯一在七个维度上全部打 \ck{} 的方法。这个读法在形式上成立，但它是审计中最危险的读法——每一行竞品都只是在个别维度上缺格，而``把别人缺的格子补齐''恰恰是组合式新颖性的定义，正是 IP\&MMM 拒稿意见所否定的那一类主张。审稿人对照此表的标准反问是现成的：LongLLMLingua 已同时具备 Q 与 P，QASPC 已同时具备 Q、R 与 SL，MMR 早在 1998 年就具备 R，把四者的长处拼在一起为什么构成新的科学贡献？清单式读法无法回答这个问题，论文 v2 必须放弃它作为主要新颖性表述。
+
+第二种读法是结构式读法：观察维度之间的联合分布而非逐格比较。表中 MF 列揭示了一个所有 training-free 竞品共有的结构特征——Perception Compressor 需要 SentenceBERT 加 LLaMA-2-7B，LongLLMLingua 与 LLMLingua 需要托管小 LM，LLMLingua-2 需要训练出的分类器，RECOMP 与 CPC 需要训练的编码器。也就是说，``training-free''在 2024--2026 年文献中的实际含义是``免训练但仍需模型''，真正的免模型坐标全部落在古典方法区（BM25、TextRank、MMR）。这把设计空间切成一个 $2\times 2$ 结构：问题条件化与位置/冗余感知的组件 richness 在纵轴上，基础设施依赖在横轴上；现有工作要么富组件但重基础设施（右上象限），要么轻基础设施但组件贫乏（左下象限），左上象限——组件较全且零模型依赖——在审计范围内确实没有先例占位。这个象限空缺是表 \ref{tab:taxonomy} 提供的最有价值的一张图，也是 \sieve{} 可以负责任声明的定位。
+
+第三种读法是方法论读法：BF 列几乎整列为 \no{} 或 \partl{}。现有文献在``压缩到多少''上有预算机制（LLMLingua 家族的迭代搜索、AdaComp 的自适应率），但没有一篇把``压缩器自身的计算成本''作为独立测量轴与质量、压缩率并列报告，更没有以此为轴做 frontier 分析。\sieve{} 论文 v1 的三轴框架（质量--压缩率--选择成本，含同硬件 GPT-2 门复刻的 255--320 倍成本对照）在审计范围内没有发现先例。这是比任何单个组件都更稳的差异点，因为它不是组件而是评估方法论，且天然容纳后续方法（任何压缩器都能被摆上这条 frontier 被定价）。
+
+三种读法合起来给出论文 v2 的叙事重建路径：放弃清单式主张，以结构式定位（左上象限的零基础设施选择器）为主张核心，以方法论读法（三轴 frontier 作为该设计空间的测量标准）为第二主张，把组件贡献降级为 instantiation 细节。第 \ref{sec:delta} 节把这个路径展开为具体的表述规则。
