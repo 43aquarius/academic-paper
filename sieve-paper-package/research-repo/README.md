@@ -94,3 +94,41 @@ for every entry.
 
 MIT. Benchmark data remains under its original licenses (QASPER: CC BY
 4.0; HotpotQA: CC BY-SA 4.0) and is sampled, not redistributed in full.
+
+## Path A0 in progress + B2 pre-staged (post-rejection rebuild, 2026-09-30)
+
+State: A0 expanded protocol = 729/760 ok (main 669/700: full, head,
+random, stride, textrank, bm25 all n=100; sieve 69/100; dev alpha grid
+60/60). Endpoint quota (platform-level shared 429) gates the remaining
+31 sieve records; recovery windows have been irregular, historically
+favoring UTC 03:00-07:00.
+
+A persistent background daemon (`/home/z/my-project/scripts/tail_daemon.sh`)
+now handles the full landing sequence without manual attendance:
+
+1. Sprint `run_qa_tail.py` windows (fail-fast, 23 s per 429 cycle)
+   until A0 main reaches 700 ok -> `results/TAIL_DONE.sentinel`
+2. Auto-fire the integration-tested chain: `run_correlation.py`
+   (switches to expanded protocol) -> `make_numbers_journal.py --out
+   ../ipm-revision/paper-journal-v2/numbers.tex` -> commit + push
+3. Sprint B2 (`run_qa_burst.py 540 150 250 run_position_reader.py
+   position_reader.jsonl`) until 250 ok records
+4. Re-run the chain (PosR* position macros + fig6) -> commit + push ->
+   `results/CHAIN_DONE.sentinel`
+
+Manual equivalents (if the daemon is not running):
+```bash
+timeout 570 python3 scripts/run_qa_tail.py 520            # A0 tail
+python3 scripts/run_correlation.py                        # expanded switch
+python3 scripts/make_numbers_journal.py --out \
+  ../ipm-revision/paper-journal-v2/numbers.tex            # macro injection
+python3 scripts/run_qa_burst.py 540 150 250 \
+  run_position_reader.py position_reader.jsonl            # B2
+python3 scripts/fig_journal.py --out-dir \
+  /home/z/my-project/repo-academic-paper/sieve-paper-package/ipm-revision/paper-journal-v2/figures
+```
+
+After CHAIN_DONE: apply EDITMAP.md E1-E12 (branch-gated wording only,
+no new claims), recompile with tectonic, then TITLE_DECISION.md rules
+(candidate 1 default). Wording discipline: PREREG.md governs; no
+post-hoc branch switching. Daemon log: `results/tail_loop.log`.
