@@ -16,7 +16,8 @@ async function main() {
     return;
   }
 
-  const retries = 8;
+  const retries = (typeof req.retries === 'number' && req.retries > 0)
+    ? req.retries : 8;
   let lastErr = null;
   let attempts = 0;
   for (let attempt = 1; attempt <= retries; attempt++) {
