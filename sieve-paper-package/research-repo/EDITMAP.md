@@ -5,6 +5,27 @@ Companion to PREREG.md. Every location whose wording must change when
 insertion sites. Line numbers refer to commit de29d5a; anchors are given
 so the edits survive small line drift. All numbers flow through macros.
 
+ANCHOR REFRESH (verified 2026-09-30 at HEAD 384f303, main.tex = 2106 lines,
+zero content drift from de29d5a, only +6..10 line offsets):
+- E1 hedges: l.981 ("cannot be separated at this sample size"), l.989
+  ("intervals also include zero" + "sample is too small")
+- E2: l.941 (table caption scoping), l.254 (intro scope sentence)
+- E3: l.234 ("sharper than the conference")
+- E4: l.1742 ("intervals are wide")
+- E5: l.1782-1783 ("cannot separate the two" / "practical reading is
+  symmetric")
+- E6: l.1884 ("operating point ($4\times$) ... intervals are wide")
+- E7: l.1904 ("$n=25$ per method")
+- E8: l.1899-1901 ("reader-side positional profile ... re-measured")
+- E9 insertion: after l.1631 ("The deployment guidance is symmetric and
+  explicit.")
+- E10: l.1912 area (QASPC boundary paragraph)
+- E11: l.1942 ("statistically matched with the strongest cheap baseline")
+- E12: highlights.tex contains NO end-task retain bullet (E12 reduces to
+  an abstract-wording check; the abstract's end-task sentence at
+  "Evidence recall correlates only weakly ..." is fully macro-driven via
+  \CorrPearson/\CorrNPairs)
+
 ## Automatic (macros only, no text edit needed)
 
 - tab:qa rows (l.951-972): BM25 row activates via \ifdefined\QABmF
