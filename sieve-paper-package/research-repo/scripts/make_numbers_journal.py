@@ -348,6 +348,7 @@ def main(out=None):
                 A(f"\\newcommand{{\\QAPair{mk}}}{{{d:.1f}}}")
                 A(f"\\newcommand{{\\QAPair{mk}Lo}}{{{lo:.1f}}}")
                 A(f"\\newcommand{{\\QAPair{mk}Hi}}{{{hi:.1f}}}")
+                A(f"\\newcommand{{\\QAPair{mk}HW}}{{{(hi - lo) / 2:.1f}}}")
         return qam, by.get("sieve", [])
 
     if expanded:

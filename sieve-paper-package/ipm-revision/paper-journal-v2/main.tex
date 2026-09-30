@@ -101,7 +101,13 @@ reaches \GateRecall\% recall at \GateLatMedCtxS\,s per median context
 magnitude more compute buy no measurable recall at the gate's floor
 configuration. Evidence recall correlates only weakly with end-task
 answer F1 (pooled Pearson \CorrPearson{} over \CorrNPairs{} pairs), so
-the two protocols are reported separately and never mixed. The result is
+the two protocols are reported separately and never mixed. End to end
+under a production LLM reader at $4\times$ on $n{=}\QAN$ records, the
+selector-level ordering reappears: the relevance-only BM25 reference
+retains \QABmRetain\% of full-context F1 against \QASieRetain\% for
+\method{} (paired gap $\abs{\QAPairSBm}$ points, interval excluding
+zero), while \method{} remains statistically matched with truncation
+and the question-agnostic floor. The result is
 a formulation, a measured three-axis frontier, and a zero-infrastructure
 reference point against which any context compressor---statistical or
 neural---can be priced before justifying its infrastructure.
@@ -249,10 +255,13 @@ six-to-seven points while all five configurations of the selector
 cost the same tens of milliseconds.
 End to end with a production LLM as the reader at the $4\times$
 operating point, \method{} is statistically matched with truncation
-on QASPER (paired 95\% interval [\QAPairSHLo, \QAPairSHHi] on the F1
-difference) while lying above every question-agnostic selector in
-point estimate; the end-task sample is small and we scope its claims
-accordingly. The measured GPT-2
+and the question-agnostic floor on QASPER at $n{=}\QAN$ (paired 95\%
+interval [\QAPairSHLo, \QAPairSHHi] on the F1 difference), retaining
+\QASieRetain\% of full-context F1; the relevance-only BM25 reference
+retains \QABmRetain\% with a resolved paired advantage of
+$\abs{\QAPairSBm}$ F1 points---the same ordering its selector-level
+recall advantage predicts, now at $4\times$ the conference sample. The
+measured GPT-2
 perplexity-gate baseline reaches \GateRecall\% evidence recall at
 $4\times$ at a scoring cost of \GateLatMedCtxS\,s per median context
 on the same container, against \method{}'s tens of milliseconds: a
@@ -328,7 +337,8 @@ model hosting and GPU time, and none of them is the option a user
 reaches for when the scorer cannot be hosted.
 
 \paragraph{Training-free compressors that still host models.}
-A newer family drops the training requirement but keeps the models.
+A newer family drops the training requirement but keeps the models
+themselves.
 Perception Compressor retrieves demonstrations with SentenceBERT
 similarity against guiding questions and performs semi-guided iterative
 token compression with LLaMA-2-7B \citep{tang2025perception}: it is
@@ -937,9 +947,12 @@ test split ($n{=}\QAN$ per method after exclusions, see
 \autoref{sec:pools}), reader GLM-4-Plus at temperature 0. EM and
 token-level F1 in percent; brackets are bootstrap 95\% intervals;
 $\Delta$F1 is the gap to full context. Prompt tokens are the served
-means. \method{} and truncation overlap; the question-agnostic
-selectors cluster below. The end-task sample is small and its claims
-are scoped accordingly in the text. The GPT-2 gate was not run under
+means. \method{}, truncation, and random selection overlap within
+paired intervals; stride and TextRank sit below; BM25 retains the most
+F1 among the compressors. Paired intervals are reported per baseline
+in the text; orderings among the question-agnostic compressors remain
+underpowered at $n{=}\QAN$, while the BM25 gap is resolved. The GPT-2
+gate was not run under
 this protocol; it is compared under the selector protocol
 (\autoref{sec:recall}, \autoref{sec:efficiency}).
 \ifdefined\QABmF{}BM25 is included under this protocol.\else{}BM25
@@ -978,24 +991,38 @@ relative to the full context, and the loss is large: the full-context
 interval is wide at $n{=}\QAN$, but its point estimate (\QAFullF{} F1)
 sits well above every compressed condition, which is the expected
 price of removing three quarters of the context. Second, \method{} and
-head truncation cannot be separated at this sample size in either
-direction: the paired bootstrap interval for the F1 difference is
-[\QAPairSHLo, \QAPairSHHi], with point estimate \QAPairSH{} points. On
+head truncation cannot be separated at $n{=}\QAN$ in either direction:
+the paired bootstrap interval for the F1 difference is
+[\QAPairSHLo, \QAPairSHHi], with point estimate \QAPairSH{} points
+and half-width \QAPairSHHW{} points. On
 questions about a paper's overall setup, the evidence often sits in
 the opening sections, which is the regime where a fixed prefix is
-already competent. Third, the question-agnostic selectors sit below
-\method{} in point estimate (paired differences of \QAPairSTR{} points
-against TextRank and \QAPairSRan{} against random selection), though
-these intervals also include zero at $n{=}\QAN$; the sample is too small
-to separate end-task orderings among the compressors, and we report
-the point estimates with that caveat rather than claim separations the
-design cannot resolve.
+already competent. Third, stride and TextRank sit below
+\method{} in point estimate (paired difference of \QAPairSTR{} points
+against TextRank), while random selection is level with it
+(\QAPairSRan{} points)---the question-agnostic floor clears truncation
+but does not separate from the full selector. These paired intervals
+include zero at $n{=}\QAN$ (half-widths \QAPairSTRHW{} and
+\QAPairSRanHW{} points); we report the point estimates with their
+widths rather than claim separations the design cannot resolve.
 \ifdefined\QAPairSBm Against the question-conditioned lexical
 baseline the paired interval is
-[\QAPairSBmLo, \QAPairSBmHi] (point estimate \QAPairSBm{} points).
-\fi{} The end-task picture is therefore that
-\method{} matches the strongest cheap baseline at this operating point
-on this benchmark. Where the question actually matters, the picture
+[\QAPairSBmLo, \QAPairSBmHi] (point estimate \QAPairSBm{} points,
+half-width \QAPairSBmHW{}): the interval excludes zero in BM25's favor,
+so the trade-off narrative is consistent at both layers---raw lexical
+relevance dominates both the recall axis and the end-task axis at this
+operating point, with BM25 retaining \QABmRetain\% of full-context F1
+against \QASieRetain\% for \method{}. What \method{} still buys at the
+same token budget is placement-shaped evidence and redundancy control;
+their recall price is quantified by the ablation
+(\autoref{sec:ablation}) and reappears here as the end-task gap to the
+relevance-only reference.
+\fi{} The end-task picture is therefore that \method{}
+is statistically matched with truncation and the question-agnostic
+floor at $n{=}\QAN$, while the relevance-only BM25 reference holds a
+resolved paired advantage---the same ordering the selector-level
+recall protocol reports at three datasets' scale. Where the question
+actually matters, the picture
 sharpens at the scale the selector protocol can afford, which is the
 subject of the next two subsections.
 
@@ -1391,9 +1418,11 @@ truncation; BM25 is the cheapest question-conditioned selector in the
 study, running at roughly \BmSpeedup$\times$ the speed of the full
 \method{} at the same length, a direct consequence of skipping the
 greedy marginal search. Every statistical selector's cost is noise at
-serving scale: the median reader call in the end-task experiment takes
-\QAReaderMs\,\ms, an order of magnitude above the compression itself,
-and the projection of \autoref{sec:projection} shows what the saved
+serving scale: the end-task reader call is billed by tokens
+(\QASieTok{} prompt tokens per compressed call against \QAFullTok{} at
+full context), so the selector's tens of milliseconds remove about
+three quarters of what the reader would otherwise prefill, and the
+projection of \autoref{sec:projection} prices what the saved
 prefill and cache are worth at deployment scale.
 
 \subsection{The neural gate, measured}
@@ -1444,6 +1473,7 @@ protocol; its GPU floor is analytic ($2\abs{M_s} L$ FLOPs at 40\%
 utilization on an A100).}
 \label{tab:threeway}
 \small
+\setlength{\tabcolsep}{4.5pt}
 \begin{tabular}{lcccccc}
 \toprule
 Method & extra model & GPU & recall $\uparrow$ & F1 $\uparrow$ &
@@ -1575,7 +1605,7 @@ LLaMA-2 70B & 8.8\,s & 2.2\,s & 2.6\,GB & 0.66\,GB \\
 \autoref{tab:projection} translates a $4\times$ compression into
 infrastructure terms for LLaMA-2 deployments \citep{touvron2023llama}
 using the standard prefill FLOPs approximation $2N_{\mathrm{params}}
-L$ for context length $L$, cache memory
+L$ for context length $L$, and cache memory of
 $2\,n_{\mathrm{layer}}\,n_{\mathrm{kv}}\,d_{\mathrm{head}}\,L$
 elements in bf16, and an assumed 40\% model-FLOPs utilization on one
 A100; the 70B row reflects grouped-query attention with eight KV
@@ -1726,27 +1756,34 @@ cliff-like, when every knob is mis-set by its grid step.
 The paper's two quality protocols measure different things, and the
 difference is a result worth reporting rather than hiding. We join the
 two at the sample level: for every record of the end-task test split
-that carries locatable evidence (\CorrNRecs{} of the 25), and every
+that carries locatable evidence (\CorrNRecs{} of the \QAN{}), and every
 selector that ran under both protocols, we pair the record's evidence
 recall at $4\times$ with its end-task F1 at $4\times$, and compute
 the correlation over the pooled \CorrNPairs{} method--record pairs.
 
 The correlation is positive and weak: pooled Pearson
 \CorrPearson{}, Spearman \CorrSpearman{}; per method it ranges from
-\CorrHeaPearson{} (head truncation) to \CorrTRPearson{} (TextRank),
-with \method{} at \CorrSiePearson{} (Spearman \CorrSieSpearman{}).
+\CorrSiePearson{} (\method{}) to \CorrHeaPearson{} (head truncation),
+with TextRank at \CorrTRPearson{}, and every per-method coefficient
+is positive---weak but sign-stable at $4\times$ the conference
+sample, so the two protocols remain separate instruments even where
+both are available.
 The direction is as expected (records whose evidence survives
 compression are answered better), but the tightness is not: a
 reader that fails a fully-evidenced record, or answers correctly from
 a partially-evidenced one, contributes noise that a selector-level
-metric cannot see, and at $n{=}\QAN$ per method the intervals are wide.
+metric cannot see, and the per-method coefficients are individually
+imprecise at this scale.
 Two conclusions follow. First, evidence recall is a necessary-but-not
 sufficient condition for end-task quality: it bounds what the reader
 can use from above, and the bound is loose. Second, and methodologically,
-recall gains of a few points (such as BM25's margin over \method{})
-should not be read as accuracy gains; whether the trade between
-raw recall and positional reliability pays off is an end-task
-question, which is why the two protocols are reported separately
+weak pooled correlation does not license reading recall gains as
+accuracy gains in either direction: it neither predicts nor refutes
+individual method-level orderings, as shown by the resolved end-task
+gap of $\abs{\QAPairSBm}$ paired F1 points, by which BM25's
+selector-level margin transferred end to end---one
+confirmed transfer among selectors whose sample-level coupling remains
+loose; which is why the two protocols are reported separately
 throughout this paper.
 
 \section{Discussion}
@@ -1779,13 +1816,20 @@ BM25 is the better compressor, and the honest answer is that for
 evidence placed where readers attend reliably, near-duplicates
 refused under tight budgets, and an explicit knob
 ($\mathrm{floor}$) pricing the exchange. The end-task protocol at
-$n{=}\QAN$ cannot separate the two, and we report that honestly rather
-than extrapolate from recall. The practical reading is symmetric:
-deployments that feed a fixed-prefix-friendly reader or that value
+$n{=}\QAN$ separates the two, in BM25's favor, with a paired interval
+of [\QAPairSBmLo, \QAPairSBmHi] F1 points (retain \QABmRetain\% against
+\QASieRetain\%), so the recall ordering transferred at this operating
+point, and the honest report is that a deployment optimizing end-task
+F1 alone at $4\times$ on QASPER-like traffic should take BM25. The
+practical reading keeps its conditional shape, with the end-task price
+now measured: deployments that feed a
+fixed-prefix-friendly reader or that value
 recall above all should take BM25 (or the relevance-only ablation, at
 the same recall); deployments whose readers exhibit positional bias,
 or that operate at tight budgets where duplicates crowd out evidence,
-should take the full selector. Either way, both points cost
+should take the full selector, knowing that at this operating point
+the end-task price of that choice is $\abs{\QAPairSBm}$ paired F1
+points. Either way, both points cost
 milliseconds and no model, and both dominate the question-agnostic
 corner that production pipelines still default to.
 
@@ -1881,15 +1925,14 @@ dependence from the outside.
 
 The evaluation has five boundaries. First, the end-task protocol
 covers one reader (GLM-4-Plus) on one benchmark (QASPER) at one
-operating point ($4\times$) with $n{=}\QAN$: its intervals are wide, its
-claims are scoped to matching the strongest cheap baseline, and
-reader-dependence is untested. An expanded end-task protocol
-($n=100$, seven selectors including BM25, same reader and operating
-point) is implemented and released with the repository, and its
-execution was blocked during this study by sustained rate limits on
-the reader's public API rather than by design; the released script
-resumes from checkpoints, and the end-task numbers will be updated in
-the artifact without touching any selector-level claim. Second, the
+operating point ($4\times$) with $n{=}\QAN$ across seven selectors
+including BM25: its paired half-widths (\QAPairSHHW{} F1 points
+against truncation) cannot yet separate the question-agnostic
+orderings, the resolved BM25 gap (half-width \QAPairSBmHW{} points)
+is single-benchmark, single-reader evidence, and reader-dependence is
+untested. Widening to multiple readers and cross-dataset end-task
+protocols remains the next step, and the released, checkpointed
+protocol scripts cover it without touching any selector-level claim. Second, the
 neural comparison instantiates the perplexity-gate mechanism with
 GPT-2 small at sentence granularity; it is the family's cost floor
 and a faithful mechanism replica, but it is not LLMLingua's full
@@ -1901,8 +1944,9 @@ prior is taken from prior work \citep{liu2023lost} rather than
 re-measured under our reader; the selection-level placement curve is
 measured, the reader-side one is borrowed. Fourth, the
 recall--accuracy correlation of \autoref{sec:corr} is estimated at
-$n=25$ per method, so its magnitude carries wide intervals even
-though its sign is stable across methods. Fifth, sentence-level
+$n{=}\QAN$ per method (\CorrNPairs{} pooled pairs), so its magnitude
+remains imprecise even though every per-method coefficient is
+positive at $4\times$ the conference sample. Fifth, sentence-level
 granularity bounds the useful compression range: beyond
 $r \approx 16$ the output degenerates toward a few isolated
 sentences, and token-level compressors retain an advantage at extreme
@@ -1915,12 +1959,15 @@ sentence-level with clause-level redundancy reduction), was not
 accessible in full text at the time of writing, so no measured
 comparison against it is reported and the design-space table records
 its stated properties only. The revised evaluation plan that
-accompanies this manuscript widens the end-task protocol (more records,
-multiple readers) and will place any newly accessible competitor on
+accompanies this manuscript widens the end-task protocol further
+(multiple readers, additional benchmarks) and will place any newly
+accessible competitor on
 the same measured frontier; its budget axis is already executed
 here---\autoref{sec:matrix} measures the full
-configuration--budget--latency matrix on all three pools---leaving
-the end-task expansion as the remaining gap between the selector-level
+configuration--budget--latency matrix on all three pools---and its
+end-task axis is executed at $n{=}\QAN$ with seven selectors including
+BM25, leaving multi-reader replication and cross-dataset end-task
+transfer as the remaining gap between the selector-level
 evidence and reader-level claims.
 
 Two accounting caveats remain from the conference version. The reader
@@ -1939,7 +1986,10 @@ We asked how much of long-context quality a compressor can keep with
 no neural scorer at all, and answered it as a frontier study rather
 than a single operating point. At the $4\times$ compression,
 \method{} keeps \QASieRetain\% of full-context F1 end to end,
-statistically matched with the strongest cheap baseline, while
+statistically matched with truncation and the question-agnostic floor
+at $n{=}\QAN$ and $\abs{\QAPairSBm}$ paired F1 points below the
+relevance-only BM25 reference ($\QABmRetain\%$ retained)---the same
+ordering its selector-level recall margin predicts---while
 spending \TimeSieSixk\,\ms{} of CPU time and zero model parameters.
 Under the reader-free protocol, on \TotalRecords{}
 evidence-annotated records across three benchmarks, it retains more
@@ -2059,7 +2109,8 @@ non-evidence sentences that follow them in the order. Hence $\rho=1$.
 \begin{proof}[Proof of \autoref{prop:head}]
 Truncation keeps the prefix of $\lceil n/r \rceil$ sentences. For an
 evidence sentence at a uniform position, the retention probability is
-$\lceil n/r \rceil / n \in [1/r,\, 1/r + 1/n]$, and independence
+$\lceil n/r \rceil / n$, which lies in the interval
+$[1/r,\, 1/r + 1/n]$, and independence
 across evidence sentences plus linearity of expectation gives
 $\mathbb{E}[\rho] = \min(1, 1/r) + O(1/n)$.
 \end{proof}
@@ -2091,14 +2142,15 @@ $\alpha$ choice is a point estimate from a noisy grid, and the
 paper's claims do not rest on it being optimal.
 
 \paragraph{Conference-version compatibility.}
-The conference version's 191-record QASPER pool, its timing host, and
-its numbers remain reproducible from the original artifacts; the
+The conference version's QASPER pool (191 records), its timing host,
+and its numbers remain reproducible from the original artifacts; the
 journal pools are supersets drawn under the same filters, and every
 qualitative conference claim (ordering of methods, growth of the
 margin in $r$, component attribution) reproduces at the larger scale
 with tighter intervals. Three conference-version statements are
 superseded: the QASPER recall intervals, which touched at their edges
-at $n=191$, are separated at $n{=}\NRecQ$; the neural-baseline
+at the conference sample ($n=191$), are separated at the journal
+sample ($n{=}\NRecQ$); the neural-baseline
 comparison, which was analytic in the conference version, is measured
 here; and the baseline set now includes BM25, which the conference
 version lacked entirely.
