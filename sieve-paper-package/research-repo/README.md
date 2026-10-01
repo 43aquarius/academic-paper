@@ -95,40 +95,52 @@ for every entry.
 MIT. Benchmark data remains under its original licenses (QASPER: CC BY
 4.0; HotpotQA: CC BY-SA 4.0) and is sampled, not redistributed in full.
 
-## Path A0 in progress + B2 pre-staged (post-rejection rebuild, 2026-09-30)
+## Path A0 + B2 COMPLETE (post-rejection rebuild, 2026-10-01)
 
-State: A0 expanded protocol = 729/760 ok (main 669/700: full, head,
-random, stride, textrank, bm25 all n=100; sieve 69/100; dev alpha grid
-60/60). Endpoint quota (platform-level shared 429) gates the remaining
-31 sieve records; recovery windows have been irregular, historically
-favoring UTC 03:00-07:00.
+State: all pre-registered Phase 2 data landed and applied.
 
-A persistent background daemon (`/home/z/my-project/scripts/tail_daemon.sh`)
-now handles the full landing sequence without manual attendance:
+- **A0** (42fb1d6): expanded protocol 700/700 main + 60/60 grid.
+  Fired branches: PairSH +4.0 [-2.1,10.4] crosses 0 (matched);
+  PairSBm -4.8 [-8.6,-1.4] excludes 0 (BM25 end-to-end wins =
+  trade-off narrative consistent at both layers). Correlation
+  Pearson 0.22, 600 pairs, all methods same-signed positive.
+- **A0 paper revision** (f101d8f): EDITMAP E1-E7, E10-E12 applied,
+  46pp.
+- **B2** (609399f): 250/250 ok (5 positions x 50 records,
+  pool[110:160], GLM-4-Plus reader). Reader-side F1 profile
+  32.0/31.4/33.5/38.1/32.2; paired mid-minus-ends gap +1.4 F1,
+  CI [-0.7, 3.7] crosses 0 -> **flat branch** (PREREG B2-1).
+- **B2 paper revision** (e870b0d): EDITMAP E8 (limitation
+  narrowed: profile flat at median ~1k words, U prior stays a
+  selector-level design choice justified by cited longer-context
+  evidence, cost priced by ablation) + E9 (fig6 + paragraph,
+  \ifdefined guard) applied; 47pp; 0 net-new overfulls
+  (baseline-compared). Two make_numbers_journal.py fixes landed:
+  duplicate \PosRMidF macro, bootstrap set-order drift (sorted ->
+  bit-stable, verified by double-run diff).
+- **Title** (TITLE_DECISION R2): flat branch -> candidate 1
+  locked, unchanged.
 
-1. Sprint `run_qa_tail.py` windows (fail-fast, 23 s per 429 cycle)
-   until A0 main reaches 700 ok -> `results/TAIL_DONE.sentinel`
-2. Auto-fire the integration-tested chain: `run_correlation.py`
-   (switches to expanded protocol) -> `make_numbers_journal.py --out
-   ../ipm-revision/paper-journal-v2/numbers.tex` -> commit + push
-3. Sprint B2 (`run_qa_burst.py 540 150 250 run_position_reader.py
-   position_reader.jsonl`) until 250 ok records
-4. Re-run the chain (PosR* position macros + fig6) -> commit + push ->
-   `results/CHAIN_DONE.sentinel`
+Remaining gaps (honest scope, not blockers): B1 multi-reader
+(external API readers unavailable in this environment) and A2
+cross-dataset end-task are the two open directions recorded in
+Limitations; next milestone is journal selection (KBS vs EWSA per
+contribution type) once submission materials are prepared.
 
-Manual equivalents (if the daemon is not running):
+Historical recovery notes (quota windows were irregular; 429
+blockade ran 02:24-16:05 UTC on 2026-10-01, then two release
+bursts at 16:03 and 16:10 UTC finished all 50 remaining records):
+
 ```bash
-timeout 570 python3 scripts/run_qa_tail.py 520            # A0 tail
-python3 scripts/run_correlation.py                        # expanded switch
+timeout 290 python3 scripts/run_qa_burst.py 240 120 250 \
+  run_position_reader.py position_reader.jsonl            # B2 tail
 python3 scripts/make_numbers_journal.py --out \
-  ../ipm-revision/paper-journal-v2/numbers.tex            # macro injection
-python3 scripts/run_qa_burst.py 540 150 250 \
-  run_position_reader.py position_reader.jsonl            # B2
+  ../ipm-revision/paper-journal-v2/numbers.tex            # macros
 python3 scripts/fig_journal.py --out-dir \
-  /home/z/my-project/repo-academic-paper/sieve-paper-package/ipm-revision/paper-journal-v2/figures
+  /home/z/my-project/repo-academic-paper/sieve-paper-package/ipm-revision/paper-journal-v2/figures \
+  --only position_reader                                  # fig6
 ```
 
-After CHAIN_DONE: apply EDITMAP.md E1-E12 (branch-gated wording only,
-no new claims), recompile with tectonic, then TITLE_DECISION.md rules
-(candidate 1 default). Wording discipline: PREREG.md governs; no
-post-hoc branch switching. Daemon log: `results/tail_loop.log`.
+Wording discipline: PREREG.md governed throughout; no post-hoc
+branch switching. Pre-drafted three-branch edits: see
+B2_EDIT_DRAFT.md (frozen before data landed).
