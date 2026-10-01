@@ -449,15 +449,18 @@ def main(out=None):
                     statistics.mean(r["f1"] for r in pr[1.0])) / 2 * 100
             mid = statistics.mean(r["f1"] for r in pr[0.5]) * 100
             A(f"\\newcommand{{\\PosREndsF}}{{{ends:.1f}}}")
-            A(f"\\newcommand{{\\PosRMidF}}{{{mid:.1f}}}")
             A(f"\\newcommand{{\\PosRMidGap}}{{{mid - ends:.1f}}}")
             # paired U-shape test: mid F1 vs per-record mean of both ends
             common = (set(f1_by[0.0]) & set(f1_by[1.0]) &
                       set(f1_by[0.5]))
             if common:
+                # sorted: set iteration order is hash-randomized per
+                # process, which made the bootstrap quantiles drift
+                # between runs (3.7 vs 3.8); sorting restores the
+                # bit-stable regeneration promise.
                 pairs = [(f1_by[0.5][i] * 100,
                           (f1_by[0.0][i] + f1_by[1.0][i]) / 2 * 100)
-                         for i in common]
+                         for i in sorted(common)]
                 d = statistics.mean(a - b for a, b in pairs)
                 lo, hi = paired(pairs)
                 A(f"\\newcommand{{\\PosRUGap}}{{{d:.1f}}}")

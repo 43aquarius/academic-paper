@@ -1664,6 +1664,31 @@ evidence is placed exactly where relevance puts it, including the
 middle, which is why the placement axis, not the recall axis alone,
 is the right way to compare the two.
 
+\ifdefined\PosRZeroF
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.6\linewidth]{figures/fig6_position_reader.pdf}
+\caption{Reader-side answer F1 (full context, no selection) with the
+gold evidence sentence placed at five relative positions; reader
+GLM-4-Plus, $n{=}\PosRZeroN$ per position, error bars are bootstrap
+95\% intervals. The profile is flat at this context scale: the
+mid-minus-ends gap is \PosRUGap{} F1 points (CI
+[\PosRUGapLo, \PosRUGapHi]).}
+\label{fig:posreader}
+\end{figure}
+
+\autoref{fig:posreader} re-measures the reader side under the same
+reader and protocol family as \autoref{fig:position}: answer F1 is
+\PosRZeroF{} at the start, \PosRMidF{} in the middle, and
+\PosROneF{} at the end (mid-minus-ends gap \PosRUGap{} F1 points,
+CI [\PosRUGapLo, \PosRUGapHi]). At this context scale---synthetic
+contexts of median ${\sim}995$ words, the regime where
+lost-in-the-middle is documented to weaken---the reader-side profile
+is flat, so the U-shaped prior remains a selector-level design
+choice justified by the cited longer-context evidence
+\citep{liu2023lost}, with its cost priced by \autoref{tab:ablation}.
+\fi
+
 \subsection{Hyperparameter sensitivity}
 
 \begin{table}[t]
@@ -1939,10 +1964,14 @@ and a faithful mechanism replica, but it is not LLMLingua's full
 coarse-to-fine machinery and not LLMLingua-2's distilled classifier,
 so the quality row of \autoref{tab:threeway} is a lower bound on what
 the neural corner can reach, and the cost row a lower bound as well.
-Third, the reader-side positional profile that justifies the U-shaped
-prior is taken from prior work \citep{liu2023lost} rather than
-re-measured under our reader; the selection-level placement curve is
-measured, the reader-side one is borrowed. Fourth, the
+Third, the reader-side positional profile was re-measured under our
+own reader at $n{=}\PosRUPairs$ paired records: at this context
+scale (median ${\sim}1{,}000$ words) the profile is flat---the
+mid-minus-ends gap is \PosRUGap{} F1 points with CI
+[\PosRUGapLo, \PosRUGapHi]---so the U prior remains a
+selector-level design choice justified by cited longer-context
+evidence \citep{liu2023lost}, and its cost is priced by the
+ablation of \autoref{tab:ablation}. Fourth, the
 recall--accuracy correlation of \autoref{sec:corr} is estimated at
 $n{=}\QAN$ per method (\CorrNPairs{} pooled pairs), so its magnitude
 remains imprecise even though every per-method coefficient is
