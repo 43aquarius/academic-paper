@@ -1,0 +1,159 @@
+% Cover letter for the (new) IP&M submission of the Sieve manuscript.
+% All factual statements are drawn from paper-journal-v2 (2026-10-01,
+% commit e870b0d, 47 pp) and its auto-generated numbers.tex macros.
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{parskip}
+\pagestyle{empty}
+\setlength{\parskip}{0.55em}
+
+\newcommand{\PaperTitle}{Sieve: Budgeted Question-Conditioned
+Information Selection for Training-Free Long-Context Compression}
+
+\begin{document}
+
+\begin{flushleft}
+October 2, 2026
+
+\bigskip
+The Editors\\
+Information Processing \& Management
+\end{flushleft}
+
+\bigskip
+\noindent\textbf{Re: Submission of a Full Length Article --- ``\PaperTitle{}''}
+
+\bigskip
+Dear Editors,
+
+Please consider the manuscript referenced above for publication in
+\emph{Information Processing \& Management} as a \textbf{Full Length
+Article}. I am the sole author of the manuscript and serve as its
+corresponding author.
+
+I would like to be transparent about this manuscript's history. An
+earlier version was previously submitted to \emph{IP\&M} and was
+declined, with the editorial assessment that the results appeared
+premature. The present manuscript is a substantially reframed and
+extended version, prepared specifically to address that assessment:
+the contribution is now stated as a problem formulation rather than a
+single system, the evidence base has been scaled and deepened with
+three new experiment families, and the two protocols that previously
+rested on the thinnest samples have been re-run at size. A summary of
+what changed follows; I am submitting it as a new submission and leave
+the editorial decision on how to handle the history entirely to you.
+
+The manuscript formulates long-context compression as \emph{budgeted
+question-conditioned information selection}: given a fixed word
+budget, choose the subset of sentences that jointly maximizes
+question-relevance coverage, positional reliability, and diversity,
+with the selector's own computational cost treated as a first-class
+constraint rather than an afterthought. This formulation, to our
+knowledge absent from prior work even where its ingredients appear as
+isolated heuristics, is stated formally, and a twelve-selector design
+space table locates every prior system along seven dimensions
+(question conditioning, positional awareness, redundancy control,
+model-free inference, training-free operation, sentence-level intact
+units, explicit budget with measured cost). The unoccupied corner the
+table exposes is the one this paper measures: a selector that is
+simultaneously question-conditioned, position-aware,
+redundancy-controlling, and entirely model-free.
+
+The vehicle of the study is \emph{Sieve}, the instantiation of that
+formulation in this corner: IDF-weighted coverage of query content
+terms, a U-shaped positional prior, and a redundancy penalty applied
+greedily under the explicit budget, with selected sentences emitted in
+their original order. Its preprocessing is a linear-time pass over the
+context, its budgeted selection is $O(k\,n\,\bar{s})$, and the full
+selector runs in tens of milliseconds on one CPU core (50.9--54.3\,ms
+at a 6{,}000-word context), with no model parameters, no training,
+and no dependency beyond NumPy.
+
+The evaluation is organized as a three-way quality--compression--cost
+frontier study, and it is the part that has grown the most since the
+earlier version. First, the reader-free evidence-recall protocol now
+spans three evidence-annotated benchmarks --- QASPER, HotpotQA
+(distractor setting), and 2WikiMultihopQA --- 1{,}600 records in
+total: \emph{Sieve} retains more gold evidence than every
+question-agnostic baseline on all three datasets (margins over head
+truncation of 12.8, 44.8, and 22.8 recall points at $4\times$), while
+BM25 sentence ranking, the strongest question-conditioned model-free
+comparator, exceeds the full selector by 6.8 points on QASPER --- a
+result the manuscript reports as measured and reads through its own
+ablations as a structural trade of raw recall for positional
+reliability. Second, the end-task protocol is new since the earlier
+submission and is now run at size: seven selection methods
+(full-context, head, random, stride, TextRank, BM25, \emph{Sieve}) at
+$n{=}100$ each under a production LLM reader at the $4\times$
+operating point, with paired bootstrap intervals throughout. The
+selector-level ordering reappears end to end: the BM25 reference
+retains 76.0\% of full-context F1 against 61.8\% for \emph{Sieve}
+(paired gap 4.8 points, interval excluding zero), while \emph{Sieve}
+remains statistically matched with truncation and the question-blind
+floor (paired gap +4.0, interval crossing zero) --- the same
+trade-off, now consistent at both the selection and the answer layer.
+Third, a full configuration--budget--dataset ablation matrix isolates
+each component's contribution: the relevance term alone is a
+near-oracle for evidence recovery (43.6\% versus 36.2\% for the full
+configuration on QASPER), the positional prior's price is a
+dataset-stable six-to-seven paired points, and all five selector
+configurations run in the same milliseconds band, so the trade is
+paid in information units rather than in compute. Fourth, the
+reader-side positional profile that motivates the U-shaped prior is
+no longer borrowed from cited work: it is re-measured under our own
+reader at $n{=}50$ paired records across five evidence positions, and
+reported flat at this context scale (median ${\sim}1{,}000$ words),
+which the manuscript reports as a finding about scope: the prior
+remains a selector-level design choice whose cost the ablation
+prices. Fifth, a GPT-2 perplexity gate, measured on the same hardware
+as every other method, reaches 28.7\% evidence recall at
+255--320$\times$ \emph{Sieve}'s measured cost; and the correlation
+between evidence recall and end-task answer F1 is re-estimated at the
+new sample size (pooled Pearson 0.22 over 600 pairs), so the two
+protocols are reported separately throughout.
+
+I believe the manuscript fits the scope of \emph{Information Processing
+\& Management}. It is a quantitative study of question-conditioned
+information selection: it builds directly on classical
+information-retrieval machinery (IDF weighting, BM25, maximal marginal
+relevance), evaluates selection quality with recall protocols over
+annotated evidence, connects selection decisions to the processing and
+cost of managing long contexts in information systems, and reports
+quality, compression, and compressor cost for every method so that
+practitioners have a measured basis for deciding when statistical
+selection suffices and when a hosted scorer earns its infrastructure.
+
+The manuscript substantially extends an earlier conference-format
+study of the same method, as described in the Introduction: a
+three-dataset evaluation, the BM25 baseline, the same-hardware
+comparison against a neural perplexity gate, the formal layer
+(formulation, propositions, cost statements), the correlation study,
+the end-to-end seven-method protocol at $n{=}100$, the
+configuration--budget--dataset ablation matrix, and the reader-side
+positional profile.
+
+I confirm that: the manuscript is original and has not been published
+previously in any form; it is not under consideration by any other
+journal; I have no known competing financial interests or personal
+relationships that could have appeared to influence the work reported;
+and the work received no specific funding. The benchmarks used are
+public (QASPER, HotpotQA, 2WikiMultihopQA), and the released
+repository reproduces every table and figure from raw checkpoints.
+
+Thank you for considering the manuscript. I look forward to the
+reviewers' comments.
+
+\bigskip
+Sincerely,
+
+\bigskip
+Chang Tan\\
+Undergraduate Student, School of Economics and Management\\
+Dalian University of Technology\\
+No.\,2 Linggong Road, Ganjingzi District, Dalian, Liaoning 116024,
+China\\
+E-mail: aquars43@foxmail.com
+
+\end{document}

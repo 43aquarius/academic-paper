@@ -1,0 +1,38 @@
+% Highlights for the Elsevier IP&M submission of the Sieve manuscript (v2).
+% 5 bullets, each at most 85 characters including spaces (rendered text).
+% Verified against paper-journal-v2 numbers.tex (2026-10-01, e870b0d):
+%   - budgeted question-conditioned information selection formulation
+%   - model-free, training-free, 50.9-54.3 ms at 6k words on one CPU core
+%   - 3 datasets, 1600 recall records + end-to-end QA n=100 x 7 methods
+%   - BM25 end-to-end retain 76.0% vs Sieve 61.8%; Sieve matched with head
+%   - reader-side positional profile re-measured (flat at ~1k words)
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{enumitem}
+\pagestyle{empty}
+
+\newcommand{\PaperTitle}{Sieve: Budgeted Question-Conditioned
+Information Selection for Training-Free Long-Context Compression}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Highlights}\\[0.6em]
+{\large \PaperTitle{}\\[0.35em]}
+{\normalsize\itshape Manuscript submitted to Information Processing \& Management
+(Full Length Article)}
+\end{center}
+
+\vspace{1.2em}
+
+\begin{itemize}[leftmargin=1.6em, itemsep=0.55em]
+\item Long-context compression framed as budgeted question-conditioned selection.
+\item A training-free, model-free selector runs in milliseconds on one CPU core.
+\item Three-dataset frontier study spans accuracy, compression, and compressor cost.
+\item End-to-end QA with a production reader: seven methods, 100 records each.
+\item Reader-side positional profile is re-measured, not borrowed from prior work.
+\end{itemize}
+
+\end{document}
