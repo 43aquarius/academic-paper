@@ -52,12 +52,13 @@ question-relevance coverage, positional reliability, and diversity,
 with the selector's own computational cost treated as a first-class
 constraint rather than an afterthought. This formulation, to our
 knowledge absent from prior work even where its ingredients appear as
-isolated heuristics, is stated formally, and a twelve-selector design
+isolated heuristics, is stated formally, and a thirteen-selector design
 space table locates every prior system along seven dimensions
 (question conditioning, positional awareness, redundancy control,
 model-free inference, training-free operation, sentence-level intact
-units, explicit budget with measured cost). The unoccupied corner the
-table exposes is the one this paper measures: a selector that is
+units, explicit budget with measured cost). The corner that table
+leaves unoccupied---to our knowledge, and stated with the audit's
+scope conditions---is the one this paper measures: a selector that is
 simultaneously question-conditioned, position-aware,
 redundancy-controlling, and entirely model-free.
 
@@ -79,7 +80,7 @@ spans three evidence-annotated benchmarks --- QASPER, HotpotQA
 total: \emph{Sieve} retains more gold evidence than every
 question-agnostic baseline on all three datasets (margins over head
 truncation of 12.8, 44.8, and 22.8 recall points at $4\times$), while
-BM25 sentence ranking, the strongest question-conditioned model-free
+BM25 sentence ranking, a strong question-conditioned model-free
 comparator, exceeds the full selector by 6.8 points on QASPER --- a
 result the manuscript reports as measured and reads through its own
 ablations as a structural trade of raw recall for positional
@@ -96,7 +97,8 @@ floor (paired gap +4.0, interval crossing zero) --- the same
 trade-off, now consistent at both the selection and the answer layer.
 Third, a full configuration--budget--dataset ablation matrix isolates
 each component's contribution: the relevance term alone is a
-near-oracle for evidence recovery (43.6\% versus 36.2\% for the full
+reference ceiling for evidence recovery (43.6\% versus 36.2\% for
+the full
 configuration on QASPER), the positional prior's price is a
 dataset-stable six-to-seven paired points, and all five selector
 configurations run in the same milliseconds band, so the trade is

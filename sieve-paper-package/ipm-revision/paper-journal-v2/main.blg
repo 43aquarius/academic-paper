@@ -1,0 +1,24 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: main.aux
+The style file: elsarticle-num.bst
+Database file #1: bibliography.bib
+Warning--string name "sept" is undefined
+--line 78 of file bibliography.bib
+Warning--empty journal in jiang2023llmlingua
+Warning--empty journal in jiang2023longllmlingua
+Warning--empty journal in pan2024llmlingua2
+Warning--empty journal in li2023selective
+Warning--empty pages in tang2025perception
+Warning--empty pages in chen2025qaspc
+Warning--empty pages in li2025survey
+Warning--empty journal in zhang2023h2o
+Warning--empty journal in xiao2023streaming
+Warning--empty journal in dao2022flashattention
+Warning--empty journal in kwon2023vllm
+Warning--empty pages in xu2024recomp
+Warning--empty pages in liskavets2025cpc
+Warning--empty journal in liu2023lost
+Warning--empty journal in radford2019gpt2
+Warning--empty journal in touvron2023llama
+(There were 17 warnings)

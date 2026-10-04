@@ -182,9 +182,15 @@ def main(out=None):
     for (w, m), v in tmap.items():
         A(f"\\newcommand{{\\Time{TM[m]}{TN[w]}}}"
           f"{{{v:.1f}}}")
-    # gate/sieve ratios
+    # gate/sieve ratios; \GateLatBenchSixkS exposes the timing-
+    # benchmark gate latency (s) at 6,000 words so the text can pair
+    # the 255x ratio with its actual numerator/denominator instead of
+    # cross-pairing the per-record mean (\GateLatSixkS) against the
+    # benchmark median.
     r6 = tmap[(6000, "gpt2-gate")] / tmap[(6000, "sieve")]
     A(f"\\newcommand{{\\GateSieRatioSixk}}{{{r6:.0f}}}")
+    A(f"\\newcommand{{\\GateLatBenchSixkS}}"
+      f"{{{tmap[(6000, 'gpt2-gate')] / 1000.0:.1f}}}")
     # median-context ratio: gate per-record median-context vs sieve
     # interpolated on the same words
     siev = [tmap[(w, "sieve")] for w in (1000, 2000, 4000, 6000)]
@@ -367,7 +373,15 @@ def main(out=None):
             name = gk.get(a, "X")
             A(f"\\newcommand{{\\GridA{name}}}"
               f"{{{statistics.mean(rs) * 100:.1f}}}")
+        # total reader-side API calls behind the paper's QA numbers:
+        # main comparison + dev grid (both in qa_expanded.jsonl) plus
+        # the B2 reader-side positional profile (position_reader.jsonl)
         total_calls = len(exp_main)
+        pr_path = os.path.join(RES, "checkpoints", "position_reader.jsonl")
+        if os.path.exists(pr_path):
+            total_calls += sum(
+                1 for l in open(pr_path) if l.strip()
+                and json.loads(l).get("ok"))
     else:
         A("% ---- end-task QA (conference protocol: QASPER n=25) ----")
         rows = {k: v for k, v in

@@ -58,59 +58,37 @@ Selection for Training-Free Long-Context Compression}
 \begin{abstract}
 We formulate long-context compression as \emph{budgeted
 question-conditioned information selection}: given a fixed word budget,
-choose the subset of sentences that jointly maximizes question-relevance
+choose the subset of sentences that jointly serves question-relevance
 coverage, positional reliability, and diversity, with the selector's own
 computational cost treated as a first-class constraint rather than an
-afterthought. \method{} instantiates this formulation in the corner of
-the design space that no prior selector occupies: it is training-free
-\emph{and} model-free, scoring sentences with three corpus-local
-statistics---IDF-weighted coverage of query content terms, a U-shaped
+afterthought. \method{} instantiates this formulation without any hosted
+model: IDF-weighted coverage of query content terms, a U-shaped
 positional prior, and a redundancy penalty applied greedily under the
 budget, with selected sentences emitted in their original order. Its
 preprocessing is a linear-time pass over the context ($O(W)$ for a
 $W$-word context), its budgeted greedy selection is
-$O(k\,n\,\bar{s})$, and it runs in tens of milliseconds on one CPU core
-with zero model parameters. On three evidence-annotated benchmarks
-(QASPER, HotpotQA, 2WikiMultihopQA; \TotalRecords{} records under a
-reader-free evidence-recall protocol), the measurements map the
-structural trade-offs the formulation predicts. Question conditioning
-over truncation at a $4\times$ budget buys \PairQSH{}, \PairHSH{}, and
-\PairWSH{} recall points on the three datasets---a nearly free gain.
-Relevance against structure is not free: BM25, the strongest
-question-conditioned model-free baseline, exceeds the full selector by
-$\abs{\PairQSBm}$ recall points on QASPER, mirroring the selector's own
-ablations, where the relevance term alone recovers \AblXQRelOnly\%
-evidence against \AblXQSie\% for the full configuration on QASPER,
-\AblXHRelOnly\% against \AblXHSie\% on HotpotQA, and \AblXWRelOnly\%
-against \AblXWSie\% on 2WikiMultihopQA. We read this
-convergence as the paper's central finding: relevance-only selection,
-however implemented, is a near-oracle for evidence recovery, and
-everything added on top of it is a deliberate trade of raw recall for
-positional reliability and diversity---a structural trade-off between
-selection objectives, not a deficiency of either selector. A full
-configuration--budget--dataset matrix sharpens the terms of that
-trade: the prior's recall price is a dataset-stable six-to-seven
-paired points at the $4\times$ operating point, and the selector's
-five configurations all run in the same \TimeVMinSixk--\TimeVMaxSixk\,ms
-at a 6{,}000-word context, so the trade between recall, placement, and
-diversity is paid in information units, not in compute. Against the
-neural corner, a GPT-2 perplexity gate measured on the same hardware
-reaches \GateRecall\% recall at \GateLatMedCtxS\,s per median context
-(\GateSieRatioMed$\times$ the selector's cost at the median point,
-\GateSieRatioSixk$\times$ at 6{,}000 words), so three orders of
-magnitude more compute buy no measurable recall at the gate's floor
-configuration. Evidence recall correlates only weakly with end-task
-answer F1 (pooled Pearson \CorrPearson{} over \CorrNPairs{} pairs), so
-the two protocols are reported separately and never mixed. End to end
-under a production LLM reader at $4\times$ on $n{=}\QAN$ records, the
-selector-level ordering reappears: the relevance-only BM25 reference
+$O(k\,n\,\bar{s})$, and it runs in tens of milliseconds on one CPU core.
+On three evidence-annotated benchmarks (QASPER, HotpotQA,
+2WikiMultihopQA; \TotalRecords{} records), three protocols measure the
+trade-offs the formulation predicts: a reader-free evidence-recall
+protocol, an end-to-end QA protocol with a production reader (seven
+methods, $n{=}\QAN$ each), and a full configuration--budget--dataset
+matrix. Question conditioning over truncation buys \PairQSH{}, \PairHSH{},
+and \PairWSH{} recall points at a $4\times$ budget. Relevance-only
+selection, however implemented (BM25 externally, the relevance term
+internally), is a reference ceiling for evidence recovery, and the
+positional prior and redundancy penalty are objectives that spend
+recall---a dataset-stable six-to-seven paired points for the prior---at
+no additional compute. End to end the same ordering appears: BM25
 retains \QABmRetain\% of full-context F1 against \QASieRetain\% for
 \method{} (paired gap $\abs{\QAPairSBm}$ points, interval excluding
-zero), while \method{} remains statistically matched with truncation
-and the question-agnostic floor. The result is
-a formulation, a measured three-axis frontier, and a zero-infrastructure
-reference point against which any context compressor---statistical or
-neural---can be priced before justifying its infrastructure.
+zero), while \method{} remains statistically matched with truncation.
+A measured GPT-2 perplexity-gate configuration, the cost floor of the
+neural family, does not exceed the statistical selector on this
+benchmark at \GateSieRatioMed--\GateSieRatioSixk$\times$ the measured
+cost. The result is a formulation, a measured three-axis frontier, and a
+no-hosted-model reference point against which any context compressor can
+be priced before justifying its infrastructure.
 \end{abstract}
 
 \begin{keyword}
@@ -158,12 +136,17 @@ model-free selectors---BM25, TextRank, maximal marginal relevance
 \citep{robertson2009bm25,mihalcea2004textrank,carbonell1998mmr}---which
 run anywhere but, with one exception, ignore the question, the
 position, or the redundancy structure of the context; the exception,
-question-aware BM25, treats relevance as the whole objective. Between
-the corners, the region that combines richer selection objectives with
-zero model dependency has no occupant. This paper formulates the
-selection problem that region calls for, instantiates it, and measures
-what the region can and cannot deliver on a quality--compression--cost
-frontier.
+question-aware BM25, treats relevance as the whole objective. To our
+knowledge---and we audit this against a thirteen-entry design-space
+comparison (\autoref{tab:designspace})---the region that combines richer
+selection objectives with no hosted model remains unoccupied: the
+closest published relatives either host a scorer (LongLLMLingua,
+Perception Compressor, and, as stated in its abstract, QASPC), operate
+model-light graph machinery without positional or budget axes
+(Prompt-SAW \citep{ali2024promptsaw}), or stop at relevance ranking
+(BM25). This paper formulates the selection problem that region calls
+for, instantiates it, and measures what the region can and cannot
+deliver on a quality--compression--cost frontier.
 
 A natural objection precedes the study: why build a selector at all
 when classical retrieval already ranks sentences by query matching,
@@ -184,16 +167,16 @@ IDF-weighted question-relevance term, a positional prior that spends
 the budget where readers attend reliably, and a redundancy penalty
 under an explicit word budget, composed by a greedy fill. The
 formulation is the paper's primary contribution and \method{} its
-zero-infrastructure instantiation; the experiments then price each term
+no-hosted-model instantiation; the experiments then price each term
 separately, and the frontier picture that results is the second
 contribution: from truncation to question conditioning the quality gain
 is nearly free; from relevance ranking to the full selector, quality in
 the reader-free metric is \emph{traded} for placement---a structural
 trade-off between selection objectives that relevance-only selectors
-cannot reach, not a deficiency of either family; and from the
-statistical selector to a hosted neural scorer, three orders of
-magnitude more compute do not buy measurable recall at the gate's floor
-configuration.
+cannot reach, not a deficiency of either family; and at the gate's
+floor configuration, the measured GPT-2 scorer spends three orders of
+magnitude more compute than \method{} without exceeding it on this
+benchmark.
 
 Our vehicle is \method{}, a sentence-level selector built from three
 statistics that are cheap, corpus-local, and question-directed. A
@@ -225,7 +208,7 @@ evidence-annotated records in total under a reader-free recall
 protocol, which answers the question the single-dataset study could
 not: whether question-conditioned selection generalizes beyond the
 domain it was designed on. Third, we strengthen the baseline set with
-BM25 sentence ranking, the strongest question-conditioned model-free
+BM25 sentence ranking, a strong question-conditioned model-free
 comparator, which the conference version lacked entirely. Fourth, we
 add a formal layer: a problem formulation that makes the trade-off
 explicit (\autoref{sec:formulation}), propositions that bound the
@@ -275,8 +258,9 @@ question-conditioned information selection---an explicit
 selection problem that jointly accounts for relevance coverage,
 positional reliability, and redundancy under a fixed word budget, with
 the selector's own computational cost as a first-class constraint
-(\autoref{sec:formulation}), occupying a corner of the selector design
-space that prior work, neural or classical, has not populated;
+(\autoref{sec:formulation}); to our knowledge, no published selector
+combines these objectives without hosting a model, an audit we
+verify entry by entry in \autoref{tab:designspace} rather than assert;
 \item a three-axis evaluation methodology that measures task quality,
 compression ratio, and the cost of the compressor itself on the same
 hardware for every method, and a frontier analysis that prices each
@@ -285,13 +269,15 @@ selection rule on all three axes
 \item the empirical findings the formulation predicts: the margin from
 truncation to question conditioning is nearly free; relevance-only
 selection, however implemented (BM25 externally, the relevance term
-internally), converges to a near-oracle for evidence recovery; and the
-positional prior and redundancy penalty trade raw recall for placement
-and diversity---a structural trade-off between selection objectives
-observed from both inside and outside the selector, replicated across
-datasets and budgets by the full configuration--budget matrix
-(\autoref{sec:matrix});
-\item \method{}, a zero-infrastructure instantiation of the
+internally), converges to a reference ceiling for evidence recovery;
+and the positional prior and redundancy penalty are objectives that
+spend recall rather than recover it---the prior at a dataset-stable
+six-to-seven paired points, the penalty at no recall cost but also
+with no measured benefit on the recall metric---a structural trade-off
+between selection objectives observed from both inside and outside the
+selector, replicated across datasets and budgets by the full
+configuration--budget matrix (\autoref{sec:matrix});
+\item \method{}, a no-hosted-model instantiation of the
 formulation---training-free, model-free, milliseconds of CPU
 arithmetic, no dependencies beyond NumPy---with a formal analysis of
 its $O(W)$ preprocessing, $O(k\,n\,\bar{s})$ budgeted selection, and
@@ -311,7 +297,8 @@ cross-dataset transfer.
 \end{itemize}
 
 \method{} is not a replacement for attention-level efficiency work; it
-is a zero-cost first stage that composes with KV cache eviction
+is a low-cost first stage (tens of milliseconds of CPU arithmetic, no
+hosted model) that composes with KV cache eviction
 \citep{zhang2023h2o,xiao2023streaming} and serving optimizations
 \citep{dao2022flashattention,kwon2023vllm}. More broadly, the
 formulation and the measured frontier outlive the particular selector:
@@ -348,14 +335,14 @@ quality ceiling of the training-free family---at the cost of a hosted
 7B scorer plus an embedding model plus pre-generated guiding questions.
 QASPC is training-free, question-aware, and operates at sentence and
 clause level with explicit redundancy reduction
-\citep{chen2025qaspc}; its full text sits behind the publisher's
-paywall, so we compare against its stated properties rather than a
+\citep{chen2025qaspc}; its full text was not accessible at the time of
+writing, so we compare against its stated properties rather than a
 measured replication. A 2025 survey maps the prompt-compression family
 systematically \citep{li2025survey}. In the usage consolidated across
 this literature, ``training-free'' means free of training, not free of
-models. \method{} differs structurally, not component-wise: it is the
-selector in this family that runs with no model at all, and the
-question the paper answers is how much of the multi-objective selection
+models. \method{} differs structurally, not component-wise: to our
+knowledge it is the selector in this family that runs with no model at
+all, and the question the paper answers is how much of the multi-objective selection
 problem survives that constraint.
 
 \paragraph{Learned sentence-level selectors and adaptive budgets.}
@@ -378,12 +365,18 @@ Maximal marginal relevance formulates extraction as a trade-off
 between query relevance and redundancy \citep{carbonell1998mmr};
 TextRank ranks sentences by centrality on a similarity graph
 \citep{mihalcea2004textrank}; TF-IDF and BM25 weighting remain the
-workhorses of sparse retrieval \citep{robertson2009bm25}. \method{} is
-a question-conditioned instantiation of this tradition: IDF-weighted
-coverage with a positional prior and a word-budget greedy fill. The
-journal version adds BM25 itself to the baseline set, so that the
-classical ranking floor is measured rather than asserted: BM25 under
-the same word budget is the strongest question-conditioned,
+workhorses of sparse retrieval \citep{robertson2009bm25}. Graph
+machinery also enters recent prompt compression: Prompt-SAW builds
+relation-aware graphs over the prompt and extracts key information
+elements for both task-agnostic and task-aware settings
+\citep{ali2024promptsaw}; its scoring is model-light (statistical
+parsing components rather than a hosted scorer) but it has no
+positional objective and no budget or cost reporting. \method{} is a
+question-conditioned instantiation of the classical tradition:
+IDF-weighted coverage with a positional prior and a word-budget greedy
+fill. The journal version adds BM25 itself to the baseline set, so that
+the classical ranking floor is measured rather than asserted: BM25 under
+the same word budget is a strong question-conditioned,
 model-free comparator, and the experiments treat it as the reference
 point that any added selector machinery must justify. Compared with
 neural compressors, the whole model-free family gives up paraphrase
@@ -406,12 +399,14 @@ conditioning (Q), positional awareness (P), explicit redundancy control
 (R), model-free at inference (MF), training-free (TF), sentence-level
 intact units (SL), and explicit budget formulation with measured
 compressor cost (BF). \checkmark{} = yes; $\times$ = no; $\ast$ =
-partial or qualified (mechanism present but limited, or budget without
-cost measurement); ? = not verifiable from accessible sources (QASPC's
-full text is behind the publisher's paywall; properties as stated by
-its abstract). \method{} is the only selector that is simultaneously
-question-conditioned, position-aware, redundancy-controlling, and
-entirely model-free with its own cost measured on the frontier.}
+partial or qualified (mechanism present but limited, or model-light
+machinery rather than a hosted scorer); ? = not verifiable from the
+sources accessible at the time of writing (QASPC's properties as
+stated by its abstract). Every entry is auditable against the cited
+source. To our knowledge, \method{} is the only selector that is
+simultaneously question-conditioned, position-aware,
+redundancy-controlling, and entirely model-free with its own cost
+measured on the frontier.}
 \label{tab:designspace}
 \small
 \begin{tabular}{@{}lccccccc@{}}
@@ -421,6 +416,7 @@ Selector & Q & P & R & MF & TF & SL & BF \\
 MMR \citep{carbonell1998mmr} & \checkmark{} & $\times$ & \checkmark{} & \checkmark{} & \checkmark{} & \checkmark{} & $\times$ \\
 BM25 \citep{robertson2009bm25} & \checkmark{} & $\times$ & $\times$ & \checkmark{} & \checkmark{} & \checkmark{} & $\ast$ \\
 TextRank \citep{mihalcea2004textrank} & $\times$ & $\times$ & $\ast$ & \checkmark{} & \checkmark{} & \checkmark{} & $\times$ \\
+Prompt-SAW \citep{ali2024promptsaw} & \checkmark{} & $\times$ & $\ast$ & $\ast$ & \checkmark{} & \checkmark{} & $\times$ \\
 Selective Context \citep{li2023selective} & $\times$ & $\times$ & $\ast$ & $\times$ & \checkmark{} & $\ast$ & $\times$ \\
 LLMLingua \citep{jiang2023llmlingua} & $\times$ & $\times$ & $\times$ & $\times$ & \checkmark{} & $\times$ & \checkmark{} \\
 LongLLMLingua \citep{jiang2023longllmlingua} & \checkmark{} & \checkmark{} & $\times$ & $\times$ & \checkmark{} & $\times$ & \checkmark{} \\
@@ -438,13 +434,17 @@ QASPC \citep{chen2025qaspc} & \checkmark{} & ? & \checkmark{} & ? & \checkmark{}
 
 \paragraph{What is new here.}
 \autoref{tab:designspace} locates the prior selectors on seven
-dimensions, and the delta it exposes is threefold. First,
+dimensions across thirteen entries, and the delta it exposes is
+threefold, stated with the audit's scope conditions. First,
 positional-aware and redundancy-aware selection exist only in
 selectors that host at least one model (LongLLMLingua, Perception
-Compressor, QASPC's family) or that train one (RECOMP, CPC); no prior
-selector combines them with model-free operation, and that combination
-is what lets \method{} run in milliseconds on a CPU core. Second, no
-prior work treats the compressor's own cost as a measured axis
+Compressor) or that train one (RECOMP, CPC); QASPC states both
+properties but its model-freeness is not verifiable from accessible
+sources, and Prompt-SAW's graph machinery is model-light without
+either axis; to our knowledge, no verified published selector combines
+them with model-free operation, and that combination is what lets
+\method{} run in milliseconds on a CPU core. Second, no prior work
+treats the compressor's own cost as a measured axis
 alongside quality and compression ratio; the budget mechanisms in the
 LLMLingua family and AdaComp control \emph{how much} is kept, not
 \emph{what the keeping costs}, and the same-hardware gate measurements
@@ -509,10 +509,11 @@ For a selector with parameters $\theta$ we distinguish three cost
 terms: $c_{\mathrm{host}}$ (whether a model must be hosted at all),
 $c_{\mathrm{flop}}$ (arithmetic work in FLOPs or equivalent elementary
 operations), and $c_{\mathrm{lat}}$ (measured wall-clock per context).
-For any neural gate the floor is one forward pass of the scorer $M_s$
-over the full context, $c_{\mathrm{flop}} \ge 2\abs{M_s} L$ for $L$
-context tokens, with $c_{\mathrm{host}} \ne 0$; coarse-to-fine budget
-searches repeat the pass. For \method{}, all three terms are the
+For neural gates built on dense transformer scorers (the
+perplexity-gate family) the floor is one forward pass of the scorer
+$M_s$ over the full context, $c_{\mathrm{flop}} \ge 2\abs{M_s} L$ for
+$L$ context tokens, with $c_{\mathrm{host}} \ne 0$; coarse-to-fine
+budget searches repeat the pass. For \method{}, all three terms are the
 object of \autoref{sec:theory}: the selector is a fixed small set of
 arithmetic passes over the token stream with
 $c_{\mathrm{host}} = 0$, $c_{\mathrm{flop}} = O(W)$ elementary
@@ -700,13 +701,21 @@ linear.
 
 \begin{proposition}[Floor of scorer-based compression]
 \label{prop:floor}
-Any compressor that scores the context with a model $M_s$ of
-$\abs{M_s}$ parameters over $L$ context tokens performs at least
-$2\abs{M_s} L$ FLOPs per compression call, before any budget search
-that repeats the pass, and incurs $c_{\mathrm{host}} \ne 0$.
+Any compressor that scores the context with a dense decoder-only
+transformer $M_s$ of $\abs{M_s}$ parameters over $L$ context tokens,
+via a full forward pass---the mechanism of the perplexity-gate
+family---performs at least $2\abs{M_s} L$ FLOPs per compression call,
+before any budget search that repeats the pass, and incurs
+$c_{\mathrm{host}} \ne 0$. Scorers of other architectures (sparse
+mixers, linear attention) have analogous architecture-specific floors
+that this proposition does not quantify.
 \end{proposition}
 
-This is the standard forward-pass FLOP count \citep{kaplan2020scaling}.
+This is the standard forward-pass FLOP count \citep{kaplan2020scaling},
+stated for the dense decoder-only transformer that the perplexity-gate
+family and our gate baseline instantiate; architectures with cheaper
+scoring exist, and the proposition's scope is the family actually
+measured in \autoref{sec:efficiency}.
 For GPT-2-small ($\abs{M_s} = 124$M) at $L \approx 8{,}000$ tokens,
 the floor is $1.98 \times 10^{12}$ FLOPs: at least five orders of
 magnitude above \method{}'s arithmetic bound at the same context, and
@@ -797,9 +806,13 @@ evidence, and IDF weights numbers and code identifiers crudely.
 $B < \sum_{e \in E} \abs{e}$ no selector attains $\rho = 1$, and the
 ratio sweep measures how each degrades. \emph{Reader variance}:
 end-task quality couples the selector to the reader's own positional
-profile, which the selector models only through the borrowed U-shape;
-our reader-side placement profile is taken from prior work rather than
-re-measured, a scope limitation \autoref{sec:limitations} returns to.
+profile, which the selector models only through the U-shape; our
+re-measurement of the reader-side profile (\autoref{sec:placement})
+found it flat at the median ${\sim}1{,}000$-word scale of the synthetic
+protocol, so the prior's reader-side justification rests on the cited
+longer-context evidence \citep{liu2023lost}, and the exchange rate it
+assumes is priced empirically rather than proven---a scope limitation
+\autoref{sec:limitations} returns to.
 
 \section{Experimental setup}
 \label{sec:exp}
@@ -823,10 +836,13 @@ words (the cap binds on papers that exceed it), and keep records whose
 annotated evidence sentences are locatable in the segmented context.
 The resulting recall pool contains \NRecQ{} records (median
 \PoolQMedWords{} words, 90th percentile 5{,}576), from which the
-end-task test split of 25 examples and the 20-example development
-split are drawn disjointly and fixed by seed before any test
-evaluation; the development split mixes ten QASPER with ten HotpotQA
-distractor records for tuning diversity, while the test split is
+end-task test split (\QAN{} records: the pool's fixed first-hundred
+prefix, the same records the GPT-2 gate scored, so per-record recall
+and end-task F1 join exactly for the correlation study of
+\autoref{sec:corr}) and the 20-record development split (ten further
+QASPER records plus ten HotpotQA distractor records) are drawn
+disjointly and fixed before any test evaluation; the development split
+mixes the two corpora for tuning diversity, while the test split is
 QASPER only. The official QASPER test labels are not public, which is
 why all held-out sampling comes from the train split.
 
@@ -869,8 +885,8 @@ sentences uniformly under the budget with two seeds. Stride keeps
 every $k$-th sentence with $k$ chosen to meet the budget. TextRank
 \citep{mihalcea2004textrank} ranks sentences by PageRank on an
 IDF-weighted cosine graph and packs the top-ranked sentences under the
-budget; it is the strongest model-free summarizer that does not see
-the question.
+budget; it is a strong model-free summarizer baseline that does not see
+the question, and the strongest question-agnostic baseline we evaluate.
 
 \paragraph{BM25 sentence ranking.}
 BM25 \citep{robertson2009bm25} is the classical question-conditioned
@@ -878,8 +894,8 @@ baseline: the question is the query, each sentence is a document, IDF
 is smoothed over the sentences of the context itself (matching
 \method{}'s corpus-local statistics), and the top-ranked sentences are
 packed under the same budget and emitted in original order. It is the
-strongest question-aware, model-free comparator and the reference
-point that any selector machinery beyond relevance ranking
+question-aware model-free reference point of the study, the bar that
+any selector machinery beyond relevance ranking
 (positional priors, redundancy penalties, greedy marginal search)
 must justify. We run it on all three pools at every ratio.
 
@@ -933,6 +949,33 @@ $2\abs{M_s} L$ FLOPs at 40\% utilization, and the projection of
 \autoref{sec:projection} is likewise analytical with stated
 assumptions. The repository regenerates every table and figure from
 raw checkpoints with one command per artifact.
+
+\paragraph{Evaluation questions.}
+The experiments are organized around six questions, each carried by a
+named section: \textbf{EQ1}---does question conditioning beat
+question-agnostic selection at matched budgets?
+(\autoref{sec:recall}, \autoref{sec:ratio});
+\textbf{EQ2}---what does each selection objective cost and buy, and
+does the internal relevance term agree with an external relevance
+ranker? (\autoref{sec:ablation}, \autoref{sec:matrix});
+\textbf{EQ3}---what does the trade cost on the compressor's own
+compute axis, and where does a neural scorer's cost floor sit?
+(\autoref{sec:efficiency});
+\textbf{EQ4}---is the behavior stable across evidence placement,
+hyperparameters, and datasets without retuning?
+(\autoref{sec:robustness});
+\textbf{EQ5}---does the selector-level ordering transfer to end-task
+answers under a production reader? (\autoref{sec:qa});
+\textbf{EQ6}---how tightly does the selector-level metric predict
+the end-task one? (\autoref{sec:corr}).
+The claim hierarchy is fixed accordingly: multi-dataset claims are
+selector-level (EQ1--EQ4, \TotalRecords{} records); reader-level
+claims are single-reader, single-benchmark, and
+single-operating-point (EQ5--EQ6, $n{=}\QAN$); and the serving
+projection of \autoref{sec:projection} is analytical and labels itself
+as such. No conclusion below mixes layers:
+an end-task number is never compared against a selector-level number
+without saying so, and a projection is never cited as a measurement.
 
 \section{Main results}
 \label{sec:results}
@@ -1251,7 +1294,12 @@ redundancy penalty is recall-neutral on every dataset (\AblPairQNoRed{}
 interval-straddling values on the other two pools): its work is
 diversity under tight budgets, refusing to spend scarce budget twice
 on near-duplicate sentences, which are common in the methods and
-related-work sections of scientific text.
+related-work sections of scientific text. The recall protocol does
+not price that work---evidence recall is insensitive to whether the
+retained sentences repeat each other---so the penalty's benefit is a
+design rationale awaiting a dedicated duplicate-rate or
+distinct-information metric; we report its recall neutrality as
+measured and claim no recall benefit from it.
 
 The two remaining rows are the table's most instructive finding, and
 BM25 makes it legible from the outside as well as the inside, on
@@ -1261,8 +1309,8 @@ with a flat prior and no penalty) reaches \AblXQRelOnly\%,
 highest number in every column---and BM25, an entirely external
 implementation of relevance ranking, lands within a point of it on
 every dataset (\AblXQBm\%, \AblXHBm\%, \AblXWBm\%). The agreement is
-the point: the relevance term, implemented either way, is a
-near-oracle for evidence \emph{recovery} under \autoref{cond:lexical},
+the point: the relevance term, implemented either way, is a reference
+ceiling for evidence \emph{recovery} under \autoref{cond:lexical},
 and everything \method{} adds on top of it is a deliberate trade of
 raw recall for other objectives. The positional prior behaves
 differently, and the difference is now measured to be dataset-stable:
@@ -1361,8 +1409,8 @@ six-to-seven paired points measured at $r{=}4$ in
 configuration and external BM25 track each other within a point at
 every budget (\MxQRelOnlyTwo\% against \MxQBmTwo\% at $r{=}2$,
 \MxQRelOnlySixteen\% against \MxQBmSixteen\% at $r{=}16$): the
-near-oracle agreement of \autoref{tab:ablation} is not an artifact of
-one operating point.
+reference-ceiling agreement of \autoref{tab:ablation} is not an
+artifact of one operating point.
 
 A fourth regularity concerns the cost of the trade itself, and it is
 the one the formulation cares about most: the trade is
@@ -1432,13 +1480,17 @@ analytically; this version measures it. The GPT-2 perplexity gate of
 \autoref{sec:baselines} runs on the same container, the same cores,
 and the same records as every other method. Three facts come out of
 the measurement. First, the gate's scoring pass costs
-\GateLatMedS\,s of CPU time per median context (\GateMedWords{} words;
-\GateLatPnineS\,s at the 90th percentile), and \GateLatSixkS\,s on the
-\GateSixkN{} records near the 6{,}000-word cap, against \method{}'s
-\TimeSieSixk\,\ms{} at the same length: roughly
-\GateSieRatioSixk$\times$ more measured work for the scoring step
-alone at the 6{,}000-word operating point, and
-\GateSieRatioMed$\times$ at the median context. Second, even granting
+\GateLatMedCtxS\,s of CPU time on the median-context record
+(\GateMedWords{} words; median over records \GateLatMedS\,s, 90th
+percentile \GateLatPnineS\,s), and \GateLatSixkS\,s on the
+\GateSixkN{} records near the 6{,}000-word cap (per-record means). On
+the timing benchmark of \autoref{fig:cost}, which holds the context
+at exactly 6{,}000 words, the same pass costs \GateLatBenchSixkS\,s
+against \method{}'s \TimeSieSixk\,\ms{}: the
+\GateSieRatioSixk$\times$ ratio reported in \autoref{tab:threeway},
+and \GateSieRatioMed$\times$ at the median-context operating point
+(where \method{}'s latency is interpolated to the same word count).
+Second, even granting
 the gate a GPU, the analytic A100 floor for the same pass is
 \GateAOneFloorMs\,\ms{} at the median context's token count
 (\GateMedTok{} tokens), at best comparable to \method{}'s entire CPU
@@ -1547,8 +1599,9 @@ spread of the \method{} markers at constant cost; BM25 is the cheapest
 question-conditioned point; TextRank is the most expensive model-free
 selector and is dominated on both axes by the \method{} family; the
 measured GPT-2 gate (QASPER, $r{=}4$) sits three orders of magnitude
-to the right of \method{} at \GateRecall\% recall. \method{} sits at
-the knee of the curve at every budget and on every dataset.}
+to the right of \method{} at \GateRecall\% recall. The
+question-conditioned statistical selectors occupy the low-cost,
+high-recall region at every budget and on every dataset.}
 \label{fig:frontier}
 \end{figure}
 
@@ -1634,7 +1687,7 @@ position; the placement protocol rebuilds contexts so nearly all pool
 records qualify). \method{} retains almost all evidence placed at the
 ends and a fifth of the evidence placed in the center: the U-shaped
 prior reproduces, at the selection level, the lost-in-the-middle
-profile that long-context readers exhibit \citep{liu2023lost}, by
+profile documented for long-context readers \citep{liu2023lost}, by
 design.}
 \label{fig:position}
 \end{figure}
@@ -1762,8 +1815,10 @@ question style & abstract & entity-named & entity-named \\
 
 The robustness property that matters most in deployment is that the
 configuration does not have to be re-chosen per corpus. All results in
-\autoref{tab:recall} use the configuration tuned once on 20
-QASPER-plus-HotpotQA development examples at the conference scale:
+\autoref{tab:recall} use the configuration tuned once on the 20-record
+development split---ten QASPER records disjoint from the test pool
+plus ten HotpotQA distractor records---and re-confirmed by the
+expanded dev grid (\autoref{app:results}):
 $\alpha=0.3$, $\beta=0.3$, $\mathrm{floor}=0.35$, $\gamma=1.5$,
 applied unchanged to QASPER at $n{=}\NRecQ$, HotpotQA at
 $n{=}\NRecH$, and 2WikiMultihopQA at $n{=}\NRecW$, including the two
@@ -1800,8 +1855,12 @@ a partially-evidenced one, contributes noise that a selector-level
 metric cannot see, and the per-method coefficients are individually
 imprecise at this scale.
 Two conclusions follow. First, evidence recall is a necessary-but-not
-sufficient condition for end-task quality: it bounds what the reader
-can use from above, and the bound is loose. Second, and methodologically,
+sufficient condition for end-task quality: a record whose evidence is
+discarded cannot be answered from the compressed context, but a
+fully-evidenced record can still be answered wrongly, and at this
+sample size the association between the two is weak---evidence recall
+is an incomplete proxy for downstream quality, not an upper bound on
+it. Second, and methodologically,
 weak pooled correlation does not license reading recall gains as
 accuracy gains in either direction: it neither predicts nor refutes
 individual method-level orderings, as shown by the resolved end-task
@@ -1831,7 +1890,8 @@ to run on that sample before committing.
 
 \paragraph{Relevance ranking versus budgeted selection: the BM25
 lesson.}
-The strongest baseline in the study is also the most instructive: BM25
+The most instructive baseline in the study is also its strongest on
+raw recall: BM25
 does nearly everything \method{}'s relevance term does, at a fifth of
 the latency, and it beats the full selector on raw recall on every
 dataset. A reader of \autoref{tab:recall} alone would conclude that
@@ -1844,16 +1904,20 @@ refused under tight budgets, and an explicit knob
 $n{=}\QAN$ separates the two, in BM25's favor, with a paired interval
 of [\QAPairSBmLo, \QAPairSBmHi] F1 points (retain \QABmRetain\% against
 \QASieRetain\%), so the recall ordering transferred at this operating
-point, and the honest report is that a deployment optimizing end-task
-F1 alone at $4\times$ on QASPER-like traffic should take BM25. The
+point. The measured reading is conditional: for deployments
+optimizing end-task F1 alone at this operating point on
+QASPER-like traffic, the measured ordering favors BM25. The
 practical reading keeps its conditional shape, with the end-task price
-now measured: deployments that feed a
+now measured: for deployments that feed a
 fixed-prefix-friendly reader or that value
-recall above all should take BM25 (or the relevance-only ablation, at
-the same recall); deployments whose readers exhibit positional bias,
+recall above all, the measurements favor BM25 (or the relevance-only
+ablation, at
+the same recall); for deployments whose readers exhibit positional
+bias,
 or that operate at tight budgets where duplicates crowd out evidence,
-should take the full selector, knowing that at this operating point
-the end-task price of that choice is $\abs{\QAPairSBm}$ paired F1
+the full selector is the configuration that matches those
+requirements, and the measured end-task price of that choice at this
+operating point is $\abs{\QAPairSBm}$ paired F1
 points. Either way, both points cost
 milliseconds and no model, and both dominate the question-agnostic
 corner that production pipelines still default to.
@@ -1865,10 +1929,11 @@ quality alone will host a scorer and pay for it on every call; a team
 that optimizes cost alone will truncate and lose tens of recall
 points on exactly the traffic where questions carry signal;
 \autoref{tab:threeway} prices the middle of that spectrum. The
-knee-of-curve placement of the statistical selectors is the empirical
-content of the paper: the first two orders of magnitude of selector
-budget buy question conditioning, and the next two, at the gate's
-scorer scale, buy nothing measurable on these benchmarks.
+placement of the statistical selectors at the low-cost end of the
+measured frontier is the empirical content of the paper: the first
+two orders of magnitude of selector budget buy question conditioning,
+and the next two, spent on the gate's scorer configuration, buy
+nothing measurable on these benchmarks.
 
 \paragraph{Composition with serving-stack work.}
 \method{} compresses the submitted context; attention and cache work
@@ -1886,11 +1951,14 @@ bookkeeping.
 A selection rule whose every score is a countable statistic has a
 property the neural corner does not provide at zero configuration: any retained
 or discarded sentence can be explained to a stakeholder in one
-sentence of arithmetic. For pipelines where compression is a
-compliance surface (legal discovery, clinical records, regulated
-retrieval), the explanation is part of the deliverable, and \method{}
-produces it as a by-product of selection rather than through a
-post-hoc explainer.
+sentence of arithmetic. Whether that property matters is
+deployment-specific; it is a potential advantage for pipelines where
+compression decisions face audit requirements---a surface that
+regulated domains such as legal discovery or clinical records can
+require---and \method{} produces the explanation as a by-product of
+selection rather than through a post-hoc explainer. We have not
+evaluated any such deployment and claim no measured result here; the
+property is architectural, not empirical.
 
 \paragraph{Why the margin varies by dataset: the lexical signal.}
 \label{sec:lexsignal}
@@ -1921,7 +1989,7 @@ question's vocabulary recurs in its evidence. A practitioner can
 estimate that property on a sample of their own traffic before
 deciding between a statistical selector and a hosted scorer.
 
-\paragraph{Multi-hop is the favorable regime, not the exception.}
+\paragraph{Where the margin lives: the lexical regime.}
 The dataset ordering also rules out a QASPER-specific reading of
 \method{}. The two multi-hop corpora are the ones where a reader
 without any compression would be asked to integrate evidence from two
@@ -1933,7 +2001,9 @@ harder regime for a lexical selector, and even there the method leads
 every question-agnostic competitor with separated intervals. Between
 the two regimes, the ratio sweep of \autoref{fig:ratio} shows the same
 shape on all three datasets, which supports reading \method{} as a
-general-purpose first stage rather than a benchmark specialist.
+first stage for evidence-annotated, retrieval-heavy QA settings---with
+the lexical-signal boundary of \autoref{sec:lexsignal} as its explicit
+scope condition---rather than a benchmark specialist.
 
 \section{Limitations}
 \label{sec:limitations}
@@ -1987,17 +2057,12 @@ relative in stated properties (training-free, question-aware,
 sentence-level with clause-level redundancy reduction), was not
 accessible in full text at the time of writing, so no measured
 comparison against it is reported and the design-space table records
-its stated properties only. The revised evaluation plan that
-accompanies this manuscript widens the end-task protocol further
-(multiple readers, additional benchmarks) and will place any newly
-accessible competitor on
-the same measured frontier; its budget axis is already executed
-here---\autoref{sec:matrix} measures the full
-configuration--budget--latency matrix on all three pools---and its
-end-task axis is executed at $n{=}\QAN$ with seven selectors including
-BM25, leaving multi-reader replication and cross-dataset end-task
-transfer as the remaining gap between the selector-level
-evidence and reader-level claims.
+its stated properties only. Replicating the end-task protocol across
+additional readers and datasets is the remaining gap between the
+selector-level evidence and the reader-level claims; the released,
+checkpointed protocol scripts cover it without touching any
+selector-level claim, and any newly accessible competitor can be
+placed on the same measured frontier by the same scripts.
 
 Two accounting caveats remain from the conference version. The reader
 experiments measure accuracy under a fixed serving stack rather than
@@ -2032,9 +2097,9 @@ already recovers the most evidence at the least
 question-conditioned cost, which the selector's own ablations explain:
 the full configuration knowingly trades that recall for
 positional reliability, and the measured GPT-2 perplexity-gate
-baseline, at its cost floor, buys no
-measurable recall on these benchmarks, at three orders of magnitude
-more compute (\GateSieRatioSixk$\times$ at the 6{,}000-word operating
+configuration, the cost floor of that family, does not exceed the
+statistical selector on these benchmarks at
+\GateSieRatioSixk$\times$ the measured compute (6{,}000-word operating
 point) and a hosted model. The formal analysis states when a stronger
 scorer should be expected to earn its infrastructure: exactly when the
 question--evidence link stops being lexical. We see the paper's
@@ -2042,8 +2107,8 @@ legacy as threefold: a formulation of context compression as budgeted
 question-conditioned information selection; a measured three-axis
 frontier on which any selector---statistical, lexical, or neural---can
 be priced before justifying its infrastructure; and \method{}, the
-zero-infrastructure instantiation of that formulation, usable as the
-zero-cost first stage of a compression stack (composable with
+no-hosted-model instantiation of that formulation, usable as the
+low-cost first stage of a compression stack (composable with
 cache-level methods, auditable by construction, and tuned once and
 transferred).
 
@@ -2148,9 +2213,11 @@ $\mathbb{E}[\rho] = \min(1, 1/r) + O(1/n)$.
 \label{app:results}
 
 \paragraph{Compute accounting.}
-The reader evaluation consumed \TotalCalls{} completed API calls
-across the development grid and the main comparison; the journal
-version added no reader calls. The journal-version selector-protocol
+The reader evaluation consumed \TotalCalls{} completed API calls:
+the $n{=}\QAN$ seven-method main comparison, the development grid,
+and the reader-side positional profile of \autoref{fig:posreader}
+(\PosRUPairs{} paired records at five positions). The
+selector-protocol
 runs covered \TotalRecords{} records across three pools with roughly
 forty selector invocations per record (methods, sweeps, ablations,
 sensitivity); the GPT-2 gate ran \GateN{} QASPER records at
