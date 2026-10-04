@@ -275,6 +275,67 @@ def main(out=None):
         A(f"\\newcommand{{\\TimeVMinSixk}}{{{min(sixk):.1f}}}")
         A(f"\\newcommand{{\\TimeVMaxSixk}}{{{max(sixk):.1f}}}")
 
+    # ---------------- E5: selector-level redundancy metrics ----------------
+    # From results/redundancy_metric.json (scripts/run_redundancy_metric.py):
+    # mean pairwise IDF-cosine self-similarity of the selected set (Sim,
+    # the quantity beta penalizes) and duplicate content-token rate (Dr)
+    # of the emitted text, per method / budget / pool, plus paired
+    # sieve-vs-sieve-nored intervals. Definitions and branch wording are
+    # pre-registered in E5_PREREG.md. Paired macros are emitted as the
+    # effect of REMOVING the penalty (sieve-nored minus sieve), so
+    # positive values mean redundancy increases without beta. Guarded so
+    # the macro set is unchanged when the file is absent.
+    red_path = os.path.join(RES, "redundancy_metric.json")
+    if os.path.exists(red_path):
+        RD = json.load(open(red_path))
+        if "summary" in RD:
+            A("% ---- E5: selector-level redundancy metrics "
+              "(E5_PREREG.md) ----")
+            REDM = {"sieve": "Sie", "sieve-nored": "NoRed",
+                    "sieve-relonly": "RelOnly", "bm25": "Bm"}
+            for ds, dsk in DSNAME.items():
+                if ds not in RD["summary"]:
+                    continue
+                for r, rk in RATNAME.items():
+                    if r not in RD["summary"][ds]:
+                        continue
+                    for m, mk in REDM.items():
+                        v = RD["summary"][ds][r]["methods"].get(m)
+                        if v:
+                            A(f"\\newcommand{{\\Red{dsk}{mk}{rk}Sim}}"
+                              f"{{{v['sim']['mean'] * 100:.2f}}}")
+                            A(f"\\newcommand{{\\Red{dsk}{mk}{rk}SimLo}}"
+                              f"{{{v['sim']['ci'][0] * 100:.2f}}}")
+                            A(f"\\newcommand{{\\Red{dsk}{mk}{rk}SimHi}}"
+                              f"{{{v['sim']['ci'][1] * 100:.2f}}}")
+                            A(f"\\newcommand{{\\Red{dsk}{mk}{rk}Dr}}"
+                              f"{{{v['dr']['mean'] * 100:.1f}}}")
+                            A(f"\\newcommand{{\\Red{dsk}{mk}{rk}DrLo}}"
+                              f"{{{v['dr']['ci'][0] * 100:.1f}}}")
+                            A(f"\\newcommand{{\\Red{dsk}{mk}{rk}DrHi}}"
+                              f"{{{v['dr']['ci'][1] * 100:.1f}}}")
+                    p = RD["summary"][ds][r].get("paired")
+                    if p:
+                        for met, fmt, scale in (("sim", ".2f", 100.0),
+                                                ("dr", ".2f", 100.0),
+                                                ("words", ".1f", 1.0)):
+                            mean = p[met]["mean"]
+                            lo, hi = p[met]["ci"]
+                            if scale != 1.0:
+                                # removal effect: negate the paired diff
+                                # and swap the CI bounds with it
+                                mean, lo, hi = -mean, -hi, -lo
+                            name = met.capitalize()
+                            val = f"{mean * scale:{fmt}}"
+                            vlo = f"{lo * scale:{fmt}}"
+                            vhi = f"{hi * scale:{fmt}}"
+                            A(f"\\newcommand{{\\RedPair{dsk}{rk}{name}}}"
+                              f"{{{val}}}")
+                            A(f"\\newcommand{{\\RedPair{dsk}{rk}{name}Lo}}"
+                              f"{{{vlo}}}")
+                            A(f"\\newcommand{{\\RedPair{dsk}{rk}{name}Hi}}"
+                              f"{{{vhi}}}")
+
     # ---------------- end-task QA ----------------
     # Primary protocol: expanded (n=100 QASPER records of the rebuilt
     # pool, methods incl. BM25) when complete; otherwise the conference

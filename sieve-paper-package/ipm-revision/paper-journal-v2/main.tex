@@ -1296,10 +1296,43 @@ diversity under tight budgets, refusing to spend scarce budget twice
 on near-duplicate sentences, which are common in the methods and
 related-work sections of scientific text. The recall protocol does
 not price that work---evidence recall is insensitive to whether the
-retained sentences repeat each other---so the penalty's benefit is a
-design rationale awaiting a dedicated duplicate-rate or
-distinct-information metric; we report its recall neutrality as
-measured and claim no recall benefit from it.
+retained sentences repeat each other.
+\ifdefined\RedPairQFourDr
+We therefore measured the penalty's work directly, on the same pools
+and budgets, with two selector-level metrics: the mean pairwise
+IDF-weighted cosine similarity of the selected set (the quantity the
+penalty targets) and the duplicate content-token rate of the emitted
+text (a token-level metric the selector does not optimize). Removing
+the penalty raises the selected set's mean pairwise similarity by
+\RedPairQFourSim{} of a percentage point [\RedPairQFourSimLo,
+\RedPairQFourSimHi] on QASPER at the same $4\times$ budget, by
+\RedPairHFourSim{} [\RedPairHFourSimLo, \RedPairHFourSimHi] on
+HotpotQA and \RedPairWFourSim{} [\RedPairWFourSimLo,
+\RedPairWFourSimHi] on 2WikiMultihopQA, and raises the duplicate
+content-token rate by \RedPairQFourDr{} [\RedPairQFourDrLo,
+\RedPairQFourDrHi] percentage points, with the same direction on the
+other two pools and at every budget from $2\times$ to $16\times$;
+the duplicate-rate effect grows as the budget tightens (from
+\RedPairQTwoDr{} points at $2\times$ to \RedPairQSixteenDr{} at
+$16\times$ on QASPER), which is the diversity-under-tight-budgets
+mechanism operating as designed. The paired emitted-word difference
+never exceeds a tenth of a word, so the comparison is budget-matched.
+The effect is statistically unambiguous but modest in absolute
+terms: \RedQSieFourDr\% of the emitted content tokens are duplicates
+under the full selector versus \RedQNoRedFourDr\% without the
+penalty on QASPER, and the redundancy-free relevance-ranking
+configurations sit above both---relevance-only and BM25 duplicate at
+\RedQRelOnlyFourDr\% and \RedQBmFourDr\%---the same
+cross-implementation agreement the recall layer shows. The penalty's
+diversity is thus a measured property with a small absolute size,
+bought at its measured costs: recall neutrality on every dataset and
+a few milliseconds of selector arithmetic; we claim no recall
+benefit from it.
+\else
+So the penalty's benefit is a design rationale awaiting a dedicated
+duplicate-rate or distinct-information metric; we report its recall
+neutrality as measured and claim no recall benefit from it.
+\fi
 
 The two remaining rows are the table's most instructive finding, and
 BM25 makes it legible from the outside as well as the inside, on
@@ -1772,7 +1805,13 @@ recall & \SensGammaLo & \SensGammaMid & \SensGammaHigh \\
 Recall is flat in $\beta$, confirming that the redundancy penalty
 neither helps nor hurts evidence recovery at this ratio; its work is
 diversity, and \autoref{sec:ablation} shows the same from the ablation
-side. Recall rises as $\mathrm{floor}$ increases, the quantitative
+side.
+\ifdefined\RedPairQFourDr
+\autoref{sec:ablation} also measures that work directly, as
+duplicate-rate and pairwise-similarity reductions at matched budgets;
+the flat recall row above is the price side of the same trade.
+\fi
+Recall rises as $\mathrm{floor}$ increases, the quantitative
 statement of the placement trade-off: a flatter prior keeps
 middle-placed evidence at the cost of reader-side reliability. The
 prior's sharpness $\gamma$ moves recall by a few points without a

@@ -199,7 +199,7 @@ Cost（compressor cost 是否被测量）。核对来源为可公开访问的原
   自标注）三层声明，禁止跨层比较的规则写进正文。
 - 展望语句删除（Limitations 不再承诺未来工作文档）。
 
-## 6. 可选新增实验（未执行，均诚实标注"需要实验验证"）
+## 6. 可选新增实验（E5 已执行；E1–E4 未执行，诚实标注）
 
 | ID | 实验 | 回应 | 成本估计 | 建议 |
 |----|------|------|---------|------|
@@ -207,10 +207,42 @@ Cost（compressor cost 是否被测量）。核对来源为可公开访问的原
 | E2 | 更长上下文 reader-side 剖面（3k–6k 词）复测 U 形 | R3 | ~250 调用 | 中优先；run_position_reader.py 需扩 build_context 填充量 |
 | E3 | 第二基准端到端（HotpotQA pool） | R4 | ~700 调用 | 与 E1 二选一即可显著加分 |
 | E4 | LLMLingua-2 官方 checkpoint 复现 | R5 | 需托管 117M 分类器（当前容器可容纳 int8） | 低优先；gate 已诚实定位为 floor |
-| E5 | redundancy 专用指标（duplicate rate / distinct-information retention） | P8 | 0 调用（纯 selector-side 可计算） | **零成本高收益**：若执行可将 β 从"设计理由"升格为"被测量性质" |
+| E5 | redundancy 专用指标（duplicate rate / distinct-information retention） | P8 | 0 调用（纯 selector-side 可计算） | **已执行（2026-10-04，B-RED-1 分支触发）**，见 6.1 |
 
-**重要**：以上均未执行、未在论文中预设结果；论文当前措辞已按
-"无 E1–E5"的诚实基线定稿。
+**重要**：E1–E4 未执行、未在论文中预设结果；论文对 E1–E4 相关措辞
+保持"无实验"的诚实基线。E5 已按预登记分支执行并落地（见 6.1）。
+
+### 6.1 E5 执行结果（已落地论文，commit 待补）
+
+预登记 E5_PREREG.md 先于计算冻结（commit 201fb31），随后
+scripts/run_redundancy_metric.py 计算全部 48 cells（3 pools × 4
+methods × 4 ratios，n=1000/300/300，纯本地零 API 调用，结果存
+results/redundancy_metric.json）。判定分支 **B-RED-1（多样性被测量
+证实）**：
+
+- 配对差（sieve − sieve-nored，同预算）在全部 12 个（数据集 × 预算）
+  组合上，两项指标全部为负且 95% CI 全部排除 0；
+- 移除 β 使选中集平均两两相似度上升 0.04 [0.03, 0.05] pp
+  （QASPER r=4；Hotpot +0.20 [0.13, 0.29]、2Wiki +0.13 [0.07,
+  0.21] pp），使重复内容词率上升 0.55 [0.49, 0.60] pp（Hotpot
+  +0.81 [0.58, 1.06]、2Wiki +0.61 [0.38, 0.92] pp）；
+- 预算门通过：配对发射词数差 ≤0.1 词，比较严格同预算；
+- 预算越紧效应越大：QASPER duplicate-rate 差自 2×→16× 单调上升
+  （0.31→0.55→0.60→0.76 pp）——“tight budgets 下的多样性”机制
+  如设计运作；
+- 意外收获：relevance-only 与 BM25 的 sim/DR 跨实现收敛
+  （duplicate rate 41.9% vs 41.9%，QASPER r=4）——EQ2 收敛发现在
+  冗余维度的回声；
+- 诚实限定已写入论文：效应统计上明确但绝对量级温和（DR 相对降
+  幅 1.4–2.4%，sim 相对降幅 3.1–5.4%）。
+
+论文落地（main.tex，\ifdefined 守卫，B2 模式）：M25 句从 "design
+rationale awaiting a dedicated duplicate-rate or distinct-information
+metric" 升级为 measured-property 表述（含全部 CI 与绝对量级限定）；
+敏感性段增加交叉引用指针。make_numbers_journal.py 新增 guarded
+E5 段，numbers.tex 新增 397 个 Red* 宏（双跑 bit-stable 验证）；
+48 页不变，overfull 7 处与基线持平（新增 0，均不在新增文本区）；
+pdftotext 全文验证新段落与宏值渲染正确，旧措辞 grep 0 命中。
 
 ## 7. 修改后的核心 wording（对照表）
 
@@ -281,7 +313,8 @@ sources）；若改投只需替换刊名与格式微调。
 
 ## 12. 证据不足声明
 
-- E1–E5 均未执行；论文未预设其结果。
+- E1–E4 均未执行；论文未预设其结果。E5 已执行（B-RED-1 分支，
+  见 6.1），措辞按预登记分支落地，绝对量级限定同步写入。
 - QASPC 的 P/MF/BF 维度仍不可核验（表中 ? 保留）。
 - Prompt-SAW 的 R/MF 判定基于 arXiv v2 摘要与方法描述的
   model-light 解读（spaCy 统计组件），未做逐行代码核验。
