@@ -201,3 +201,48 @@ novelty + results too premature，范围确认无问题）。据此完成两阶�
   python3 scripts/run_correlation.py
   python3 scripts/make_numbers_journal.py --out ../ipm-revision/paper-journal-v2/numbers.tex
   ```
+
+## 期刊转投 KAIS（2026-10-08，本次更新）
+
+IP&M 二次投稿被拒后，目标期刊切换为 **Knowledge and Information
+Systems**（Springer，ISSN 0219-1377/0219-3116，2025 IF 3.6，录用率约
+18.3%，目标审稿周期 3 个月，投稿系统 http://kais.edmgr.com）。新目录
+`kais-submission/` 以 `ipm-revision/paper-journal-v2` @ `e0eae97`
+（48 页 v3+E5）为基准做格式转换，**数值、主张、措辞零改动**（唯一
+例外：摘要按 KAIS 250 词上限从 303 词压缩至恰好 250 词，纯措辞级
+压缩，全部宏驱动数字原样保留）。
+
+- **期刊要求核验**（全部来自官方页面：Springer 投稿指南 + 期刊自维护
+  FAQ/Info 页）：常规论文 ≤15,000 词（整页图表折 500 词）、摘要
+  150–250 词、关键词 4–6 个、方括号数字引用（sn-basic.bst）、
+  Springer Nature 模板、必须含 Funding/Competing interests/Data
+  availability 声明、单盲评审（作者信息上稿件）、初投格式自由
+  （"Any format is acceptable"）。
+- **格式转换**：elsarticle → `sn-jnl.cls`（2024 年 12 月 v3.1，官方
+  zip 下载）；类自动加载 hyperref/natbib；`\title[短标题]`、
+  `\author*`/`\affil*` 作者块（Chang Tan，大连理工大学）、
+  `\abstract{}`/`\keywords{}`、`\backmatter` + Declarations 列表、
+  `\begin{appendices}`；`numbers.tex` 按模板要求内联为单 .tex 文件
+  （`Sieve_KAIS_Manuscript.tex`，3687 行）。
+- **文献库修复**（数据保全的机械转换）：booktitle 型 @article →
+  @inproceedings（LLMLingua 系列、Selective Context 等 4 条，修复
+  venue 不渲染）；arXiv 条目 → @misc+eprint（修复 sn-basic 吞掉
+  journal 内句点导致 "arXiv:230814508" 类 ID 损坏）；GLM 条目
+  "and :" 抓取残留清除 + {GLM Team} 保护；month=Sept 未定义串
+  删除；与 DOI 重复的 url 字段删除；标题专有名词加保护括号
+  （LLMLingua/BM25/MMR/ChatGLM/GLM-130B/FlashAttention/
+  PagedAttention/Prompt-SAW/HotpotQA）。
+- **核验**：23 项关键数值与 IP&M 盲审稿逐一比对全一致；摘要渲染
+  250 词；散文词数 ~14,352（源码口径：排除表格数据/公式/宏定义/
+  文献表，含标题图注）在 15,000 限内；0 overfull（elsarticle 版
+  为 7）；"First Author"/IP&M/elsarticle 残留 grep 清零；编译
+  39 页。
+- **Cover Letter**（2 页）：KAIS 范围契合段（information retrieval /
+  knowledge and data engineering 框架）、formulation-first 贡献
+  摘要、冻结数值集引用、会议版扩展声明、标准确认（原创/独家/
+  无利益冲突/无资助/公开基准）。不披露 IP&M 拒稿史（非同刊重投，
+  无披露义务）。
+- **投稿前待用户确认**：Funding=None 与致谢声明、ORCID（可选）、
+  会议版若已发表需补正式引用（KAIS 要求扩展版引用会议版）、
+  Editorial Manager 界面内的 Author Contribution 与 Competing
+  Interest 表单填写。详见 `kais-submission/README.md`。

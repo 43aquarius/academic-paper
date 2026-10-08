@@ -1,0 +1,139 @@
+% Cover letter for the Knowledge and Information Systems (KAIS,
+% Springer) submission of the Sieve manuscript.
+% All factual statements are drawn from paper-journal-v2 (2026-10-04,
+% commit e0eae97, 48 pp) and its auto-generated numbers.tex macros.
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{parskip}
+\pagestyle{empty}
+\setlength{\parskip}{0.55em}
+
+\newcommand{\PaperTitle}{Sieve: Budgeted Question-Conditioned
+Information Selection for Training-Free Long-Context Compression}
+
+\begin{document}
+
+\begin{flushleft}
+October 8, 2026
+
+\bigskip
+The Editors\\
+Knowledge and Information Systems\\
+Springer
+\end{flushleft}
+
+\bigskip
+\noindent\textbf{Re: Submission of an original research article ---
+``\PaperTitle{}''}
+
+\bigskip
+Dear Editors,
+
+Please consider the manuscript referenced above for publication in
+\emph{Knowledge and Information Systems} as an original research
+article. I am the sole author of the manuscript and serve as its
+corresponding author.
+
+I believe the manuscript fits the scope of \emph{Knowledge and
+Information Systems} closely. The study is a quantitative treatment of
+question-conditioned information selection for long-context question
+answering, built directly on classical information-retrieval machinery
+--- IDF weighting, BM25 ranking, and maximal marginal relevance --- and
+on the data-engineering question of how a knowledge system should budget
+its context: which sentences to keep under a fixed word budget, at what
+selection quality, and at what computational cost. Every method is
+evaluated with recall protocols over annotated evidence, and quality,
+compression, and compressor cost are reported together so that
+practitioners of information systems have a measured basis for deciding
+when statistical selection suffices and when a hosted scorer earns its
+infrastructure. This is, in the journal's terms, an enabling-technology
+study for knowledge and information processing: a training-free,
+model-free component that any long-context pipeline can compose with
+its existing retrieval stack.
+
+The manuscript formulates long-context compression as \emph{budgeted
+question-conditioned information selection}: given a fixed word budget,
+choose the subset of sentences that jointly serves question-relevance
+coverage, positional reliability, and diversity, with the selector's
+own computational cost treated as a first-class constraint rather than
+an afterthought. The formulation is stated formally, and a
+thirteen-entry design-space table locates every prior selector along
+seven dimensions (question conditioning, positional awareness,
+redundancy control, model-free inference, training-free operation,
+sentence-level intact units, and explicit budget with measured cost).
+The corner that table leaves unoccupied --- to our knowledge, and
+stated with the audit's scope conditions --- is the one this paper
+measures: a selector that is simultaneously question-conditioned,
+position-aware, redundancy-controlling, and entirely model-free.
+
+The vehicle of the study is \emph{Sieve}, the instantiation of that
+formulation in this corner: IDF-weighted coverage of query content
+terms, a U-shaped positional prior, and a redundancy penalty applied
+greedily under the explicit budget. Its preprocessing is a linear-time
+pass over the context, its budgeted selection is $O(k\,n\,\bar{s})$,
+and the full selector runs in tens of milliseconds on one CPU core
+(50.9--54.3\,ms at a 6{,}000-word context), with no model parameters,
+no training, and no dependency beyond NumPy.
+
+The evaluation is organized as a three-way quality--compression--cost
+frontier study over three evidence-annotated benchmarks --- QASPER,
+HotpotQA (distractor setting), and 2WikiMultihopQA, 1{,}600 records in
+total. \emph{Sieve} retains more gold evidence than every
+question-agnostic baseline on all three datasets (margins over head
+truncation of 12.8, 44.8, and 22.8 recall points at $4\times$), while
+BM25 sentence ranking, the strongest question-conditioned model-free
+comparator, retains 43.1\% against \emph{Sieve}'s 36.2\% on QASPER ---
+a result the manuscript reports as measured and reads through its own
+ablations, where the relevance term alone recovers 43.6\% against
+36.2\% for the full configuration, as a structural trade of raw recall
+for positional reliability. A dedicated redundancy analysis shows the
+penalty is a measured property rather than a design assumption:
+removing it raises selected-set self-similarity and duplicate
+content-token rate on every dataset--budget combination (paired
+intervals excluding zero). The end-task protocol runs seven selection
+methods at $n{=}100$ each under a production LLM reader: the BM25
+reference retains 76.0\% of full-context F1 against 61.8\% for
+\emph{Sieve} (paired gap 4.8 points, interval excluding zero), while
+\emph{Sieve} remains statistically matched with truncation (paired gap
++4.0, interval crossing zero) --- the same trade-off, consistent at
+both the selection and the answer layer. A GPT-2 perplexity gate,
+measured on the same hardware as every other method, reaches 28.7\%
+evidence recall at 255--320$\times$ \emph{Sieve}'s measured cost; and
+the correlation between evidence recall and end-task F1 is weak (pooled
+Pearson 0.22 over 600 pairs), so the two protocols are reported
+separately throughout.
+
+The manuscript substantially extends an earlier conference-format study
+of the same method; the statement of extensions appears in the
+Introduction. The extensions include the three-dataset evaluation, the
+BM25 baseline, the same-hardware comparison against a neural perplexity
+gate, the formal layer (formulation, propositions, cost statements),
+the recall--F1 correlation study, the end-to-end seven-method protocol
+at $n{=}100$, the configuration--budget--dataset ablation matrix, the
+reader-side positional profile, and the measured redundancy analysis.
+
+I confirm that: the manuscript is original and has not been published
+previously in any form; it is not under consideration by any other
+journal; I have no known competing financial interests or personal
+relationships that could have appeared to influence the work reported;
+and the work received no specific funding. The benchmarks used are
+public (QASPER, HotpotQA, 2WikiMultihopQA), and the released repository
+reproduces every table and figure from raw checkpoints.
+
+Thank you for considering the manuscript. I look forward to the
+reviewers' comments.
+
+\bigskip
+Sincerely,
+
+\bigskip
+Chang Tan\\
+Undergraduate Student, School of Economics and Management\\
+Dalian University of Technology\\
+No.\,2 Linggong Road, Ganjingzi District, Dalian, Liaoning 116024,
+China\\
+E-mail: aquars43@foxmail.com
+
+\end{document}
